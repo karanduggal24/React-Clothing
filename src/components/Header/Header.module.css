@@ -1,0 +1,308 @@
+/* Main Header Container */
+.main {
+  width: 100%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid #000000;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Navigation Container */
+.NavComp {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Navigation List */
+.NavComp ul {
+  justify-content: space-between;
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 20px 0;
+  min-height: 70px;
+}
+
+/* Navigation Items */
+.NavComp li {
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+}
+
+/* Navigation Links */
+.NavComp a {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  text-decoration: none;
+  color: #000000;
+  padding: 12px 20px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: transparent;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.NavComp a:hover {
+  background: #f8f8f8;
+  color: #000000;
+  border-color: #e5e5e5;
+}
+
+.NavComp a.active {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+  font-weight: 500;
+}
+
+.NavComp a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #000000;
+  border-radius: 50%;
+}
+
+/* Logout Button */
+.primary {
+  border-radius: 4px;
+  padding: 12px 24px;
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+  cursor: pointer;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.primary:hover {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.primary:active {
+  background: #f5f5f5;
+  color: #000000;
+  border-color: #000000;
+}
+
+/* User Info */
+.UserInfo {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 400;
+  background: #f8f8f8;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #e5e5e5;
+  margin-right: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .NavComp {
+    padding: 0 15px;
+  }
+  
+  .NavComp ul {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px 0;
+  }
+  
+  .NavComp li {
+    padding: 5px 0;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .NavComp a {
+    font-size: 14px;
+    padding: 10px 16px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .primary {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
+  
+  .UserInfo {
+    font-size: 14px;
+    padding: 6px 12px;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .NavComp ul {
+    padding: 15px 0;
+  }
+  
+  .NavComp a {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .primary {
+    padding: 8px 16px;
+    font-size: 11px;
+  }
+  
+  .UserInfo {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+/* Animation for navigation items */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.NavComp li {
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+.NavComp li:nth-child(1) { animation-delay: 0.05s; }
+.NavComp li:nth-child(2) { animation-delay: 0.1s; }
+.NavComp li:nth-child(3) { animation-delay: 0.15s; }
+.NavComp li:nth-child(4) { animation-delay: 0.2s; }
+
+/* Focus styles for accessibility */
+.NavComp a:focus,
+.primary:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Loading state for buttons */
+.primary:disabled {
+  background: #cccccc;
+  color: #666666;
+  border-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Minimalist divider line */
+.main::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e5e5, transparent);
+}
+
+/* Typography improvements */
+.NavComp a,
+.primary,
+.UserInfo {
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hover effect for the entire nav */
+.NavComp ul:hover .NavComp a:not(:hover) {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+/* Active state enhancement */
+.NavComp a.active {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Button states */
+.primary:focus {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Minimalist loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.primary:disabled {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Clean border styling */
+.NavComp a,
+.primary {
+  border-style: solid;
+  border-width: 2px;
+}
+
+/* Subtle shadow for depth */
+.main {
+  position: relative;
+}
+
+.main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e5e5, transparent);
+}
+
+/* Clean focus indicators */
+.NavComp a:focus-visible,
+.primary:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+  outline-style: solid;
+}
+
+/* Minimalist active indicator */
+.NavComp a.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #000000;
+}

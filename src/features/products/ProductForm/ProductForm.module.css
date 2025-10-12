@@ -1,0 +1,419 @@
+/* Main Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* background: #ffffff; */
+  background-color: rgb(201, 200, 200);
+  min-height: 100vh;
+  color: #000000;
+}
+
+/* Heading Section */
+.heading {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e5e5;
+}
+
+.heading h2 {
+  color: #000000;
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* Form Container */
+.formContainer {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e5e5;
+  margin-bottom: 40px;
+}
+
+/* Form Styling */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Input Styling */
+.input {
+  padding: 16px 20px;
+  border: 2px solid #e5e5e5;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: #000000;
+  font-weight: 400;
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #000000;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.input::placeholder {
+  color: #999999;
+  font-weight: 400;
+}
+
+/* Submit Button */
+.submitButton {
+  padding: 16px 32px;
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+}
+
+.submitButton:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+
+.submitButton:active {
+  background: #f5f5f5;
+  color: #000000;
+}
+
+/* Products Section */
+.productsSection {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e5e5;
+}
+
+.productsHeading {
+  color: #000000;
+  font-size: 1.8rem;
+  font-weight: 300;
+  margin-bottom: 30px;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+/* Table Container */
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 4px;
+  border: 1px solid #e5e5e5;
+}
+
+/* Table Styling */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tableHeader {
+  background: #f8f8f8;
+  border-bottom: 2px solid #000000;
+}
+
+.tableHeader th {
+  padding: 20px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #000000;
+  border-right: 1px solid #e5e5e5;
+}
+
+.tableHeader th:last-child {
+  border-right: none;
+}
+
+.tableRow {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.tableRow:hover {
+  background: #f8f8f8;
+}
+
+.tableRow:nth-child(even) {
+  background: #fafafa;
+}
+
+.tableRow:nth-child(even):hover {
+  background: #f0f0f0;
+}
+
+.tableCell {
+  padding: 16px;
+  font-size: 16px;
+  color: #000000;
+  font-weight: 400;
+  border-right: 1px solid #e5e5e5;
+}
+
+.tableCell:last-child {
+  border-right: none;
+}
+
+/* Delete Button */
+.deleteButton {
+  padding: 8px 16px;
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+}
+
+.deleteButton:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+.deleteButton:active {
+  background: #f5f5f5;
+  color: #000000;
+}
+
+/* No Products Message */
+.noProducts {
+  text-align: center;
+  color: #666666;
+  font-size: 18px;
+  font-weight: 300;
+  padding: 60px;
+  background: #fafafa;
+  border-radius: 4px;
+  border: 2px dashed #e5e5e5;
+  margin: 20px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .heading h2 {
+    font-size: 2rem;
+  }
+  
+  .formContainer,
+  .productsSection {
+    padding: 24px;
+  }
+  
+  .form {
+    gap: 20px;
+  }
+  
+  .input {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+  
+  .submitButton {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+  
+  .tableHeader th {
+    padding: 16px 12px;
+    font-size: 12px;
+  }
+  
+  .tableCell {
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .deleteButton {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heading h2 {
+    font-size: 1.5rem;
+  }
+  
+  .formContainer,
+  .productsSection {
+    padding: 20px;
+  }
+  
+  .tableHeader th {
+    padding: 12px 8px;
+    font-size: 11px;
+  }
+  
+  .tableCell {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Animation for form submission */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.formContainer {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.productsSection {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Loading state for buttons */
+.submitButton:disabled {
+  background: #cccccc;
+  color: #666666;
+  border-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.deleteButton:disabled {
+  background: #cccccc;
+  color: #666666;
+  border-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Focus styles for accessibility */
+.input:focus,
+.submitButton:focus,
+.deleteButton:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar for table container */
+.tableContainer::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 3px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
+/* Minimalist divider */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: #000000;
+  margin-top: 20px;
+}
+
+/* Subtle shadows for depth */
+.heading,
+.formContainer,
+.productsSection {
+  position: relative;
+}
+
+.heading::before,
+.formContainer::before,
+.productsSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e5e5, transparent);
+}
+
+/* Typography improvements */
+.heading h2,
+.productsHeading {
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Button states */
+.submitButton:focus,
+.deleteButton:focus {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Table row selection effect */
+.tableRow:focus-within {
+  background: #f0f0f0;
+  outline: 2px solid #000000;
+  outline-offset: -2px;
+}
+
+/* Minimalist loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.submitButton:disabled {
+  animation: pulse 1.5s ease-in-out infinite;
+}

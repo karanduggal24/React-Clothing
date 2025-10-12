@@ -1,0 +1,65 @@
+.main{
+    /* display: flex; */
+    width: 100%;
+    /* justify-content: center; */
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* background-color: rgb(201, 200, 200); */
+}
+
+.main h2{
+    color: #000000;
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-align: center;
+  width: 100%;
+  background-color: white;
+  padding: 10px;
+}
+.cardcontainer{
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.card{
+    margin-top: 50px;
+    margin-left: 50px;
+    background-color: white;
+    width: 250px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+     font-size: 16px;
+     font-weight: 400;
+     border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.name{
+
+    margin-top: auto;
+    /* height: 100%; */
+    /* display: flex; */
+    /* bottom: 0; */
+ }
+.price{
+
+    padding-bottom: 10px;
+    /* height: 100%; */
+    /* display: flex; */
+    /* bottom: 0; */
+ }
+ .category{
+padding: 5px;
+    /* margin-top: auto; */
+    /* height: 100%; */
+    /* display: flex; */
+    /* bottom: 0; */
+ }
