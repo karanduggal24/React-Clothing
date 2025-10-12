@@ -21,7 +21,7 @@ function ProductsList() {
                 <h4>{product.category}</h4>
                 </div>
                 <div className={Styles.price}>
-                <h4>{product.price}</h4>
+                <h4>{product.price} Rs</h4>
                 </div>
               </div>
             ))}
