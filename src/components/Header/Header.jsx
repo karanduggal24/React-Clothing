@@ -3,13 +3,14 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/Slices/authSlice';
 import styles from './Header.module.css'
+import { selectCartTotalItems } from '../../features/Slices/CartSlice';
 
 
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user, isAdmin } = useSelector((state) => state.auth);
-
+  const totalItems = useSelector(selectCartTotalItems);
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
@@ -23,6 +24,7 @@ function Header() {
             <li>
               <NavLink to="/">Product List</NavLink>
             </li>
+            <li> <NavLink to="/cart">Cart ({totalItems})</NavLink> </li>
             {isAdmin && (
               <li>
                 <NavLink to="/ProductForm">Admin Panel</NavLink>
