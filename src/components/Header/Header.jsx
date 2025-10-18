@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/Slices/authSlice';
 import styles from './Header.module.css'
 import { selectCartTotalItems } from '../../features/Slices/CartSlice';
-
+import logo from '../../assets/LaPulga.png'
 
 function Header() {
   const dispatch = useDispatch();
@@ -21,8 +21,12 @@ function Header() {
       <nav>
         <div className={styles.NavComp}>
           <ul>
+            <li> <img src={logo} alt="logo" className={styles.logo} onClick={() => navigate('/')} />  </li>
             <li>
-              <NavLink to="/">Product List</NavLink>
+              <NavLink to="/">Home</NavLink>
+            </li>
+            <li>
+              <NavLink to="/ProductsList">Product List</NavLink>
             </li>
             <li> <NavLink to="/cart">Cart ({totalItems})</NavLink> </li>
             {isAdmin && (

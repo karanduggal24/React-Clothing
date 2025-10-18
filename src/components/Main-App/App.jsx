@@ -4,6 +4,7 @@ import ProductsList from '../../features/products/ProductList/ProductsList'
 import ProductCart from '../../features/products/ProductCart/ProductCart'
 import Header from '../Header/Header'
 import Login from '../Login/Login'
+import Home from '../Home/Home'
 import ProtectedRoute from '../ProtectedRoute'
 import './App.css'
 
@@ -12,7 +13,8 @@ function App() {
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<ProductsList />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/ProductsList" element={<ProductsList />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cart" element={<ProductCart />} /> 
         <Route 
