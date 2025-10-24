@@ -22,7 +22,7 @@ export const cartSlice = createSlice({
         state.items.push({
           id: product.id,
           name: product.name,
-          price: product.price,
+          price: Number(product.price),
           category: product.category,
           img: product.img,
           quantity: 1
