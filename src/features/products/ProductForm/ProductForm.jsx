@@ -9,6 +9,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 // import Button from '@mui/material/Button';
 // import { TypingAnimation } from "@/registry/magicui/typing-animation"
 function ProductForm() {
+  
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const [NewName, setNewName] = useState("");
