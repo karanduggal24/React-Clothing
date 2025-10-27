@@ -19,18 +19,18 @@
 
 /* Navigation List */
 .NavComp ul {
-  justify-content: space-between;
+  justify-content: space-around;
   list-style-type: none;
   display: flex;
   align-items: center;
   margin: 0;
-  padding: 20px 0;
-  min-height: 70px;
+  padding: 0px 0;
+  min-height: 50px;
 }
 
 .logo {
-  width: 100px;
-  height: 100px;
+  width: 75px;
+  height: 75px;
 }
 
 /* Navigation Items */

@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
+import SuperHero from '../../assets/superhero.jpg'
 
-const initialState = {products: [{ id:1, name:'T-Shirt',price:299,category:'Men', img:""}]}
+const initialState = {products: [{ id:1, name:'T-Shirt',price:299,category:'Men', img:SuperHero}]}
 
 export const AddProductSlice = createSlice({
     name:'products',

@@ -12,7 +12,7 @@ export const authSlice = createSlice({
   reducers: {
     login: (state, action) => {
       const { username, password } = action.payload
-      if (username === 'admin' && password === 'admin123') {
+      if (username === 'admin'||'Admin'||'admin '||'Admin ' && password === 'admin123') {
         state.user = { username, role: 'admin' }
         state.isAuthenticated = true
         state.isAdmin = true
