@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/Slices/authSlice';
 import styles from './Header.module.css'
 import { selectCartTotalItems } from '../../features/Slices/CartSlice';
-import logo from '../../assets/Clothing.png'
+import logo from '../../../Public/assets/Clothing.png'
 
 function Header() {
   const dispatch = useDispatch();
