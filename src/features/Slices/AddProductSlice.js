@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import SuperHero from '../../../Public/assets/superhero.jpg'
+import SuperHero from '../../../public/assets/superhero.jpg'
 
 const initialState = {products: [{ id:1, name:'T-Shirt',price:299,category:'Men', img:SuperHero}]}
 
