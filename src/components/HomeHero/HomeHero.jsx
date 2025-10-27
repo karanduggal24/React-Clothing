@@ -96,9 +96,9 @@ import React from "react";
 import { BlurFade } from "../ui/blur-fade";
 // import Jersey from "../../assets/Barca.png";
 // import GraphicTee from "../../assets/GraphicTee.png";
-import Superhero from "../../../public/assets/superhero.jpg";
-import Jersey from "../../../public/assets/Barca.png";
-import GraphicTee from "../../../public/assets/GraphicTee.png";
+import Superhero from "/src/assets/Superhero.jpg";
+import Jersey from "/src/assets/Barca.png";
+import GraphicTee from "/src/assets/GraphicTee.png";
 
 
 function HomeHero() {

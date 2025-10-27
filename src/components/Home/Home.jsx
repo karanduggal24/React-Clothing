@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Marquee } from "../ui/marquee";
-import Superhero from "../../../public/assets/superhero.jpg";
-import Jersey from "../../../public/assets/Barca.png";
-import GraphicTee from "../../../public/assets/GraphicTee.png";
+import Superhero from "/src/assets/Superhero.jpg";
+import Jersey from "/src/assets/Barca.png";
+import GraphicTee from "/src/assets/GraphicTee.png";
 import Autoplay from 'embla-carousel-autoplay';
 import {
   Carousel,
