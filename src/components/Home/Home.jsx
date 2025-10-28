@@ -4,6 +4,8 @@ import Superhero from "/src/assets/Batman.png";
 import Jersey from "/src/assets/Barca.png";
 import GraphicTee from "/src/assets/GraphicTee.png";
 import Autoplay from 'embla-carousel-autoplay';
+import { reviews } from "../../static";
+import ReviewMarquee from "./ReviewMarquee/ReviewMarquee";
 import {
   Carousel,
   CarouselContent,
@@ -13,6 +15,7 @@ import {
 } from "../ui/carousel";
 import HomeHero from "../HomeHero/HomeHero";
 import { Import } from "lucide-react";
+// import ReviewMarquee from "./ReviewMarquee/ReviewMarquee";
 
 function Home() {
   useEffect(() => {
@@ -39,8 +42,8 @@ function Home() {
           plugins={[
             Autoplay({
               delay: 3000,
-              stopOnInteraction: true,
-              stopOnMouseEnter: true,
+              // stopOnInteraction: true,
+              // stopOnMouseEnter: true,
               rootNode: (emblaRoot) => emblaRoot.parentElement,
             })
           ]}
@@ -123,7 +126,9 @@ function Home() {
         </Carousel>
       </div>
       <HomeHero />
+      <ReviewMarquee />
     </div>
+
   );
 }
 
