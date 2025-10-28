@@ -6,6 +6,7 @@ import Header from '../Header/Header'
 import Login from '../Login/Login'
 import Home from '../Home/Home'
 import ProtectedRoute from '../ProtectedRoute'
+import Footer from '../Footer/Footer'
 import './App.css'
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         />  
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
+      <Footer />
     </>
   )
 }

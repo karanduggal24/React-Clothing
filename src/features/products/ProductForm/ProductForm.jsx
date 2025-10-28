@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addProduct, deleteProduct } from "../../Slices/AddProductSlice";
+import { addProduct, deleteProduct, updateProduct } from "../../Slices/AddProductSlice";
 import { nanoid } from "@reduxjs/toolkit";
 import styles from "./ProductForm.module.css";
 // import { styled } from '@mui/material/styles';
@@ -16,6 +16,9 @@ function ProductForm() {
   const [NewPrice, setNewPrice] = useState('');
   const [NewCategory, setNewCategory] = useState("");
   const [NewImage, setNewImage] = useState("");
+  const [editMode, setEditMode] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
   const handleImageChange = (event) => {
     const fileList = event.target.files;
     if (!fileList || fileList.length === 0) {
@@ -30,6 +33,16 @@ function ProductForm() {
     };
     reader.readAsDataURL(file);
   };
+
+  const handleEdit = (product) => {
+    setEditMode(true);
+    setEditingId(product.id);
+    setNewName(product.name);
+    setNewPrice(product.price);
+    setNewCategory(product.category);
+    setNewImage(product.img);
+  };
+
   const handleAddProduct = (event) => {
     event.preventDefault();
     if (!NewName.trim() || !NewPrice.trim() || !NewCategory.trim()) {
@@ -37,18 +50,32 @@ function ProductForm() {
       return;
     }
 
-    const newProduct = {
-      id: nanoid(),
-      name: NewName,
-      price: NewPrice,
-      category: NewCategory,
-      img:NewImage,
-    };
-    dispatch(addProduct(newProduct));
+    if (editMode && editingId) {
+      const updatedProduct = {
+        id: editingId,
+        name: NewName,
+        price: NewPrice,
+        category: NewCategory,
+        img: NewImage,
+      };
+      dispatch(updateProduct(updatedProduct));
+      setEditMode(false);
+      setEditingId(null);
+    } else {
+      const newProduct = {
+        id: nanoid(),
+        name: NewName,
+        price: NewPrice,
+        category: NewCategory,
+        img: NewImage,
+      };
+      dispatch(addProduct(newProduct));
+    }
+
     setNewName("");
-    setNewPrice(0);
+    setNewPrice("");
     setNewCategory("");
-    setNewImage('')
+    setNewImage("");
   };
 
 
@@ -111,7 +138,25 @@ function ProductForm() {
         
       </div>
 
-        <button type="submit" className={styles.submitButton}>Add Product</button>
+        <button type="submit" className={styles.submitButton}>
+          {editMode ? 'Update Product' : 'Add Product' }
+        </button>
+        {editMode && (
+          <button
+            type="button"
+            className={styles.cancelButton}
+            onClick={() => {
+              setEditMode(false);
+              setEditingId(null);
+              setNewName("");
+              setNewPrice("");
+              setNewCategory("");
+              setNewImage("");
+            }}
+          >
+            Cancel
+          </button>
+        )}
       </form>
       </div>
 
@@ -143,12 +188,20 @@ function ProductForm() {
                     {product.category} 
                   </td>
                   <td className={styles.tableCell}>
-                    <button 
-                      onClick={() => dispatch(deleteProduct(product.id))}
-                      className={styles.deleteButton}
-                    >
-                      Delete
-                    </button>
+                    <div className={styles.actionButtons}>
+                      <button 
+                        onClick={() => handleEdit(product)}
+                        className={styles.editButton}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => dispatch(deleteProduct(product.id))}
+                        className={styles.deleteButton}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                   <td className={styles.tdimage}> <img src={product.img} alt="" /></td>
                 </tr>

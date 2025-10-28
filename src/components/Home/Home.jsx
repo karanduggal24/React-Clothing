@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Marquee } from "../ui/marquee";
-import Superhero from "/src/assets/Superhero.jpg";
+import Superhero from "/src/assets/Batman.png";
 import Jersey from "/src/assets/Barca.png";
 import GraphicTee from "/src/assets/GraphicTee.png";
 import Autoplay from 'embla-carousel-autoplay';
@@ -54,7 +54,7 @@ function Home() {
                 <img
                   src={Superhero}
                   alt="superhero"
-                  className="absolute inset-0 w-full h-full object-cover object-center md:object-[center_25%]"
+                  className="absolute inset-0 w-full h-full object-cover object-center md:object-center"
                 />
                 <div className="text-white absolute bottom-5 left-0 right-0 px-4 md:px-8">
                   <h1 className="text-2xl md:text-4xl text-center font-bold">
