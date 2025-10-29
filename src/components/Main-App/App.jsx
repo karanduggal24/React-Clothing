@@ -8,6 +8,8 @@ import Home from '../Home/Home'
 import ProtectedRoute from '../ProtectedRoute'
 import Footer from '../Footer/Footer'
 import './App.css'
+// import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
@@ -28,6 +30,9 @@ function App() {
         />  
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
+
+      <ToastContainer position="top-right" autoClose={2000} />
+       {/* <Toaster position="top-right" reverseOrder={false} /> */}
       <Footer />
     </>
   )

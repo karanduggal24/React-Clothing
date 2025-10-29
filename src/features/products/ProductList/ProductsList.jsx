@@ -4,7 +4,8 @@ import { deleteProduct } from '../../Slices/AddProductSlice';
 import { addToCart, selectCartItems } from '../../Slices/CartSlice';
 import FilterBar from '../FilterBar/FilterBar';
 import { selectFilteredProducts, selectFilters } from '../../Slices/filterSlice';
-
+import { toast } from "react-toastify";
+// toast.configure();
 function ProductsList() {
   const dispatch = useDispatch();
   const products = useSelector((state) => {
