@@ -40,7 +40,7 @@ function Header() {
 
 
   return (
-    <div className="w-full bg-white shadow-md border-b-2 border-black sticky top-0 z-50">
+    <div className="w-full bg-white shadow-md border-b-2 border-black  top-0 z-50">
       {/* Kept your inline padding and removed the conflicting `px-5` class */}
       <nav style={{paddingLeft:"10px", paddingRight:"10px"}} className="w-full mx-auto">
         {/* Converted `m-0`, `min-h-80px` (corrected to min-h-[80px]), `p-0` to inline styles */}

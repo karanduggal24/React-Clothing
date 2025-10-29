@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deleteProduct } from '../../Slices/AddProductSlice';
 import { addToCart, selectCartItems } from '../../Slices/CartSlice';
@@ -6,12 +6,25 @@ import FilterBar from '../FilterBar/FilterBar';
 import { selectFilteredProducts, selectFilters } from '../../Slices/filterSlice';
 
 function ProductsList() {
-  const products = useSelector((state) => state.products.products);
   const dispatch = useDispatch();
-  const cartItems = useSelector(selectCartItems);
+  const products = useSelector((state) => {
+    console.log('Redux State:', state);
+    return state.products.products;
+  });
   const filteredProducts = useSelector(selectFilteredProducts);
-
   const filters = useSelector(selectFilters);
+
+  useEffect(() => {
+    document.title = "Clothing Store-Products";
+    console.log('Products:', products);
+    console.log('Filtered Products:', filteredProducts);
+  }, [products, filteredProducts]);
+
+  if (!products) {
+    return <div className="w-full flex justify-center items-center min-h-[400px]">
+      <p className="text-xl font-medium text-gray-600">Loading products...</p>
+    </div>;
+  }
 
   return (
     <div className="w-full mb-20 px-4" style={{marginBottom:"80px"}} >

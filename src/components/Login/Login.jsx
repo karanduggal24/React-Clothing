@@ -3,8 +3,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { login } from '../../features/Slices/authSlice'
 import { useNavigate } from 'react-router-dom'
 import styles from './Login.module.css'
+import { useEffect } from 'react'
 
 function Login() {
+useEffect(() => {
+    document.title = "Clothing Store-Login";
+  }, []);
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')

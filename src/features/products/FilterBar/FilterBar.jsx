@@ -32,7 +32,7 @@ function FilterBar() {
     <div className='relative w-full'>
       {/* Mobile Filter Button */}
       <button 
-      style={{marginBottom:"8px"}}
+      style={{marginBottom:"8px",paddingLeft:"8px",paddingRight:"8px",paddingTop:"4px",paddingBottom:"4px"}} 
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         className='md:hidden flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md mb-4'
       >
@@ -56,7 +56,7 @@ function FilterBar() {
       `}>
         {/* Mobile Header */}
         <div
-        style={{padding:"8px"}} className='md:hidden flex items-center justify-between p-4 border-b'>
+        style={{padding:"10px"}} className='md:hidden flex items-center justify-between p-4 border-b'>
           <h3 className='text-xl font-medium'>Filters</h3>
           <button 
             onClick={() => setIsMenuOpen(false)}

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectCartItems,
@@ -17,6 +18,12 @@ function ProductCart() {
   const cartItems = useSelector(selectCartItems)
   const totalItems = useSelector(selectCartTotalItems)
   const totalPrice = useSelector(selectCartTotalPrice)
+
+  useEffect(() => {
+    document.title = `Clothing Store-Cart (${totalItems})` ;
+  }, [totalItems]);
+
+
 
   if (cartItems.length === 0) {
     return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addProduct,
@@ -24,6 +24,9 @@ const categories = [
 ];
 
 function ProductForm() {
+  useEffect(() => {
+    document.title = "Clothing Store-Admin";
+  }, []);
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const [NewName, setNewName] = useState("");

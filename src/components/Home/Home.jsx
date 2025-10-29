@@ -19,7 +19,7 @@ import { Import } from "lucide-react";
 
 function Home() {
   useEffect(() => {
-    document.title = "Clothing Store";
+    document.title = "Clothing Store-Home";
   }, []);
 
   return (
