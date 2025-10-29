@@ -2,18 +2,30 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deleteProduct } from '../../Slices/AddProductSlice';
 import { addToCart, selectCartItems } from '../../Slices/CartSlice';
+import FilterBar from '../FilterBar/FilterBar';
+import { selectFilteredProducts, selectFilters } from '../../Slices/filterSlice';
 
 function ProductsList() {
   const products = useSelector((state) => state.products.products);
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
+  const filteredProducts = useSelector(selectFilteredProducts);
+
+  const filters = useSelector(selectFilters);
 
   return (
     <div className="w-full mb-20 px-4" style={{marginBottom:"80px"}} >
-      {/* <h2 className="text-3xl font-light text-center bg-white py-2 rounded-md">Products List</h2> */}
-
-      <div style={{marginTop:"8px"}} className=" flex justify-around flex-wrap gap-6 mt-8">
-        {products.map((product) => (
+      <FilterBar />
+      
+      {filteredProducts.length === 0 && filters.selectedCategories.length > 0 ? (
+        <div style={{marginTop:"12px"}} className="w-full flex justify-center items-center mt-12">
+          <p className="text-xl font-medium text-gray-600">
+            No products found for selected categories
+          </p>
+        </div>
+      ) : (
+        <div style={{marginTop:"8px"}} className="flex justify-around flex-wrap gap-6 mt-8">
+          {filteredProducts.map((product) => (
           <div
           style={{marginTop:"12px"}}
             key={product.id}
@@ -49,7 +61,8 @@ function ProductsList() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

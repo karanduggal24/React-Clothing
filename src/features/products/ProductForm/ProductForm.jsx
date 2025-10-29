@@ -30,6 +30,7 @@ function ProductForm() {
   const [NewPrice, setNewPrice] = useState("");
   const [NewCategory, setNewCategory] = useState("");
   const [NewImage, setNewImage] = useState("");
+  const [NewQuantity, setNewQuantity] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -56,11 +57,12 @@ function ProductForm() {
     setNewPrice(product.price);
     setNewCategory(product.category);
     setNewImage(product.img);
+    setNewQuantity(product.stockQuantity);
   };
 
   const handleAddProduct = (event) => {
     event.preventDefault();
-    if (!NewName.trim() || !NewPrice.trim() || !NewCategory.trim()) {
+    if (!NewName.trim() || !NewPrice.trim() || !NewCategory.trim()|| !NewQuantity.trim()) {
       alert("Enter Data in all the fields");
       return;
     }
@@ -72,6 +74,7 @@ function ProductForm() {
         price: NewPrice,
         category: NewCategory,
         img: NewImage,
+        stockQuantity: NewQuantity
       };
       dispatch(updateProduct(updatedProduct));
       setEditMode(false);
@@ -83,6 +86,7 @@ function ProductForm() {
         price: NewPrice,
         category: NewCategory,
         img: NewImage,
+        stockQuantity: NewQuantity
       };
       dispatch(addProduct(newProduct));
     }
@@ -165,6 +169,15 @@ function ProductForm() {
               </option>
             ))}
           </select>
+
+          <input
+            type="number"
+            value={NewQuantity}
+            onChange={(e) => setNewQuantity(e.target.value)}
+            placeholder="Stock Quantity"
+            className="border-2 border-gray-200 rounded-md text-lg focus:outline-none focus:border-black focus:ring-2 focus:ring-black transition"
+            style={{ padding: "16px" }}
+          />
 
           <Button
             component="label"
@@ -253,6 +266,12 @@ function ProductForm() {
                     className="font-semibold text-sm uppercase tracking-widest border-r border-gray-200"
                     style={{ padding: "20px" }}
                   >
+                    Quantity
+                  </th>
+                  <th
+                    className="font-semibold text-sm uppercase tracking-widest border-r border-gray-200"
+                    style={{ padding: "20px" }}
+                  >
                     Action
                   </th>
                   <th
@@ -272,7 +291,9 @@ function ProductForm() {
                     <td style={{ padding: "16px" }}>{product.name}</td>
                     <td style={{ padding: "16px" }}>{product.price}</td>
                     <td style={{ padding: "16px" }}>{product.category}</td>
+                    <td style={{padding:"16px"}}>{product.stockQuantity}</td>
                     <td style={{ padding: "16px", textAlign: "center" }}>
+
                       <div
                         className="flex justify-center"
                         style={{ gap: "8px" }}

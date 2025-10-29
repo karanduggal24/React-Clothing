@@ -14,18 +14,29 @@ export const cartSlice = createSlice({
       const product = action.payload
       const existingItem = state.items.find(item => item.id === product.id)
       
+      // Check if we can add more of this item
       if (existingItem) {
-        // If item already exists, increase quantity
+        // Check if adding one more would exceed stock
+        if (existingItem.quantity >= product.stockQuantity) {
+          // Can't add more - at stock limit
+          return;
+        }
         existingItem.quantity += 1
       } else {
-        // If item doesn't exist, add it to cart
+        // Check if product has stock available
+        if (product.stockQuantity <= 0) {
+          // Can't add - out of stock
+          return;
+        }
+        // If item doesn't exist and has stock, add it to cart
         state.items.push({
           id: product.id,
           name: product.name,
           price: Number(product.price),
           category: product.category,
           img: product.img,
-          quantity: 1
+          quantity: 1,
+          stockQuantity: product.stockQuantity
         })
       }
       
@@ -65,7 +76,7 @@ export const cartSlice = createSlice({
       const productId = action.payload
       const item = state.items.find(item => item.id === productId)
       
-      if (item) {
+      if (item && item.quantity < item.stockQuantity) {
         item.quantity += 1
         state.totalItems += 1
         state.totalPrice += item.price
