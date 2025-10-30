@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSearchQuery, selectFilteredProducts } from '../../Slices/SearchSlice';
+import { Search } from 'lucide-react';
 
 function SearchBar() {
   const dispatch = useDispatch();
@@ -39,7 +40,6 @@ function SearchBar() {
           }}
           className="w-full border-2 border-black rounded-full focus:outline-none focus:ring-2 focus:ring-black transition-all"
         />
-
         {/* Dropdown Modal */}
         {showModal && (
           <div
@@ -53,10 +53,19 @@ function SearchBar() {
                   key={product.id}
                   /* padding inline only */
                   style={{ padding: '12px' }}
-                  className="hover:bg-gray-100 cursor-pointer transition-all"
+                  className="hover:bg-gray-100 cursor-pointer transition-all flex items-center gap-3"
                 >
+                    <div>
+                    <img style={{marginRight:"8px"}}
+                      src={product.img}
+                      alt={product.name}
+                      className="w-10 h-10 object-cover mr-4"
+                    />
+                    </div>
+                    <div>
                   <h4 className="font-semibold">{product.name}</h4>
                   <p className="text-sm text-gray-600">{product.category}</p>
+                </div>
                 </div>
               ))
             ) : (
