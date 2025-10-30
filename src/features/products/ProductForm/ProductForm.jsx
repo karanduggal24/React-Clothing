@@ -8,6 +8,7 @@ import {
 import { nanoid } from "@reduxjs/toolkit";
 import { Button, styled } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { toast } from "react-toastify";
 
 // Predefined categories
 const categories = [
@@ -66,7 +67,7 @@ function ProductForm() {
   const handleAddProduct = (event) => {
     event.preventDefault();
     if (!NewName.trim() || !NewPrice.trim() || !NewCategory.trim()|| !NewQuantity.trim()) {
-      alert("Enter Data in all the fields");
+      toast.error("Enter Data in all the fields");
       return;
     }
 

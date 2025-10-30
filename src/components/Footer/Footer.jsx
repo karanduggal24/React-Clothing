@@ -1,15 +1,3 @@
-// import React from 'react';
-
-// function Footer() {
-//   return (
-//     <div>
-      
-//     </div>
-//   );
-// }
-
-// export default Footer;
-
 import React from 'react';
 // Importing icons from Font Awesome
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
@@ -44,9 +32,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
             <ul className="space-y-2 text-sm">
-              <li>Email: info@yourbrand.com</li>
+              <li>Email: karanduggal@yourbrand.com</li>
               <li>Phone: (123) 456-7890</li>
-              <li>Address: 123 Main St, Anytown, USA</li>
+              <li>Address: 123,Amritsar, Punjab,India</li>
             </ul>
           </div>
 
@@ -74,7 +62,7 @@ const Footer = () => {
         {/* Footer Bottom */}
         <div className="mt-8 border-t border-gray-700 pt-6 text-center">
           <p className="text-sm">
-            &copy; {new Date().getFullYear()} YourBrand. All Rights Reserved.
+            &copy; {new Date().getFullYear()} Karan. All Rights Reserved.
           </p>
         </div>
       </div>

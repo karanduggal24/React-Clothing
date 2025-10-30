@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 function ProductsList() {
   const dispatch = useDispatch();
   const products = useSelector((state) => {
-    console.log('Redux State:', state);
+    // console.log('Redux State:', state);
     return state.products.products;
   });
   const filteredProducts = useSelector(selectFilteredProducts);
@@ -17,8 +17,8 @@ function ProductsList() {
 
   useEffect(() => {
     document.title = "Clothing Store-Products";
-    console.log('Products:', products);
-    console.log('Filtered Products:', filteredProducts);
+    // console.log('Products:', products);
+    // console.log('Filtered Products:', filteredProducts);
   }, [products, filteredProducts]);
 
   if (!products) {
