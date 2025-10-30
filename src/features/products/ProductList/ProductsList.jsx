@@ -28,7 +28,7 @@ function ProductsList() {
   }
 
   return (
-    <div className="w-full mb-20 px-4" style={{marginBottom:"80px"}} >
+    <div className="min-h-screen w-full mb-20 px-4" style={{marginBottom:"80px"}} >
       <FilterBar />
       
       {filteredProducts.length === 0 && filters.selectedCategories.length > 0 ? (

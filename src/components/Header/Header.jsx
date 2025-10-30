@@ -12,145 +12,231 @@ function Header() {
   const navigate = useNavigate();
   const { isAuthenticated, user, isAdmin } = useSelector((state) => state.auth);
   const totalItems = useSelector(selectCartTotalItems);
-  
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
     setIsMenuOpen(false);
     navigate('/');
   };
-  
-  const handleNavigate = (path) => {
-    navigate(path);
-    setIsMenuOpen(false);
-  };
 
-  // Common NavLink className logic (padding removed)
   const navLinkClass = ({ isActive }) =>
-    `font-sans text-base font-normal no-underline text-black rounded transition-all uppercase tracking-wider border-2 border-transparent relative
-    ${isActive 
-      ? 'bg-black text-white border-black font-medium after:content-[""] after:absolute after:-bottom-2 after:left-1/2 after:transform after:-translate-x-1/2 after:w-1 after:h-1 after:bg-black after:rounded-full'
-      : 'hover:bg-gray-50 hover:border-gray-200'
-    }`;
+    `font-sans text-sm font-medium no-underline text-black rounded transition-all uppercase tracking-wider border-2 border-transparent
+    ${isActive ? 'bg-black text-white border-black' : 'hover:bg-gray-50 hover:border-gray-200'}`;
 
-  // Mobile NavLink className logic (padding removed)
   const mobileNavLinkClass = ({ isActive }) =>
     `block text-center text-lg uppercase tracking-wider w-full transition-colors
     ${isActive ? 'bg-black text-white font-semibold' : 'hover:bg-gray-100'}`;
 
-
   return (
-    <div className="w-full bg-white shadow-md border-b-2 border-black  top-0 z-50">
-      {/* <SearchBar /> */}
-      {/* Kept your inline padding and removed the conflicting `px-5` class */}
-      <nav style={{paddingLeft:"10px", paddingRight:"10px"}} className="w-full mx-auto">
-        <SearchBar />
-        {/* Converted `m-0`, `min-h-80px` (corrected to min-h-[80px]), `p-0` to inline styles */}
-        <div style={{ margin: 0, minHeight: '80px', padding: 0 }} className="flex justify-around items-center">
-          {/* Logo */}
+    <header className="w-full bg-white shadow-md border-b-2 border-black top-0 z-50">
+      <div
+        className="max-w-7xl mx-auto"
+        style={{ paddingLeft: '4rem', paddingRight: '4rem', marginLeft: 'auto', marginRight: 'auto' }}
+      >
+        {/* Row: logo | centered search | right actions */}
+        <div className="flex items-center justify-between" style={{ height: '80px' }}>
+          {/* Left: Logo */}
           <div className="shrink-0">
-            <img 
-              src={logo} 
-              alt="logo" 
-              className="w-[75px] h-[75px] cursor-pointer" 
-              onClick={() => handleNavigate('/')} 
+            <img
+              src={logo}
+              alt="logo"
+              style={{ width: '75px', height: '75px', cursor: 'pointer' }}
+              onClick={() => navigate('/')}
             />
           </div>
 
-          {/* Desktop Navigation Links - Hidden on mobile */}
-          <ul className="hidden md:flex justify-around w-full items-center">
-            {/* Converted `px-5 py-3` to inline style */}
-            <li><NavLink to="/" className={navLinkClass} style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>Home</NavLink></li>
-            <li><NavLink to="/ProductsList" className={navLinkClass} style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>Product List</NavLink></li>
-            <li><NavLink to="/cart" className={navLinkClass} style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>Cart ({totalItems})</NavLink></li>
-            {isAdmin && (
-              <li><NavLink to="/ProductForm" className={navLinkClass} style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>Admin Panel</NavLink></li>
-            )}
-          </ul>
-          
-          {/* Desktop Auth Section - Hidden on mobile */}
-          {/* Converted `gap-3` to inline style */}
-          <div style={{ gap: '0.75rem' }} className="hidden md:flex items-center">
-             {!isAuthenticated ? (
-                <NavLink to="/login" className={navLinkClass} style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: '1.25rem', paddingRight: '1.25rem' }}>Login</NavLink>
+          {/* Center: Search - visible on md+ */}
+          <div
+            className="flex-1 flex justify-center"
+            style={{ paddingLeft: '4rem', paddingRight: '4rem' }}
+          >
+            <div className="w-full md:max-w-[720px]">
+              <div className="hidden md:block">
+                <SearchBar />
+              </div>
+            </div>
+          </div>
+
+          {/* Right: desktop nav/auth or mobile icons */}
+          <div className="flex items-center gap-3">
+            {/* Desktop nav links */}
+            <nav className="hidden md:flex items-center gap-3">
+              <NavLink to="/" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                Home
+              </NavLink>
+              <NavLink to="/ProductsList" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                Products
+              </NavLink>
+              <NavLink to="/cart" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                Cart ({totalItems})
+              </NavLink>
+              {isAdmin && (
+                <NavLink to="/ProductForm" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                  Admin
+                </NavLink>
+              )}
+              {!isAuthenticated ? (
+                <NavLink to="/login" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                  Login
+                </NavLink>
               ) : (
-                <div style={{ gap: '0.75rem' }} className="flex items-center">
-                  <div className="font-sans text-black">
-                    Welcome, {user?.username} {isAdmin && '(Admin)'}
-                  </div>
-                  {/* Kept your inline padding and removed the conflicting `px-6 py-3` classes */}
-                  <button 
-                    style={{padding:"10px"}}
-                    className="rounded bg-white text-black border-2 border-black cursor-pointer font-sans text-sm font-medium uppercase tracking-wider transition-all min-w-[100px] hover:bg-black hover:text-white" 
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium">Welcome, {user?.username}</span>
+                  <button
                     onClick={handleLogout}
+                    style={{
+                      paddingLeft: '0.5rem',
+                      paddingRight: '0.5rem',
+                      paddingTop: '0.5rem',
+                      paddingBottom: '0.5rem',
+                    }}
+                    className='bg-black text-white rounded uppercase font-medium text-sm border-2 border-black hover:bg-white hover:text-black transition cursor-pointer'
                   >
                     Logout
                   </button>
                 </div>
               )}
-          </div>
+            </nav>
 
-          {/* Mobile Menu Button - Visible only on mobile */}
-          <div className="md:hidden">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-black focus:outline-none">
-              <Menu size={28} />
+            {/* Mobile: search icon (opens search overlay) */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Open search"
+              className="md:hidden border border-gray-300 rounded-full hover:bg-gray-100 transition"
+              style={{ padding: '8px' }}
+            >
+              <Search className="w-6 h-6 text-gray-700" />
+            </button>
+
+            {/* Mobile: hamburger menu */}
+            <button
+              onClick={() => setIsMenuOpen((s) => !s)}
+              aria-label="Open menu"
+              className="md:hidden border border-gray-300 rounded-full hover:bg-gray-100 transition"
+              style={{ padding: '8px' }}
+            >
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Menu - Slides in from the right */}
-        <div 
-          className={`
-            fixed top-0 right-0 h-full w-4/5 max-w-sm bg-white shadow-xl z-50
-            transform transition-transform duration-300 ease-in-out
-            md:hidden 
-            ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}
-          `}
+      {/* Mobile sliding menu (from right) */}
+      <div
+        className={`fixed top-0 right-0 h-full w-4/5 max-w-sm bg-white shadow-xl z-50 transform transition-transform duration-300 md:hidden ${
+          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div
+          className="flex items-center justify-between border-b border-gray-200"
+          style={{ padding: '16px' }}
         >
-          {/* Converted `p-5` to inline style */}
-          <div style={{ padding: '1.25rem' }} className="flex justify-end">
-             <button onClick={() => setIsMenuOpen(false)} className="text-black focus:outline-none">
-                <X size={28} />
-             </button>
+          <div className="flex items-center gap-3">
+            <img
+              src={logo}
+              alt="logo"
+              style={{ width: '40px', height: '40px' }}
+              onClick={() => {
+                navigate('/');
+                setIsMenuOpen(false);
+              }}
+            />
+            <span className="font-semibold">Menu</span>
           </div>
-          {/* Converted `-mt-10` to inline style */}
-          <ul style={{ marginTop: '-2.5rem' }} className="flex flex-col items-center justify-center h-full">
-              {/* Converted `py-4 px-6` from mobileNavLinkClass to inline styles */}
-              <li><NavLink to="/" className={mobileNavLinkClass} style={{ padding: '1rem 1.5rem' }} onClick={() => setIsMenuOpen(false)}>Home</NavLink></li>
-              <li><NavLink to="/ProductsList" className={mobileNavLinkClass} style={{ padding: '1rem 1.5rem' }} onClick={() => setIsMenuOpen(false)}>Product List</NavLink></li>
-              <li><NavLink to="/cart" className={mobileNavLinkClass} style={{ padding: '1rem 1.5rem' }} onClick={() => setIsMenuOpen(false)}>Cart ({totalItems})</NavLink></li>
-              {isAdmin && (
-                <li><NavLink to="/ProductForm" className={mobileNavLinkClass} style={{ padding: '1rem 1.5rem' }} onClick={() => setIsMenuOpen(false)}>Admin Panel</NavLink></li>
-              )}
-              {/* Converted `mt-8 px-6` to inline styles */}
-              <li style={{ marginTop: '2rem', paddingLeft: '1.5rem', paddingRight: '1.5rem' }} className="w-full">
-                {!isAuthenticated ? (
-                  // Converted `px-6 py-3` to inline style
-                  <NavLink to="/login" style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: '1.5rem', paddingRight: '1.5rem' }} className="block text-center w-full rounded bg-black text-white border-2 border-black cursor-pointer font-sans text-lg font-medium uppercase tracking-wider transition-all hover:bg-gray-800" onClick={() => setIsMenuOpen(false)}>Login</NavLink>
-                ) : (
-                  <div className="text-center">
-                    {/* Converted `mb-4` to inline style */}
-                    <div style={{ marginBottom: '1rem' }} className="font-sans text-black">
-                      Welcome, {user?.username} {isAdmin && '(Admin)'}
-                    </div>
-                    {/* Converted `px-6 py-3` to inline style */}
-                    <button 
-                      style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}
-                      className="w-full rounded bg-white text-black border-2 border-black cursor-pointer font-sans text-lg font-medium uppercase tracking-wider transition-all hover:bg-black hover:text-white" 
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </li>
-          </ul>
+          <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
+            <X size={20} />
+          </button>
         </div>
-      </nav>
-      {/* Optional: Overlay for when the menu is open */}
-      {isMenuOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setIsMenuOpen(false)}></div>}
-    </div>
+
+        <ul
+          className="flex flex-col items-stretch justify-start gap-3"
+          style={{ padding: '24px 16px' }}
+        >
+          <li>
+            <NavLink
+              to="/"
+              className={mobileNavLinkClass}
+              onClick={() => setIsMenuOpen(false)}
+              style={{ padding: '12px 0' }}
+            >
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/ProductsList"
+              className={mobileNavLinkClass}
+              onClick={() => setIsMenuOpen(false)}
+              style={{ padding: '12px 0' }}
+            >
+              Products
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/cart"
+              className={mobileNavLinkClass}
+              onClick={() => setIsMenuOpen(false)}
+              style={{ padding: '12px 0' }}
+            >
+              Cart ({totalItems})
+            </NavLink>
+          </li>
+          {isAdmin && (
+            <li>
+              <NavLink
+                to="/ProductForm"
+                className={mobileNavLinkClass}
+                onClick={() => setIsMenuOpen(false)}
+                style={{ padding: '12px 0' }}
+              >
+                Admin Panel
+              </NavLink>
+            </li>
+          )}
+
+          <li style={{ marginTop: '24px' }}>
+            {!isAuthenticated ? (
+              <NavLink
+                to="/login"
+                className="block w-full text-center rounded bg-black text-white uppercase font-medium"
+                onClick={() => setIsMenuOpen(false)}
+                style={{ padding: '12px 0' }}
+              >
+                Login
+              </NavLink>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <div className="text-center font-medium">Welcome, {user?.username}</div>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                  }}
+                  className="w-full rounded bg-white text-black border-2 border-black uppercase font-medium"
+                  style={{ padding: '12px 0' }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </li>
+        </ul>
+      </div>
+
+      {/* Backdrop for mobile menu */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile search overlay (from SearchBar) */}
+      <SearchBar isMobile={true} isVisible={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+    </header>
   );
 }
 
