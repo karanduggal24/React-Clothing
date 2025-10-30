@@ -3,6 +3,7 @@ import productsReducer from '../features/Slices/AddProductSlice'
 import authReducer from '../features/Slices/authSlice'
 import cartReducer from '../features/Slices/CartSlice'
 import filterReducer from '../features/Slices/filterSlice'
+import searchReducer from '../features/Slices/SearchSlice'
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     auth: authReducer,
     cart: cartReducer,
     filters: filterReducer,
+    search: searchReducer,
   },
 })

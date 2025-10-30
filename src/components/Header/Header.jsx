@@ -4,7 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/Slices/authSlice';
 import { selectCartTotalItems } from '../../features/Slices/CartSlice';
 import logo from '/src/assets/Clothing.png';
-import { Menu, X } from 'lucide-react';
+import { Menu, Search, X } from 'lucide-react';
+import SearchBar from '../../features/products/SearchBar/SearchBar';
 
 function Header() {
   const dispatch = useDispatch();
@@ -41,8 +42,10 @@ function Header() {
 
   return (
     <div className="w-full bg-white shadow-md border-b-2 border-black  top-0 z-50">
+      {/* <SearchBar /> */}
       {/* Kept your inline padding and removed the conflicting `px-5` class */}
       <nav style={{paddingLeft:"10px", paddingRight:"10px"}} className="w-full mx-auto">
+        <SearchBar />
         {/* Converted `m-0`, `min-h-80px` (corrected to min-h-[80px]), `p-0` to inline styles */}
         <div style={{ margin: 0, minHeight: '80px', padding: 0 }} className="flex justify-around items-center">
           {/* Logo */}
