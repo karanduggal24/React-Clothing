@@ -90,12 +90,16 @@ toast.error(`${item.name} removed from cart`, { autoClose: 2000 });
     incrementQuantity: (state, action) => {
       const productId = action.payload
       const item = state.items.find(item => item.id === productId)
-      toast.info(`Increased ${item.name} quantity!`, { autoClose: 2000 });
+      
       
       if (item && item.quantity < item.stockQuantity) {
+        toast.info(`Increased ${item.name} quantity!`, { autoClose: 2000 });
         item.quantity += 1
         state.totalItems += 1
         state.totalPrice += item.price
+      }
+      else if (item && item.quantity >= item.stockQuantity) {
+        toast.warning(`${item.name} reached stock limit!`, { autoClose: 2000 });
       }
     },
 

@@ -84,9 +84,10 @@ function FilterBar() {
           </div>
 
           {/* Categories */}
-          <div className='md:flex md:flex-row flex-col gap-4 md:items-center md:overflow-x-auto'>
+          <div className='md:flex md:flex-row flex-col gap-6 md:items-center md:overflow-x-auto'>
             {categories.map((category) => (
-              <label key={category} className='flex items-center gap-2 whitespace-nowrap font-sans text-sm font-medium uppercase py-2 md:py-0'>
+              <label key={category} className='flex items-center justify-between md:justify-start gap-3 whitespace-nowrap font-sans text-sm font-medium uppercase py-3 border-b border-gray-200 last:border-none md:border-0'>
+
                 <input
                   type='checkbox'
                   checked={selectedCategories.includes(category)}
