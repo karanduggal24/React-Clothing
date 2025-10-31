@@ -53,7 +53,6 @@ function ProductCart() {
       <div className='flex flex-col gap-2 md:gap-4'>
         {cartItems.map((item) => (
           <div
-          onClick={handleProductClick.bind(null, item.id)}
             key={item.id}
             className='border border-black bg-white transition-all duration-200 ease-in-out hover:shadow-md'
           >
@@ -65,6 +64,7 @@ function ProductCart() {
                 <div className='w-16 h-16 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden flex-shrink-0'>
                   {item.img ? (
                     <img
+                      onClick={handleProductClick.bind(null, item.id)}
                       src={item.img}
                       alt={item.name}
                       className='w-full h-full object-cover'

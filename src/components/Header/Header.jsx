@@ -30,7 +30,7 @@ function Header() {
     ${isActive ? 'bg-black text-white font-semibold' : 'hover:bg-gray-100'}`;
 
   return (
-    <header className="w-full bg-white shadow-md border-b-2 border-black sticky top-0 z-50">
+    <header className="w-full bg-white shadow-md border-b-2 border-black  top-0 z-50">
       <div className=" mx-auto" style={{ paddingLeft: '12px', paddingRight: '12px' }}>
         {/* Top bar */}
         <div
@@ -44,10 +44,10 @@ function Header() {
             onClick={() => navigate('/')}
           >
             <span
-              className="text-4xl font-bold text-black tracking-tight hover:text-gray-700 transition-colors"
+              className=" select-none text-4xl font-bold text-black tracking-tight hover:text-gray-700 transition-colors"
               style={{ margin: 0 }}
             >
-              CS
+              <h1 style={{userSelect:"none"}}>CS</h1>
             </span>
           </div>
 

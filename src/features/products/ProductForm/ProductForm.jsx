@@ -72,6 +72,10 @@ function ProductForm() {
       return;
     }
 
+    else{
+      toast.success("Product Added Succesfully")
+    }
+
     // Check if ID already exists when adding new product
     if (!editMode && NewId.trim()) {
       const existingProduct = products.find(p => p.id === NewId.trim());

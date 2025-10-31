@@ -21,7 +21,7 @@ function ProductsList() {
     document.title = "Clothing Store-Products";
     // console.log('Products:', products);
     // console.log('Filtered Products:', filteredProducts);
-  }, [products, filteredProducts]);
+  }, []);
 
   if (!products) {
     return <div className="w-full flex justify-center items-center min-h-[400px]">
@@ -40,7 +40,7 @@ function ProductsList() {
           </p>
         </div>
       ) : (
-        <div style={{marginTop:"8px"}} className="flex justify-around flex-wrap gap-6 mt-8">
+        <div style={{marginTop:"8px"}} className="flex justify-center flex-wrap gap-6 mt-8">
           {filteredProducts.map((product) => (
           <div
           style={{marginTop:"12px"}}
