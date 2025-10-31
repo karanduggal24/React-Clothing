@@ -13,7 +13,7 @@ const Footer = () => {
       >
         {/* Main footer content using flex */}
         <div
-          style={{ paddingBottom: '10px', marginLeft: '10px', marginRight: '50px' }}
+          style={{ paddingBottom: '10px', marginLeft: '10px', marginRight: '0px' }}
           className="flex flex-col md:flex-row md:justify-center md:items-start gap-12 text-center md:text-center"
         >
           {/* About Section */}
@@ -28,9 +28,9 @@ const Footer = () => {
           <div className="flex-1 flex flex-col items-center md:items-center">
             <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-white transition-colors duration-300">Home</a></li>
+              <li><a href="/" className="hover:text-white transition-colors duration-300">Home</a></li>
               <li><a href="#" className="hover:text-white transition-colors duration-300">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-300">Services</a></li>
+              <li><a href="/ProductsList" className="hover:text-white transition-colors duration-300">Products</a></li>
               <li><a href="#" className="hover:text-white transition-colors duration-300">Contact</a></li>
             </ul>
           </div>
