@@ -126,16 +126,6 @@ function ProductDetail() {
               >
                 {product.stockQuantity > 0 ? 'Add to Cart' : 'Out of Stock'}
               </button>
-
-              {/* Additional Actions */}
-              {/* <div className="flex gap-4" style={{marginTop: "16px"}}>
-                <button className="flex-1 border border-black text-black rounded-lg hover:bg-black hover:text-white transition" style={{paddingTop: "8px", paddingBottom: "8px", paddingLeft: "16px", paddingRight: "16px"}}>
-                  Add to Wishlist
-                </button>
-                <button className="flex-1 border border-black text-black rounded-lg hover:bg-black hover:text-white transition" style={{paddingTop: "8px", paddingBottom: "8px", paddingLeft: "16px", paddingRight: "16px"}}>
-                  Share
-                </button>
-              </div> */}
             </div>
           </div>
         </div>
@@ -154,7 +144,7 @@ function ProductDetail() {
                   onClick={() => navigate(`/product/${relatedProduct.id}`)}
                 >
                   <div
-                    className="w-full h-48 bg-cover bg-center bg-no-repeat"
+                    className="w-full h-48 bg-cover md:bg-center  bg-no-repeat"
                     style={relatedProduct.img ? { backgroundImage: `url(${relatedProduct.img})` } : { backgroundColor: '#f3f4f6' }}
                   />
                   <div style={{padding: "16px"}}>

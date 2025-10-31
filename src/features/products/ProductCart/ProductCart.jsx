@@ -10,7 +10,10 @@ import {
   clearCart,
 } from '../../Slices/CartSlice'
 
+import { useNavigate } from 'react-router-dom'
+
 function ProductCart() {
+  const navigate = useNavigate();
   const dispatch = useDispatch()
   const cartItems = useSelector(selectCartItems)
   const totalItems = useSelector(selectCartTotalItems)
@@ -19,6 +22,9 @@ function ProductCart() {
   useEffect(() => {
     document.title = `Clothing Store - Cart (${totalItems})`
   }, [totalItems])
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);}
 
   if (cartItems.length === 0) {
     return (
@@ -47,6 +53,7 @@ function ProductCart() {
       <div className='flex flex-col gap-2 md:gap-4'>
         {cartItems.map((item) => (
           <div
+          onClick={handleProductClick.bind(null, item.id)}
             key={item.id}
             className='border border-black bg-white transition-all duration-200 ease-in-out hover:shadow-md'
           >
