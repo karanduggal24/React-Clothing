@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/Slices/authSlice';
 import { selectCartTotalItems } from '../../features/Slices/CartSlice';
 import logo from '/src/assets/Clothing.png';
-import { Menu, Search, X } from 'lucide-react';
+import { Menu, Search, X, ShoppingCart } from 'lucide-react';
 import SearchBar from '../../features/products/SearchBar/SearchBar';
 
 function Header() {
@@ -33,30 +33,26 @@ function Header() {
   return (
     <header className="w-full bg-white shadow-md border-b-2 border-black top-0 z-50">
       <div
-        className="max-w-7xl mx-auto"
-        style={{ paddingLeft: '4rem', paddingRight: '4rem', marginLeft: 'auto', marginRight: 'auto' }}
+        className="max-w-7xl mx-auto px-4 md:px-16"
+        style={{ marginLeft: 'auto', marginRight: 'auto' }}
       >
         {/* Row: logo | centered search | right actions */}
         <div className="flex items-center justify-between" style={{ height: '80px' }}>
           {/* Left: Logo */}
-          <div className="shrink-0">
+          <div className="flex-shrink-0 w-auto md:w-auto flex justify-start">
             <img
               src={logo}
               alt="logo"
-              style={{ width: '75px', height: '75px', cursor: 'pointer' }}
+              className="cursor-pointer"
+              style={{ width: '75px', height: '75px' }}
               onClick={() => navigate('/')}
             />
           </div>
 
           {/* Center: Search - visible on md+ */}
-          <div
-            className="flex-1 flex justify-center"
-            style={{ paddingLeft: '4rem', paddingRight: '4rem' }}
-          >
-            <div className="w-full md:max-w-[720px]">
-              <div className="hidden md:block">
-                <SearchBar />
-              </div>
+          <div className="hidden md:flex flex-1 justify-center px-16">
+            <div className="w-full max-w-[720px]">
+              <SearchBar />
             </div>
           </div>
 
@@ -101,6 +97,24 @@ function Header() {
               )}
             </nav>
 
+            {/* Mobile: cart icon */}
+            <button
+              onClick={() => navigate('/cart')}
+              aria-label="View cart"
+              className="md:hidden border border-gray-300 rounded-full hover:bg-gray-100 transition relative"
+              style={{ padding: '8px' }}
+            >
+              <ShoppingCart className="w-6 h-6 text-gray-700" />
+              {totalItems > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full flex items-center justify-center"
+                  style={{ width: '20px', height: '20px', fontSize: '10px' }}
+                >
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
             {/* Mobile: search icon (opens search overlay) */}
             <button
               onClick={() => setIsSearchOpen(true)}
@@ -138,6 +152,7 @@ function Header() {
             <img
               src={logo}
               alt="logo"
+              className="cursor-pointer"
               style={{ width: '40px', height: '40px' }}
               onClick={() => {
                 navigate('/');

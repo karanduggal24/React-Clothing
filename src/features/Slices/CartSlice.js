@@ -127,6 +127,35 @@ toast.error(`${item.name} removed from cart`, { autoClose: 2000 });
       state.totalItems = 0
       state.totalPrice = 0
       toast.info("Cart cleared", { autoClose: 2000 });
+    },
+
+    removeOutOfStockItems: (state, action) => {
+      const products = action.payload; // Array of all products with current stock
+      const itemsToRemove = [];
+      
+      state.items.forEach(item => {
+        const currentProduct = products.find(p => p.id === item.id);
+        if (!currentProduct || currentProduct.stockQuantity <= 0) {
+          itemsToRemove.push(item);
+        } else {
+          // Update stock quantity in cart item
+          item.stockQuantity = currentProduct.stockQuantity;
+          // If cart quantity exceeds available stock, adjust it
+          if (item.quantity > currentProduct.stockQuantity) {
+            item.quantity = currentProduct.stockQuantity;
+          }
+        }
+      });
+
+      // Remove out of stock items
+      itemsToRemove.forEach(item => {
+        state.items = state.items.filter(cartItem => cartItem.id !== item.id);
+        toast.error(`${item.name} removed from cart - Out of stock`, { autoClose: 3000 });
+      });
+
+      // Update totals
+      state.totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
+      state.totalPrice = state.items.reduce((total, item) => total + (item.price * item.quantity), 0);
     }
   }
 })
@@ -137,7 +166,8 @@ export const {
   updateQuantity,
   incrementQuantity,
   decrementQuantity,
-  clearCart
+  clearCart,
+  removeOutOfStockItems
 } = cartSlice.actions
 
 // Selectors for easy access to cart state

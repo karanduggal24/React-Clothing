@@ -1,11 +1,10 @@
-import React, { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addProduct,
   deleteProduct,
   updateProduct,
 } from "../../Slices/AddProductSlice";
-import { nanoid } from "@reduxjs/toolkit";
 import { Button, styled } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { toast } from "react-toastify";
@@ -30,6 +29,7 @@ function ProductForm() {
   }, []);
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
+  const [NewId, setNewId] = useState("");
   const [NewName, setNewName] = useState("");
   const [NewPrice, setNewPrice] = useState("");
   const [NewCategory, setNewCategory] = useState("");
@@ -57,6 +57,7 @@ function ProductForm() {
   const handleEdit = (product) => {
     setEditMode(true);
     setEditingId(product.id);
+    setNewId(product.id);
     setNewName(product.name);
     setNewPrice(product.price);
     setNewCategory(product.category);
@@ -66,9 +67,18 @@ function ProductForm() {
 
   const handleAddProduct = (event) => {
     event.preventDefault();
-    if (!NewName.trim() || !NewPrice.trim() || !NewCategory.trim()|| !NewQuantity.trim()) {
+    if (!NewName.trim() || !NewPrice.trim() || !NewCategory.trim()|| !NewQuantity.trim() || !NewId.trim()) {
       toast.error("Enter Data in all the fields");
       return;
+    }
+
+    // Check if ID already exists when adding new product
+    if (!editMode && NewId.trim()) {
+      const existingProduct = products.find(p => p.id === NewId.trim());
+      if (existingProduct) {
+        toast.error("Product ID already exists. Please use a different ID.");
+        return;
+      }
     }
 
     if (editMode && editingId) {
@@ -85,7 +95,7 @@ function ProductForm() {
       setEditingId(null);
     } else {
       const newProduct = {
-        id: nanoid(),
+        id: NewId.trim(), // Use provided ID or generate one
         name: NewName,
         price: NewPrice,
         category: NewCategory,
@@ -95,10 +105,12 @@ function ProductForm() {
       dispatch(addProduct(newProduct));
     }
 
+    setNewId("");
     setNewName("");
     setNewPrice("");
     setNewCategory("");
     setNewImage("");
+    setNewQuantity("");
   };
 
   const VisuallyHiddenInput = styled("input")({
@@ -136,6 +148,16 @@ function ProductForm() {
           className="flex flex-col w-full mx-auto"
           style={{ gap: "24px" }}
         >
+          <input
+            type="text"
+            value={NewId}
+            onChange={(e) => setNewId(e.target.value)}
+            placeholder="Product ID"
+            className="border-2 border-gray-200 rounded-md text-lg focus:outline-none focus:border-black focus:ring-2 focus:ring-black transition"
+            style={{ padding: "16px" }}
+            disabled={editMode}
+            required
+          />
           <input
             type="text"
             value={NewName}
@@ -214,10 +236,12 @@ function ProductForm() {
               onClick={() => {
                 setEditMode(false);
                 setEditingId(null);
+                setNewId("");
                 setNewName("");
                 setNewPrice("");
                 setNewCategory("");
                 setNewImage("");
+                setNewQuantity("");
               }}
               className="bg-red-600 text-white border-2 border-red-600 rounded-md text-lg font-medium uppercase tracking-wide hover:bg-white hover:text-red-600 transition"
               style={{ padding: "16px" }}
@@ -252,6 +276,12 @@ function ProductForm() {
                     className="font-semibold text-sm uppercase tracking-widest border-r border-gray-200"
                     style={{ padding: "20px" }}
                   >
+                    ID
+                  </th>
+                  <th
+                    className="font-semibold text-sm uppercase tracking-widest border-r border-gray-200"
+                    style={{ padding: "20px" }}
+                  >
                     Product Name
                   </th>
                   <th
@@ -276,6 +306,12 @@ function ProductForm() {
                     className="font-semibold text-sm uppercase tracking-widest border-r border-gray-200"
                     style={{ padding: "20px" }}
                   >
+                    Product-ID
+                  </th>
+                  <th
+                    className="font-semibold text-sm uppercase tracking-widest border-r border-gray-200"
+                    style={{ padding: "20px" }}
+                  >
                     Action
                   </th>
                   <th
@@ -292,10 +328,12 @@ function ProductForm() {
                     key={product.id}
                     className="border-b border-gray-200 even:bg-gray-50 hover:bg-gray-100 transition"
                   >
+                    <td style={{ padding: "16px" }} className="font-mono text-sm">{product.id}</td>
                     <td style={{ padding: "16px" }}>{product.name}</td>
                     <td style={{ padding: "16px" }}>{product.price}</td>
                     <td style={{ padding: "16px" }}>{product.category}</td>
                     <td style={{padding:"16px"}}>{product.stockQuantity}</td>
+                    <td style={{padding:"16px"}}>{product.id}</td>
                     <td style={{ padding: "16px", textAlign: "center" }}>
 
                       <div

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import SuperHero from '/src/assets/Superhero.jpg'
 
-const initialState = {products: [{ id:1, name:'T-Shirt',price:299,category:"Men's Clothing", img:SuperHero, stockQuantity:10 }]}
+const initialState = {products: [{ id:"1", name:'T-Shirt',price:299,category:"Men's Clothing", img:SuperHero, stockQuantity:10 }]}
 
 export const AddProductSlice = createSlice({
     name:'products',
@@ -24,10 +24,26 @@ export const AddProductSlice = createSlice({
             if (img) existingProduct.img = img;
             if (stockQuantity !== undefined) existingProduct.stockQuantity = stockQuantity;
         }
+    },
+
+    updateProductStock: (state, action) => {
+        const { productId, quantity } = action.payload;
+        const product = state.products.find(p => p.id === productId);
+        if (product) {
+            product.stockQuantity = Math.max(0, product.stockQuantity - quantity);
+        }
+    },
+
+    restoreProductStock: (state, action) => {
+        const { productId, quantity } = action.payload;
+        const product = state.products.find(p => p.id === productId);
+        if (product) {
+            product.stockQuantity += quantity;
+        }
     }
 }
 }
 )
 
-export const {addProduct, deleteProduct, updateProduct} = AddProductSlice.actions;
+export const {addProduct, deleteProduct, updateProduct, updateProductStock, restoreProductStock} = AddProductSlice.actions;
 export default AddProductSlice.reducer

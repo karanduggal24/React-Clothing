@@ -13,12 +13,12 @@ const Footer = () => {
       >
         {/* Main footer content using flex */}
         <div
-          style={{ paddingBottom: '10px', marginLeft: '10px', marginRight: '0px' }}
+          style={{ paddingBottom: '10px', marginLeft: '0px', marginRight: '0px' }}
           className="flex flex-col md:flex-row md:justify-center md:items-start gap-12 text-center md:text-center"
         >
           {/* About Section */}
           <div className="flex-1 flex flex-col items-center md:items-center">
-            <h2 className="text-xl font-bold text-white mb-4">Clothing Store</h2>
+            <h2 className="text-xl font-bold text-white ">Clothing Store</h2>
             <p className="text-sm max-w-xs">
               A brief description of your company. Focusing on your mission and vision.
             </p>

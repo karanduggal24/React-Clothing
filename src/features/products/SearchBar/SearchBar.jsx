@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { setSearchQuery, selectFilteredProducts } from '../../Slices/SearchSlice';
 import { Search, X } from 'lucide-react';
-
 function SearchBar({ isMobile = false, isVisible = false, onClose = () => {} }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const searchQuery = useSelector((state) => state.search.searchQuery);
   const filteredProducts = useSelector(selectFilteredProducts);
 
@@ -15,6 +16,16 @@ function SearchBar({ isMobile = false, isVisible = false, onClose = () => {} }) 
   const handleClear = () => {
     setInputValue('');
     dispatch(setSearchQuery(''));
+  };
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+    // Clear search and close mobile modal when navigating
+    setInputValue('');
+    dispatch(setSearchQuery(''));
+    if (isMobile && onClose) {
+      onClose();
+    }
   };
 
   useEffect(() => {
@@ -73,6 +84,7 @@ function SearchBar({ isMobile = false, isVisible = false, onClose = () => {} }) 
               filteredProducts.map((product) => (
                 <div
                   key={product.id}
+                  onClick={() => handleProductClick(product.id)}
                   style={{ padding: '12px' }}
                   className="hover:bg-gray-100 cursor-pointer transition-all flex items-center gap-3"
                 >
@@ -129,6 +141,7 @@ function SearchBar({ isMobile = false, isVisible = false, onClose = () => {} }) 
             filteredProducts.map((product) => (
               <div
                 key={product.id}
+                onClick={() => handleProductClick(product.id)}
                 style={{ padding: '12px' }}
                 className="hover:bg-gray-100 cursor-pointer transition-all flex items-center gap-3"
               >
