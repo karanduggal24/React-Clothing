@@ -61,7 +61,7 @@ function ProductCart() {
               {/* Top Row: Image, Info, Price */}
               <div className='flex items-center gap-3' style={{ padding: '12px' }}>
                 {/* Small Image */}
-                <div className='w-16 h-16 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden flex-shrink-0'>
+                <div className='w-16 h-16 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden shrink-0'>
                   {item.img ? (
                     <img
                       onClick={handleProductClick.bind(null, item.id)}
@@ -212,6 +212,14 @@ function ProductCart() {
           transition-all hover:bg-black hover:text-white text-center'
         >
           Clear Cart
+        </button>
+        <button
+          style={{ padding: '12px 24px' }}
+          onClick={() => navigate('/Payment')}
+          className='w-full md:w-auto border border-black bg-white text-black text-base font-normal cursor-pointer 
+          transition-all hover:bg-black hover:text-white text-center'
+        >
+          Proceed to Payment
         </button>
       </div>
     </div>

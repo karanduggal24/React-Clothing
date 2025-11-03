@@ -30,7 +30,7 @@ function Header() {
     ${isActive ? 'bg-black text-white font-semibold' : 'hover:bg-gray-100'}`;
 
   return (
-    <header className="w-full bg-white shadow-md border-b-2 border-black  top-0 z-50">
+    <header className="w-full bg-white shadow-md border-b-2 border-black  top-0 z-1000 sticky">
       <div className=" mx-auto" style={{ paddingLeft: '12px', paddingRight: '12px' }}>
         {/* Top bar */}
         <div

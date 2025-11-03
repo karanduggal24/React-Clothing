@@ -10,8 +10,10 @@ import ProtectedRoute from "../ProtectedRoute";
 import Footer from "../Footer/Footer";
 import { useCartStockSync } from "../../hooks/useCartStockSync";
 import "./App.css";
+import ScrollToTop from "../../hooks/scrollToTop";
 // import { Toaster } from 'react-hot-toast';
 import { ToastContainer } from "react-toastify";
+import PaymentPage from "../../features/Payment/PaymentPage";
 
 function App() {
   // Sync cart with product stock changes
@@ -19,11 +21,13 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/ProductsList" element={<ProductsList />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/Payment" element={<PaymentPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cart" element={<ProductCart />} />
         <Route
