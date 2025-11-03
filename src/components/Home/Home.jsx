@@ -14,8 +14,6 @@ import {
   CarouselPrevious,
 } from "../ui/carousel";
 import HomeHero from "../HomeHero/HomeHero";
-import { Import } from "lucide-react";
-// import ReviewMarquee from "./ReviewMarquee/ReviewMarquee";
 
 function Home() {
   useEffect(() => {

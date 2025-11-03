@@ -11,7 +11,6 @@ import Footer from "../Footer/Footer";
 import { useCartStockSync } from "../../hooks/useCartStockSync";
 import "./App.css";
 import ScrollToTop from "../../hooks/scrollToTop";
-// import { Toaster } from 'react-hot-toast';
 import { ToastContainer } from "react-toastify";
 import PaymentPage from "../../features/Payment/PaymentPage";
 import OrderConfirmed from "../../features/Order/OrderConfirmed";

@@ -1,13 +1,9 @@
 import React from "react";
-// import Superhero from "../../assets/superhero.jpg";
 import { BlurFade } from "../ui/blur-fade";
-// import Jersey from "../../assets/Barca.png";
-// import GraphicTee from "../../assets/GraphicTee.png";
 import Superhero from "/src/assets/Batman.png";
 import Jersey from "/src/assets/Barca.png";
 import GraphicTee from "/src/assets/GraphicTee.png";
 import { AuroraText } from "../ui/aurora-text";
-// import { AnimatedGradientText } from "../ui/animated-gradient-text";
 
 function HomeHero() {
   return (
