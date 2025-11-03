@@ -23,7 +23,7 @@ function PaymentPage() {
       className='bg-white min-h-screen'
       style={{ padding: '25px'}}
     >
-      <div className='max-w-7xl mx-auto'>
+      <div className='w-full mx-auto'>
         <div className='flex flex-col lg:flex-row gap-6 lg:gap-8'>
           {/* Payment Form Section */}
           <div className='flex-1 lg:w-[70%]'>
@@ -42,7 +42,7 @@ function PaymentPage() {
               </h2>
             <div
               className='border border-dotted rounded border-black bg-blue-50 shadow-lg top-4'
-              style={{ padding: '3px' }}
+              style={{ padding: '10px' }}
             >
               
               
@@ -55,7 +55,7 @@ function PaymentPage() {
                   <div
                     key={item.id}
                     className='flex items-center gap-4 border-b border-gray-200'
-                    style={{ padding: '3px' }}
+                    style={{ padding: '10px' }}
                   >
                     <img 
                       src={item.img} 

@@ -343,6 +343,7 @@ function PaymentDetailsForm() {
               Card Number *
             </label>
             <input
+              maxLength={16}
               type="text"
               placeholder="Enter Card Number"
               value={paymentInfo.cardNumber}
@@ -367,6 +368,7 @@ function PaymentDetailsForm() {
                 Expiry Date *
               </label>
               <input
+                maxLength={5}
                 type="text"
                 placeholder="MM/YY"
                 value={paymentInfo.expiryDate}
@@ -388,6 +390,7 @@ function PaymentDetailsForm() {
             <div className="flex flex-col gap-2 flex-1">
               <label className="text-sm text-black tracking-wider">CVV *</label>
               <input
+                maxLength={3}
                 type="password"
                 placeholder="Enter CVV"
                 value={paymentInfo.cvv}
