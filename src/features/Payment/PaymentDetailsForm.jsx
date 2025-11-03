@@ -190,6 +190,7 @@ function PaymentDetailsForm() {
                 Phone Number *
               </label>
               <input
+                maxLength={10}
                 type="text"
                 placeholder="Enter Phone Number"
                 value={userInfo.phone}

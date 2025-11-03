@@ -15,6 +15,7 @@ import { ToastContainer } from "react-toastify";
 import PaymentPage from "../../features/Payment/PaymentPage";
 import OrderConfirmed from "../../features/Order/OrderConfirmed";
 import PaymentProtectedRoute from "../PaymentProtectedRoute";
+import NotFound from "./NotFound";
 
 function App() {
   // Sync cart with product stock changes
@@ -47,7 +48,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route path="*" element={<NotFound />} /> */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <ToastContainer
