@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   updateUserInfo,
   updatePaymentInfo,
-  setOrderInfo,
   setFormValid,
   selectUserInfo,
   selectPaymentInfo,
@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 
 function PaymentDetailsForm() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const userInfo = useSelector(selectUserInfo);
   const paymentInfo = useSelector(selectPaymentInfo);
   const cartItems = useSelector(selectCartItems);
@@ -92,15 +93,6 @@ function PaymentDetailsForm() {
     e.preventDefault();
 
     if (validateForm()) {
-      // Set order info in Redux
-      dispatch(
-        setOrderInfo({
-          items: cartItems,
-          totalItems,
-          totalPrice,
-        })
-      );
-
       // Add order to orders slice for admin tracking
       dispatch(
         addOrder({
@@ -125,7 +117,11 @@ function PaymentDetailsForm() {
       // Clear cart after successful payment
       dispatch(clearCart());
 
-      // You can add navigation to success page here
+      // Navigate to order confirmed page
+      setTimeout(() => {
+        navigate('/order-confirmed');
+      }, 1500); // Small delay to show the success toast
+
       console.log("Payment completed:", {
         userInfo,
         paymentInfo,

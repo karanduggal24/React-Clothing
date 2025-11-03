@@ -14,6 +14,7 @@ import ScrollToTop from "../../hooks/scrollToTop";
 // import { Toaster } from 'react-hot-toast';
 import { ToastContainer } from "react-toastify";
 import PaymentPage from "../../features/Payment/PaymentPage";
+import OrderConfirmed from "../../features/Order/OrderConfirmed";
 
 function App() {
   // Sync cart with product stock changes
@@ -28,6 +29,7 @@ function App() {
         <Route path="/ProductsList" element={<ProductsList />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/Payment" element={<PaymentPage />} />
+        <Route path="/order-confirmed" element={<OrderConfirmed />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cart" element={<ProductCart />} />
         <Route
