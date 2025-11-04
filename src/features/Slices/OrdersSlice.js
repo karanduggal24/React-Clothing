@@ -5,10 +5,14 @@ const initialState = {
   totalOrders: 0
 }
 
-// Helper function to generate order ID based on date + product IDs + quantities
+// Helper function to generate order ID based on date + product IDs + quantities + random numbers
 const generateOrderId = (orderDate, items) => {
+  // Generate 2 random numbers (2-digit each)
+  const randomNum1 = Math.floor(Math.random() * 90) + 10; // Random number between 10-99
+  const randomNum2 = Math.floor(Math.random() * 90) + 10; // Random number between 10-99
+  
   if (!items || items.length === 0) {
-    return `ORD-${Date.now()}`
+    return `ORD-${Date.now()}-${randomNum1}${randomNum2}`
   }
   
   const date = new Date(orderDate)
@@ -20,7 +24,7 @@ const generateOrderId = (orderDate, items) => {
     .join('-')
     .substring(0, 50) // Limit length to keep ID manageable
   
-  return `ORD-${dateStr}-${itemsStr}`
+  return `ORD-${dateStr}-${itemsStr}-${randomNum1}${randomNum2}`
 }
 
 export const OrdersSlice = createSlice({
