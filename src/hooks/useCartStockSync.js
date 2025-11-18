@@ -8,11 +8,12 @@ export const useCartStockSync = () => {
   const cartItems = useSelector((state) => state.cart.items);
 
   useEffect(() => {
-    if (products && cartItems.length > 0) {
-      // Check if any cart items are out of stock or have reduced stock
+    if (products.length > 0 && cartItems.length > 0) {
+      // Sync cart items with latest product stock
+      // This updates stockQuantity in cart items and adjusts quantities if needed
       dispatch(removeOutOfStockItems(products));
     }
-  }, [products, dispatch]); // Only trigger when products change, not cartItems
+  }, [products, cartItems.length, dispatch]); // Trigger when products change or cart items count changes
 
   return null;
 };

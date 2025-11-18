@@ -3,12 +3,14 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   addProduct,
   updateProduct,
+  addProductToBackend,
+  updateProductInBackend,
+  fetchProducts,
 } from "../../Slices/AddProductSlice";
 import { Button, styled } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { toast } from "react-toastify";
 import AdminTable from "./AdminTable";
-import OrderTable from "./OrderTable";
 
 // Predefined categories
 const categories = [
@@ -27,6 +29,8 @@ const categories = [
 function ProductForm() {
   useEffect(() => {
     document.title = "Clothing Store-Admin";
+    // Fetch products from backend on component mount
+    dispatch(fetchProducts());
   }, []);
 
   const dispatch = useDispatch();
@@ -39,49 +43,100 @@ function ProductForm() {
   const [NewQuantity, setNewQuantity] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [activeTab, setActiveTab] = useState("products"); // New state for tab navigation
+  const [imagePreview, setImagePreview] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const fileList = event.target.files;
     if (!fileList || fileList.length === 0) {
       setNewImage("");
+      setImagePreview("");
       return;
     }
+
     const file = fileList[0];
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Please upload an image (JPG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error('File size too large. Maximum size is 5MB');
+      return;
+    }
+
+    // Show preview
     const reader = new FileReader();
     reader.onload = (e) => {
-      const result =
-        typeof e.target?.result === "string" ? e.target.result : "";
-      setNewImage(result);
+      setImagePreview(e.target.result);
     };
     reader.readAsDataURL(file);
+
+    // Upload to backend
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('http://127.0.0.1:8000/products/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      
+      // Store the path returned from backend
+      setNewImage(data.path);
+      toast.success('Image uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image. Please try again.');
+      setNewImage("");
+      setImagePreview("");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleEdit = (product) => {
     setEditMode(true);
     setEditingId(product.id);
-    setNewId(product.id);
+    setNewId(product.id.toString());
     setNewName(product.name);
-    setNewPrice(product.price);
+    setNewPrice(product.price.toString()); // Convert to string
     setNewCategory(product.category);
     setNewImage(product.img);
-    setNewQuantity(product.stockQuantity);
+    setImagePreview(product.img); // Set preview for existing image
+    setNewQuantity(product.stockQuantity.toString()); // Convert to string
   };
 
-  const handleAddProduct = (event) => {
+  const handleAddProduct = async (event) => {
     event.preventDefault();
-    if (!NewName.trim() || !NewPrice.trim() || !NewCategory.trim()|| !NewQuantity.trim() || !NewId.trim()) {
+    
+    // Convert to strings and validate
+    const nameStr = String(NewName || '').trim();
+    const priceStr = String(NewPrice || '').trim();
+    const categoryStr = String(NewCategory || '').trim();
+    const quantityStr = String(NewQuantity || '').trim();
+    const idStr = String(NewId || '').trim();
+    
+    if (!nameStr || !priceStr || !categoryStr || !quantityStr || !idStr) {
       toast.error("Enter Data in all the fields");
       return;
     }
 
-    else{
-      toast.success("Product Added Succesfully")
-    }
-
     // Check if ID already exists when adding new product
-    if (!editMode && NewId.trim()) {
-      const existingProduct = products.find(p => p.id === NewId.trim());
+    if (!editMode && idStr) {
+      const existingProduct = products.find(p => p.id === idStr);
       if (existingProduct) {
         toast.error("Product ID already exists. Please use a different ID.");
         return;
@@ -92,32 +147,65 @@ function ProductForm() {
       const updatedProduct = {
         id: editingId,
         name: NewName,
-        price: NewPrice,
+        price: parseInt(NewPrice),
         category: NewCategory,
-        img: NewImage,
-        stockQuantity: NewQuantity
+        img: NewImage || '',
+        stockQuantity: parseInt(NewQuantity),
+        description: `${NewName} - ${NewCategory}`
       };
-      dispatch(updateProduct(updatedProduct));
+      
+      console.log('Updating product:', updatedProduct);
+      
+      // Update in backend API
+      try {
+        const result = await dispatch(updateProductInBackend(updatedProduct)).unwrap();
+        console.log('Update result:', result);
+        toast.success("Product Updated Successfully in Database");
+        
+        // Refresh products list
+        await dispatch(fetchProducts());
+      } catch (error) {
+        toast.error(`Failed to update product: ${error}`);
+        console.error('Update error:', error);
+        return;
+      }
+      
       setEditMode(false);
       setEditingId(null);
     } else {
       const newProduct = {
-        id: NewId.trim(), // Use provided ID or generate one
+        id: NewId.trim(),
         name: NewName,
-        price: NewPrice,
+        price: parseInt(NewPrice),
         category: NewCategory,
-        img: NewImage,
-        stockQuantity: NewQuantity
+        img: NewImage || '',
+        stockQuantity: parseInt(NewQuantity),
+        description: `${NewName} - ${NewCategory}`
       };
-      dispatch(addProduct(newProduct));
+      
+      // Add to backend API
+      try {
+        await dispatch(addProductToBackend(newProduct)).unwrap();
+        toast.success("Product Added Successfully to Database");
+        
+        // Refresh products list
+        await dispatch(fetchProducts());
+      } catch (error) {
+        toast.error(`Failed to add product: ${error}`);
+        return;
+      }
     }
 
+    // Reset form
     setNewId("");
     setNewName("");
     setNewPrice("");
     setNewCategory("");
     setNewImage("");
+    setImagePreview("");
     setNewQuantity("");
+    setEditMode(false);
+    setEditingId(null);
   };
 
   const VisuallyHiddenInput = styled("input")({
@@ -212,22 +300,52 @@ function ProductForm() {
             style={{ padding: "16px" }}
           />
 
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            tabIndex={-1}
-            startIcon={<CloudUploadIcon />}
-            className="bg-black! hover:bg-gray-800!"
-            style={{ padding: "10px 16px" }}
-          >
-            Upload files
-            <VisuallyHiddenInput
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+              disabled={uploadingImage}
+              className="bg-black! hover:bg-gray-800!"
+              style={{ padding: "10px 16px" }}
+            >
+              {uploadingImage ? "Uploading..." : "Upload Image"}
+              <VisuallyHiddenInput
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={uploadingImage}
+              />
+            </Button>
+            
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="mt-2 relative">
+                <img 
+                  src={imagePreview.startsWith('/') ? `http://127.0.0.1:8000${imagePreview}` : imagePreview}
+                  alt="Preview" 
+                  className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
+                  onError={(e) => {
+                    console.error('Image load error:', e);
+                    e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewImage("");
+                    setImagePreview("");
+                  }}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 transition"
+                  style={{ transform: 'translate(50%, -50%)' }}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             type="submit"
@@ -248,6 +366,7 @@ function ProductForm() {
                 setNewPrice("");
                 setNewCategory("");
                 setNewImage("");
+                setImagePreview("");
                 setNewQuantity("");
               }}
               className="bg-red-600 text-white border-2 border-red-600 rounded-md text-lg font-medium uppercase tracking-wide hover:bg-white hover:text-red-600 transition"
@@ -259,40 +378,8 @@ function ProductForm() {
         </form>
       </div>
 
-      {/* Sub Navigation */}
-      <div
-        className="bg-white rounded-lg shadow-md border border-gray-200 animate-fadeInUp"
-        style={{ marginBottom: "40px", padding: "0px" }}
-      >
-        <div className="flex border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab("products")}
-            className={`flex-1 py-4 px-6 text-center font-medium transition-all duration-200 ${
-              activeTab === "products"
-                ? "bg-black text-white border-b-2 border-black"
-                : "bg-white text-gray-600 hover:bg-gray-50 hover:text-black"
-            }`}
-            style={{ borderTopLeftRadius: "8px" }}
-          >
-            Products Management
-          </button>
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`flex-1 py-4 px-6 text-center font-medium transition-all duration-200 ${
-              activeTab === "orders"
-                ? "bg-black text-white border-b-2 border-black"
-                : "bg-white text-gray-600 hover:bg-gray-50 hover:text-black"
-            }`}
-            style={{ borderTopRightRadius: "8px" }}
-          >
-            Orders Management
-          </button>
-        </div>
-      </div>
-
-      {/* Conditional Table Rendering */}
-      {activeTab === "products" && <AdminTable onEditProduct={handleEdit} />}
-      {activeTab === "orders" && <OrderTable />}
+      {/* Products Table */}
+      <AdminTable onEditProduct={handleEdit} />
 
     </div>
   );

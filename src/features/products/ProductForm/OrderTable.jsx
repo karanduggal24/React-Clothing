@@ -1,19 +1,36 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { selectAllOrders, deleteOrder, updateOrderStatus, updateShippingId, updateShippingCompany } from "../../Slices/OrdersSlice";
+import { 
+  selectAllOrders, 
+  updateOrderStatus, 
+  updateShippingId, 
+  updateShippingCompany,
+  fetchOrdersFromBackend,
+  updateOrderInBackend,
+  deleteOrderFromBackend
+} from "../../Slices/OrdersSlice";
+import { toast } from "react-toastify";
+import DeleteConfirmModal from "../../../components/DeleteConfirmModal/DeleteConfirmModal";
 
 function OrderTable() {
   useEffect(() => {
     document.title = "Clothing Store-Orders";
+    // Fetch orders from backend on mount
+    dispatch(fetchOrdersFromBackend());
   }, []);
 
   const dispatch = useDispatch();
   const orders = useSelector(selectAllOrders);
+  const loading = useSelector((state) => state.orders.loading);
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [editingShippingId, setEditingShippingId] = useState(null);
   const [tempShippingId, setTempShippingId] = useState("");
   const [editingShippingCompany, setEditingShippingCompany] = useState(null);
   const [tempShippingCompany, setTempShippingCompany] = useState("");
+  
+  // Delete modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
 
   const toggleOrderExpansion = (orderId) => {
     const newExpanded = new Set(expandedOrders);
@@ -25,8 +42,20 @@ function OrderTable() {
     setExpandedOrders(newExpanded);
   };
 
-  const handleStatusChange = (orderId, newStatus) => {
+  const handleStatusChange = async (orderId, newStatus) => {
+    // Update local state
     dispatch(updateOrderStatus({ orderId, status: newStatus }));
+    
+    // Update backend
+    try {
+      await dispatch(updateOrderInBackend({ 
+        orderId, 
+        updates: { status: newStatus } 
+      })).unwrap();
+      toast.success('Order status updated successfully');
+    } catch (error) {
+      toast.error(`Failed to update status: ${error}`);
+    }
   };
 
   const handleShippingIdEdit = (orderId, currentShippingId) => {
@@ -34,8 +63,21 @@ function OrderTable() {
     setTempShippingId(currentShippingId || "");
   };
 
-  const handleShippingIdSave = (orderId) => {
+  const handleShippingIdSave = async (orderId) => {
+    // Update local state
     dispatch(updateShippingId({ orderId, shippingId: tempShippingId }));
+    
+    // Update backend
+    try {
+      await dispatch(updateOrderInBackend({ 
+        orderId, 
+        updates: { shipping_id: tempShippingId } 
+      })).unwrap();
+      toast.success('Shipping ID updated successfully');
+    } catch (error) {
+      toast.error(`Failed to update shipping ID: ${error}`);
+    }
+    
     setEditingShippingId(null);
     setTempShippingId("");
   };
@@ -50,10 +92,46 @@ function OrderTable() {
     setTempShippingCompany(currentShippingCompany || "");
   };
 
-  const handleShippingCompanySave = (orderId) => {
+  const handleShippingCompanySave = async (orderId) => {
+    // Update local state
     dispatch(updateShippingCompany({ orderId, shippingCompany: tempShippingCompany }));
+    
+    // Update backend
+    try {
+      await dispatch(updateOrderInBackend({ 
+        orderId, 
+        updates: { shipping_company: tempShippingCompany } 
+      })).unwrap();
+      toast.success('Shipping company updated successfully');
+    } catch (error) {
+      toast.error(`Failed to update shipping company: ${error}`);
+    }
+    
     setEditingShippingCompany(null);
     setTempShippingCompany("");
+  };
+  
+  const handleDeleteClick = (order) => {
+    setOrderToDelete(order);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!orderToDelete) return;
+    
+    try {
+      await dispatch(deleteOrderFromBackend(orderToDelete.id)).unwrap();
+      toast.success('Order deleted successfully');
+      setShowDeleteModal(false);
+      setOrderToDelete(null);
+    } catch (error) {
+      toast.error(`Failed to delete order: ${error}`);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setOrderToDelete(null);
   };
 
   const handleShippingCompanyCancel = () => {
@@ -333,7 +411,7 @@ function OrderTable() {
                     </td>
                     <td style={{ padding: "16px", textAlign: "center" }}>
                       <button
-                        onClick={() => dispatch(deleteOrder(order.id))}
+                        onClick={() => handleDeleteClick(order)}
                         className="border-2 border-red-600 text-red-600 bg-white rounded-md text-sm font-medium hover:bg-red-600 hover:text-white transition"
                         style={{ padding: "4px 12px" }}
                       >
@@ -355,6 +433,15 @@ function OrderTable() {
             No orders yet. Orders will appear here when customers complete purchases.
           </p>
         )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        productName={orderToDelete ? `Order ${orderToDelete.id}` : ''}
+        loading={loading}
+      />
     </div>
   );
 }

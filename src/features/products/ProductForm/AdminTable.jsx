@@ -1,8 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   deleteProduct,
+  deleteProductFromBackend,
 } from "../../Slices/AddProductSlice";
+import { toast } from "react-toastify";
+import DeleteConfirmModal from "../../../components/DeleteConfirmModal/DeleteConfirmModal";
 
 function AdminTable({ onEditProduct }) {
   useEffect(() => {
@@ -11,6 +14,33 @@ function AdminTable({ onEditProduct }) {
 
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
+  const loading = useSelector((state) => state.products.loading);
+  
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
+  const handleDeleteClick = (product) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
+    
+    try {
+      await dispatch(deleteProductFromBackend(productToDelete.id)).unwrap();
+      toast.success('Product deleted successfully from database');
+      setShowDeleteModal(false);
+      setProductToDelete(null);
+    } catch (error) {
+      toast.error(`Failed to delete product: ${error}`);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
+  };
 
   return (
     <div
@@ -107,8 +137,8 @@ function AdminTable({ onEditProduct }) {
                           Edit
                         </button>
                         <button
-                          onClick={() => dispatch(deleteProduct(product.id))}
-                          className="border-2 border-black text-black bg-white rounded-md text-sm font-medium hover:bg-black hover:text-white transition"
+                          onClick={() => handleDeleteClick(product)}
+                          className="border-2 border-red-600 text-red-600 bg-white rounded-md text-sm font-medium hover:bg-red-600 hover:text-white transition"
                           style={{ padding: "4px 12px" }}
                         >
                           Delete
@@ -139,6 +169,15 @@ function AdminTable({ onEditProduct }) {
             No products yet. Add one above!
           </p>
         )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        productName={productToDelete?.name}
+        loading={loading}
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectCartItems,
@@ -8,8 +8,14 @@ import {
   decrementQuantity,
   removeFromCart,
   clearCart,
+  fetchCartFromBackend,
+  updateCartItemBackend,
+  removeFromCartBackend,
+  clearCartBackend,
+  removeOutOfStockItems,
 } from '../../Slices/CartSlice'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 function ProductCart() {
   const navigate = useNavigate();
@@ -17,10 +23,103 @@ function ProductCart() {
   const cartItems = useSelector(selectCartItems)
   const totalItems = useSelector(selectCartTotalItems)
   const totalPrice = useSelector(selectCartTotalPrice)
+  const loading = useSelector((state) => state.cart.loading)
+  const synced = useSelector((state) => state.cart.synced)
+  const products = useSelector((state) => state.products.products)
 
   useEffect(() => {
     document.title = `Clothing Store - Cart (${totalItems})`
-  }, [totalItems])
+    // Fetch cart from backend on mount if not synced
+    if (!synced) {
+      dispatch(fetchCartFromBackend()).catch(err => {
+        console.error('Failed to fetch cart:', err);
+        // Continue with local cart if backend fails
+      });
+    }
+  }, [totalItems, synced, dispatch])
+
+  // Sync cart items with latest product stock
+  useEffect(() => {
+    if (cartItems.length > 0 && products.length > 0) {
+      dispatch(removeOutOfStockItems(products));
+    }
+  }, [products, dispatch])
+
+  const handleIncrement = async (item) => {
+    // Check if we can add more (stock limit check)
+    if (item.quantity >= item.stockQuantity) {
+      toast.warning(`${item.name} reached stock limit! Only ${item.stockQuantity} available.`, {
+        autoClose: 2000,
+      });
+      return;
+    }
+    
+    const newQuantity = item.quantity + 1;
+    
+    // Update local state first
+    dispatch(incrementQuantity(item.id));
+    
+    // Then sync with backend
+    if (item.cartItemId) {
+      try {
+        await dispatch(updateCartItemBackend({ 
+          cartItemId: item.cartItemId, 
+          quantity: newQuantity 
+        })).unwrap();
+      } catch (error) {
+        console.error('Failed to update quantity in backend:', error);
+      }
+    }
+  };
+
+  const handleDecrement = async (item) => {
+    if (item.quantity > 1) {
+      const newQuantity = item.quantity - 1;
+      
+      // Update local state first
+      dispatch(decrementQuantity(item.id));
+      
+      // Then sync with backend
+      if (item.cartItemId) {
+        try {
+          await dispatch(updateCartItemBackend({ 
+            cartItemId: item.cartItemId, 
+            quantity: newQuantity 
+          })).unwrap();
+        } catch (error) {
+          console.error('Failed to update quantity in backend:', error);
+        }
+      }
+    } else {
+      handleRemove(item);
+    }
+  };
+
+  const handleRemove = async (item) => {
+    if (item.cartItemId) {
+      try {
+        await dispatch(removeFromCartBackend(item.cartItemId)).unwrap();
+      } catch (error) {
+        console.error('Failed to remove item from backend:', error);
+        // Still remove from local state
+        dispatch(removeFromCart(item.id));
+      }
+    } else {
+      dispatch(removeFromCart(item.id));
+    }
+  };
+
+  const handleClearCart = async () => {
+    if (window.confirm('Are you sure you want to clear your cart?')) {
+      try {
+        await dispatch(clearCartBackend()).unwrap();
+      } catch (error) {
+        console.error('Failed to clear cart from backend:', error);
+        // Still clear local cart
+        dispatch(clearCart());
+      }
+    }
+  };
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -108,9 +207,10 @@ function ProductCart() {
               >
                 <div className='flex items-center gap-1 bg-gray-50 rounded-md' style={{ padding: '4px' }}>
                   <button
-                    onClick={() => dispatch(decrementQuantity(item.id))}
+                    onClick={() => handleDecrement(item)}
+                    disabled={loading}
                     className='w-7 h-7 border border-gray-300 bg-white text-black flex items-center justify-center 
-                    text-sm rounded transition-all hover:bg-black hover:text-white hover:border-black'
+                    text-sm rounded transition-all hover:bg-black hover:text-white hover:border-black disabled:opacity-50'
                   >
                     -
                   </button>
@@ -121,18 +221,20 @@ function ProductCart() {
                     {item.quantity}
                   </span>
                   <button
-                    onClick={() => dispatch(incrementQuantity(item.id))}
+                    onClick={() => handleIncrement(item)}
+                    disabled={loading}
                     className='w-7 h-7 border border-gray-300 bg-white text-black flex items-center justify-center 
-                    text-sm rounded transition-all hover:bg-black hover:text-white hover:border-black'
+                    text-sm rounded transition-all hover:bg-black hover:text-white hover:border-black disabled:opacity-50'
                   >
                     +
                   </button>
                 </div>
 
                 <button
-                  onClick={() => dispatch(removeFromCart(item.id))}
+                  onClick={() => handleRemove(item)}
+                  disabled={loading}
                   className='text-xs border border-red-300 text-red-600 bg-red-50 rounded 
-                  transition-all hover:bg-red-600 hover:text-white hover:border-red-600'
+                  transition-all hover:bg-red-600 hover:text-white hover:border-red-600 disabled:opacity-50'
                   style={{ padding: '4px 12px' }}
                 >
                   Remove
@@ -167,17 +269,19 @@ function ProductCart() {
 
               <div className='flex items-center gap-3'>
                 <button
-                  onClick={() => dispatch(decrementQuantity(item.id))}
+                  onClick={() => handleDecrement(item)}
+                  disabled={loading}
                   className='w-8 h-8 border border-black bg-white text-black flex items-center justify-center 
-                  font-light text-base transition-all hover:bg-black hover:text-white'
+                  font-light text-base transition-all hover:bg-black hover:text-white disabled:opacity-50'
                 >
                   -
                 </button>
                 <span className='min-w-6 text-center font-medium text-black'>{item.quantity}</span>
                 <button
-                  onClick={() => dispatch(incrementQuantity(item.id))}
+                  onClick={() => handleIncrement(item)}
+                  disabled={loading}
                   className='w-8 h-8 border border-black bg-white text-black flex items-center justify-center 
-                  font-light text-base transition-all hover:bg-black hover:text-white'
+                  font-light text-base transition-all hover:bg-black hover:text-white disabled:opacity-50'
                 >
                   +
                 </button>
@@ -188,9 +292,10 @@ function ProductCart() {
                   Rs {item.price * item.quantity}
                 </div>
                 <button
-                  onClick={() => dispatch(removeFromCart(item.id))}
+                  onClick={() => handleRemove(item)}
+                  disabled={loading}
                   className='border border-black bg-white text-black text-sm font-normal cursor-pointer 
-                  transition-all hover:bg-black hover:text-white'
+                  transition-all hover:bg-black hover:text-white disabled:opacity-50'
                   style={{ padding: '8px 16px' }}
                 >
                   Remove
@@ -216,9 +321,10 @@ function ProductCart() {
         </div>
 
         <button
-          onClick={() => dispatch(clearCart())}
+          onClick={handleClearCart}
+          disabled={loading}
           className='w-full md:w-auto border border-black bg-white text-black text-base font-normal cursor-pointer 
-          transition-all hover:bg-black hover:text-white text-center'
+          transition-all hover:bg-black hover:text-white text-center disabled:opacity-50'
           style={{ padding: '12px 24px' }}
         >
           Clear Cart

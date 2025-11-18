@@ -6,12 +6,14 @@ const loadAuthState = () => {
     const savedAuth = localStorage.getItem('authState')
     return savedAuth ? JSON.parse(savedAuth) : {
       user: null,
+      token: null,
       isAuthenticated: false,
       isAdmin: false
     }
   } catch {
     return {
       user: null,
+      token: null,
       isAuthenticated: false,
       isAdmin: false
     }
@@ -25,33 +27,31 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      const { username, password } = action.payload
-      const normalizedUsername = username.trim().toLowerCase()
+      const { user, token } = action.payload
       
-      if (normalizedUsername === 'admin' && password === 'admin123') {
-        state.user = { username, role: 'admin' }
-        state.isAuthenticated = true
-        state.isAdmin = true
-      } else {
-        state.user = { username, role: 'user' }
-        state.isAuthenticated = true
-        state.isAdmin = false
-      }
+      state.user = user
+      state.token = token
+      state.isAuthenticated = true
+      state.isAdmin = user.role === 'admin'
       
       // Save to localStorage
       localStorage.setItem('authState', JSON.stringify({
         user: state.user,
+        token: state.token,
         isAuthenticated: state.isAuthenticated,
         isAdmin: state.isAdmin
       }))
     },
     logout: (state) => {
       state.user = null
+      state.token = null
       state.isAuthenticated = false
       state.isAdmin = false
       
       // Clear from localStorage
       localStorage.removeItem('authState')
+      // Clear guest cart session
+      sessionStorage.removeItem('cart_user_id')
     }
   }
 })

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { deleteProduct } from '../../Slices/AddProductSlice';
-import { addToCart, selectCartItems } from '../../Slices/CartSlice';
+import { deleteProduct, fetchProducts } from '../../Slices/AddProductSlice';
+import { addToCart, addToCartBackend, selectCartItems } from '../../Slices/CartSlice';
 import FilterBar from '../FilterBar/FilterBar';
 import { selectFilteredProducts, selectFilters } from '../../Slices/filterSlice';
 import { toast } from "react-toastify";
@@ -16,16 +16,39 @@ function ProductsList() {
   });
   const filteredProducts = useSelector(selectFilteredProducts);
   const filters = useSelector(selectFilters);
+  const loading = useSelector((state) => state.products.loading);
 
   useEffect(() => {
     document.title = "Clothing Store-Products";
+    // Fetch products from backend on component mount
+    dispatch(fetchProducts());
     // console.log('Products:', products);
     // console.log('Filtered Products:', filteredProducts);
-  }, []);
+  }, [dispatch]);
+
+  const handleAddToCart = async (product) => {
+    // Add to local state first for immediate feedback
+    dispatch(addToCart(product));
+    // Then sync with backend
+    try {
+      await dispatch(addToCartBackend(product)).unwrap();
+    } catch (error) {
+      console.error('Failed to sync cart with backend:', error);
+    }
+  };
+
+  if (loading) {
+    return <div className="w-full flex justify-center items-center min-h-[400px]">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+        <p className="text-xl font-medium text-gray-600">Loading products from database...</p>
+      </div>
+    </div>;
+  }
 
   if (!products) {
     return <div className="w-full flex justify-center items-center min-h-[400px]">
-      <p className="text-xl font-medium text-gray-600">Loading products...</p>
+      <p className="text-xl font-medium text-gray-600">No products available</p>
     </div>;
   }
 
@@ -84,7 +107,7 @@ function ProductsList() {
                   style={{padding:"7px",margin:"5px",marginBottom:"20px" }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    dispatch(addToCart(product));
+                    handleAddToCart(product);
                   }}
                   disabled={product.stockQuantity <= 0}
                   className={`flex-1 rounded px-3 py-2 border border-black uppercase text-xs font-medium transition ${

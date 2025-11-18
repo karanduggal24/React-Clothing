@@ -7,14 +7,17 @@ import {
   setFormValid,
   selectUserInfo,
   selectPaymentInfo,
+  resetPaymentForm,
 } from "../Slices/PaymentFormSlice";
 import {
   selectCartItems,
   selectCartTotalItems,
   selectCartTotalPrice,
   clearCart,
+  clearCartBackend,
 } from "../Slices/CartSlice";
 import { addOrder } from "../Slices/OrdersSlice";
+import { updateProductStock } from "../Slices/AddProductSlice";
 import { toast } from "react-toastify";
 
 function PaymentDetailsForm() {
@@ -25,8 +28,47 @@ function PaymentDetailsForm() {
   const cartItems = useSelector(selectCartItems);
   const totalItems = useSelector(selectCartTotalItems);
   const totalPrice = useSelector(selectCartTotalPrice);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const [formErrors, setFormErrors] = useState({});
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Reset form when user changes or logs out
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // If user ID changed, reset the form
+      if (currentUserId !== null && currentUserId !== user.id) {
+        dispatch(resetPaymentForm());
+      }
+      setCurrentUserId(user.id);
+    } else {
+      // User logged out
+      if (currentUserId !== null) {
+        dispatch(resetPaymentForm());
+        setCurrentUserId(null);
+      }
+    }
+  }, [isAuthenticated, user, currentUserId, dispatch]);
+
+  // Prefill ONLY name and email from logged-in user (not phone, address, or payment details)
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Always update to current user's data
+      const updates = {};
+      
+      if (user.name && userInfo.name !== user.name) {
+        updates.name = user.name;
+      }
+      if (user.email && userInfo.email !== user.email) {
+        updates.email = user.email;
+      }
+      
+      // Only dispatch if there are updates
+      if (Object.keys(updates).length > 0) {
+        dispatch(updateUserInfo(updates));
+      }
+    }
+  }, [isAuthenticated, user, dispatch, userInfo.name, userInfo.email]);
 
   // Handle user info changes
   const handleUserInfoChange = (field, value) => {
@@ -89,44 +131,118 @@ function PaymentDetailsForm() {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
-      // Add order to orders slice for admin tracking
-      dispatch(
-        addOrder({
+      try {
+        // Generate unique order ID
+        const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        
+        // Save order to backend database
+        try {
+          const orderResponse = await fetch('http://127.0.0.1:8000/orders/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order_id: orderId,
+              customer_name: userInfo.name,
+              customer_email: userInfo.email,
+              customer_phone: userInfo.phone,
+              address: userInfo.address,
+              city: userInfo.city,
+              state: userInfo.state,
+              pincode: userInfo.pincode,
+              country: userInfo.country || 'India',
+              order_items: cartItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                category: item.category,
+                img: item.img
+              })),
+              total_items: totalItems,
+              total_price: totalPrice,
+              status: 'Confirmed'
+            })
+          });
+          
+          if (!orderResponse.ok) {
+            console.error('Failed to save order to backend');
+          }
+        } catch (error) {
+          console.error('Error saving order to backend:', error);
+        }
+        
+        // Add order to local orders slice for immediate display
+        dispatch(
+          addOrder({
+            orderId,
+            userInfo,
+            paymentInfo: {
+              cardholderName: paymentInfo.cardholderName,
+              // Don't store sensitive payment info
+            },
+            orderInfo: {
+              items: cartItems,
+              totalItems,
+              totalPrice,
+            },
+            orderDate: new Date().toISOString(),
+            status: "Confirmed",
+          })
+        );
+
+        // Reduce product stock in database for each item
+        for (const item of cartItems) {
+          try {
+            const response = await fetch(
+              `http://127.0.0.1:8000/products/${item.id}/reduce-stock?quantity=${item.quantity}`,
+              { method: 'PATCH' }
+            );
+            
+            if (!response.ok) {
+              console.error(`Failed to reduce stock for product ${item.id}`);
+            } else {
+              // Update local product stock
+              dispatch(updateProductStock({ 
+                productId: item.id, 
+                quantity: item.quantity 
+              }));
+            }
+          } catch (error) {
+            console.error(`Error reducing stock for product ${item.id}:`, error);
+          }
+        }
+
+        // Clear cart from local state
+        dispatch(clearCart());
+        
+        // Clear cart from backend
+        try {
+          await dispatch(clearCartBackend()).unwrap();
+        } catch (error) {
+          console.error('Failed to clear cart from backend:', error);
+        }
+
+        // Show success message
+        toast.success("Payment processed successfully!");
+
+        // Navigate to order confirmed page
+        setTimeout(() => {
+          navigate('/order-confirmed');
+        }, 1500); // Small delay to show the success toast
+
+        console.log("Payment completed:", {
           userInfo,
-          paymentInfo: {
-            cardholderName: paymentInfo.cardholderName,
-            // Don't store sensitive payment info
-          },
-          orderInfo: {
-            items: cartItems,
-            totalItems,
-            totalPrice,
-          },
-          orderDate: new Date().toISOString(),
-          status: "Confirmed",
-        })
-      );
-
-      // Show success message
-      toast.success("Payment processed successfully!");
-
-      // Clear cart after successful payment
-      dispatch(clearCart());
-
-      // Navigate to order confirmed page
-      setTimeout(() => {
-        navigate('/order-confirmed');
-      }, 1500); // Small delay to show the success toast
-
-      console.log("Payment completed:", {
-        userInfo,
-        paymentInfo,
-        orderInfo: { items: cartItems, totalItems, totalPrice },
-      });
+          paymentInfo,
+          orderInfo: { items: cartItems, totalItems, totalPrice },
+        });
+      } catch (error) {
+        console.error('Error processing order:', error);
+        toast.error("Failed to process order. Please try again.");
+      }
     } else {
       toast.error("Please fill in all required fields correctly");
     }
@@ -173,10 +289,12 @@ function PaymentDetailsForm() {
                 placeholder="Enter Email Address"
                 value={userInfo.email}
                 onChange={(e) => handleUserInfoChange("email", e.target.value)}
+                readOnly={isAuthenticated && user?.email}
                 className={`border-2 ${
                   formErrors.email ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
+                } ${isAuthenticated && user?.email ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} text-black focus:outline-none focus:bg-gray-50 transition-colors`}
                 style={{ padding: "0.75rem" }}
+                title={isAuthenticated && user?.email ? "Email from your account" : ""}
               />
               {formErrors.email && (
                 <span className="text-red-500 text-xs">{formErrors.email}</span>

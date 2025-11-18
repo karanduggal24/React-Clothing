@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/Slices/authSlice';
-import { selectCartTotalItems } from '../../features/Slices/CartSlice';
+import { selectCartTotalItems, clearCart } from '../../features/Slices/CartSlice';
+import { resetPaymentForm } from '../../features/Slices/PaymentFormSlice';
 import { Menu, Search, X, ShoppingCart } from 'lucide-react';
 import SearchBar from '../../features/products/SearchBar/SearchBar';
 
@@ -17,6 +18,8 @@ function Header() {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(clearCart()); // Clear cart on logout
+    dispatch(resetPaymentForm()); // Clear payment form on logout
     setIsMenuOpen(false);
     navigate('/');
   };
@@ -69,24 +72,34 @@ function Header() {
                 Products
               </NavLink>
               <NavLink to="/cart" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                Cart ({totalItems})
+                Cart
               </NavLink>
+              {isAuthenticated && !isAdmin && (
+                <NavLink to="/profile" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                  Profile
+                </NavLink>
+              )}
               {isAdmin && (
-                <NavLink to="/ProductForm" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                  Admin
+                <NavLink to="/admin/dashboard" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                  Admin Panel
                 </NavLink>
               )}
               {!isAuthenticated ? (
-                <NavLink to="/login" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                  Login
-                </NavLink>
+                <>
+                  <NavLink to="/login" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                    Login
+                  </NavLink>
+                  <NavLink to="/signup" className={navLinkClass} style={{ padding: '8px 16px' }}>
+                    Sign Up
+                  </NavLink>
+                </>
               ) : (
                 <div className="flex items-center" style={{ gap: '8px' }}>
                   <span
                     className="text-sm font-medium"
                     style={{ padding: '8px', margin: 0 }}
                   >
-                    Welcome, {user?.username}
+                    Welcome, {user?.name || user?.username}
                   </span>
                   <button
                     onClick={handleLogout}
@@ -109,20 +122,7 @@ function Header() {
                 style={{ padding: '8px' }}
               >
                 <ShoppingCart className="w-6 h-6 text-gray-700" />
-                {totalItems > 0 && (
-                  <span
-                    className="absolute bg-black text-white text-xs rounded-full flex items-center justify-center"
-                    style={{
-                      top: '-4px',
-                      right: '-4px',
-                      width: '20px',
-                      height: '20px',
-                      fontSize: '10px',
-                    }}
-                  >
-                    {totalItems}
-                  </span>
-                )}
+                
               </button>
 
               {/* Search */}
@@ -196,29 +196,46 @@ function Header() {
           </li>
           <li>
             <NavLink to="/cart" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
-              Cart ({totalItems})
+              Cart
             </NavLink>
           </li>
+          {isAuthenticated && !isAdmin && (
+            <li>
+              <NavLink to="/profile" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
+                My Profile
+              </NavLink>
+            </li>
+          )}
           {isAdmin && (
             <li>
-              <NavLink to="/ProductForm" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
+              <NavLink to="/admin/dashboard" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
                 Admin Panel
               </NavLink>
             </li>
           )}
           <li style={{ marginTop: '24px' }}>
             {!isAuthenticated ? (
-              <NavLink
-                to="/login"
-                className="block w-full text-center rounded bg-black text-white uppercase font-medium"
-                onClick={() => setIsMenuOpen(false)}
-                style={{ padding: '12px 0' }}
-              >
-                Login
-              </NavLink>
+              <div className="flex flex-col" style={{ gap: '12px' }}>
+                <NavLink
+                  to="/login"
+                  className="block w-full text-center rounded bg-black text-white uppercase font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ padding: '12px 0' }}
+                >
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="block w-full text-center rounded bg-white text-black border-2 border-black uppercase font-medium hover:bg-black hover:text-white transition"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ padding: '12px 0' }}
+                >
+                  Sign Up
+                </NavLink>
+              </div>
             ) : (
               <div className="flex flex-col" style={{ gap: '12px' }}>
-                <div className="text-center font-medium">Welcome, {user?.username}</div>
+                <div className="text-center font-medium">Welcome, {user?.name || user?.username}</div>
                 <button
                   onClick={handleLogout}
                   className="w-full rounded bg-white text-black border-2 border-black uppercase font-medium"

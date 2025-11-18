@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart } from '../../Slices/CartSlice';
+import { fetchProducts } from '../../Slices/AddProductSlice';
 
 function ProductDetail() {
   const { id } = useParams();
@@ -9,15 +10,28 @@ function ProductDetail() {
   const dispatch = useDispatch();
   
   const products = useSelector((state) => state.products.products);
+  const loading = useSelector((state) => state.products.loading);
   const product = products?.find(p => p.id.toString() === id.toString());
 
   useEffect(() => {
+    // Fetch products if not already loaded
+    if (products.length === 0) {
+      dispatch(fetchProducts());
+    }
+    
     if (product) {
       document.title = `${product.name} - Clothing Store`;
     }
-  }, [product]);
+  }, [product, products.length, dispatch]);
 
-  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+        <p className="text-gray-600">Loading product details...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
