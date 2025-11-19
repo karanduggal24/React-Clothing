@@ -38,12 +38,12 @@ function ProductCart() {
     }
   }, [totalItems, synced, dispatch])
 
-  // Sync cart items with latest product stock
+  // Sync cart items with latest product stock - only when synced changes
   useEffect(() => {
-    if (cartItems.length > 0 && products.length > 0) {
+    if (synced && cartItems.length > 0 && products.length > 0) {
       dispatch(removeOutOfStockItems(products));
     }
-  }, [products, dispatch])
+  }, [synced]) // Only run when cart is synced from backend
 
   const handleIncrement = async (item) => {
     // Check if we can add more (stock limit check)

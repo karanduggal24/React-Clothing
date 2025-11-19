@@ -71,15 +71,16 @@ function ProductDetail() {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="md:flex">
             {/* Product Image */}
-            <div className="md:w-1/2">
-              <div
-                className="w-full h-96 md:h-full bg-cover bg-center bg-no-repeat"
-                style={product.img ? { backgroundImage: `url(${product.img})` } : { backgroundColor: '#f3f4f6' }}
-              >
-                {!product.img && (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <span className="text-lg">No Image Available</span>
-                  </div>
+            <div className="md:w-1/2 bg-gray-50">
+              <div className="w-full h-96 md:h-full flex items-center justify-center p-4">
+                {product.img ? (
+                  <img 
+                    src={product.img} 
+                    alt={product.name}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="text-gray-400 text-lg">No Image Available</div>
                 )}
               </div>
             </div>
@@ -157,14 +158,21 @@ function ProductDetail() {
                   className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition"
                   onClick={() => navigate(`/product/${relatedProduct.id}`)}
                 >
-                  <div
-                    className="w-full h-48 bg-cover md:bg-center  bg-no-repeat"
-                    style={relatedProduct.img ? { backgroundImage: `url(${relatedProduct.img})` } : { backgroundColor: '#f3f4f6' }}
-                  />
+                  <div className="w-full h-48 bg-gray-50 flex items-center justify-center overflow-hidden">
+                    {relatedProduct.img ? (
+                      <img 
+                        src={relatedProduct.img} 
+                        alt={relatedProduct.name}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-gray-400 text-sm">No Image</div>
+                    )}
+                  </div>
                   <div style={{padding: "16px"}}>
                     <h3 className="font-semibold text-sm" style={{marginBottom: "8px"}}>{relatedProduct.name}</h3>
                     <p className="text-gray-600 text-xs" style={{marginBottom: "8px"}}>{relatedProduct.category}</p>
-                    <p className="font-bold">{relatedProduct.price} Rs</p>
+                    <p className="font-bold">₹{relatedProduct.price}</p>
                   </div>
                 </div>
               ))}
