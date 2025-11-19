@@ -4,6 +4,7 @@ from typing import Optional
 from models.Products import products
 from config.db import conn
 from Schemas.Products import Product
+from utils.cache import cache
 import os
 import shutil
 from pathlib import Path
@@ -32,6 +33,14 @@ def get_products(
     - in_stock: Show only products in stock (Quantity > 0)
     """
     try:
+        # Create cache key based on filters
+        cache_key = f"products_{category}_{min_price}_{max_price}_{search}_{in_stock}"
+        
+        # Check cache first
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return cached_result
+        
         # Start with base query
         query = products.select()
         
@@ -75,6 +84,10 @@ def get_products(
                 "Image": row.Image,
                 "Quantity": row.Quantity
             })
+        
+        # Cache the result for 5 minutes (300 seconds)
+        cache.set(cache_key, products_list, ttl_seconds=300)
+        
         return products_list
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching products: {str(e)}")
@@ -118,6 +131,8 @@ async def create_product(data: Product):
             Quantity=data.Quantity
         ))
 
+        # Clear cache when product is created
+        cache.clear()
         
         return {
             "message": "Product created successfully",
