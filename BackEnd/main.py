@@ -8,11 +8,23 @@ from routers.Users import router as UserRouter
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
 
 app = FastAPI()
+
+# Log startup info
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Application starting up...")
+    logger.info(f"DATABASE_URL configured: {bool(os.getenv('DATABASE_URL'))}")
+    logger.info(f"CORS_ORIGINS: {os.getenv('CORS_ORIGINS', '*')}")
 
 # Mount static files for uploaded images
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "public/uploads"))
