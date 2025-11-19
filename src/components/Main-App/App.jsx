@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import ProductForm from "../../features/products/ProductForm/ProductForm";
 import ProductsList from "../../features/products/ProductList/ProductsList";
 import ProductCart from "../../features/products/ProductCart/ProductCart";
@@ -10,6 +12,7 @@ import Home from "../Home/Home";
 import ProtectedRoute from "../ProtectedRoute";
 import Footer from "../Footer/Footer";
 import { useCartStockSync } from "../../hooks/useCartStockSync";
+import { fetchCartFromBackend } from "../../features/Slices/CartSlice";
 import "./App.css";
 import ScrollToTop from "../../hooks/scrollToTop";
 import { ToastContainer } from "react-toastify";
@@ -25,6 +28,18 @@ import AdminUsers from "../../features/Admin/AdminUsers";
 import UserProfile from "../../features/User/UserProfile";
 
 function App() {
+  const dispatch = useDispatch();
+  const synced = useSelector((state) => state.cart.synced);
+  
+  // Fetch cart from backend on app load
+  useEffect(() => {
+    if (!synced) {
+      dispatch(fetchCartFromBackend()).catch(err => {
+        console.error('Failed to fetch cart on app load:', err);
+      });
+    }
+  }, [dispatch, synced]);
+  
   // Sync cart with product stock changes
   useCartStockSync();
 
