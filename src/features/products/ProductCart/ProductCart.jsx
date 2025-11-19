@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   selectCartItems,
@@ -16,6 +16,7 @@ import {
 } from '../../Slices/CartSlice'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import DeleteConfirmModal from '../../../components/DeleteConfirmModal/DeleteConfirmModal'
 
 function ProductCart() {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ function ProductCart() {
   const loading = useSelector((state) => state.cart.loading)
   const synced = useSelector((state) => state.cart.synced)
   const products = useSelector((state) => state.products.products)
+  
+  const [showClearModal, setShowClearModal] = useState(false)
 
   useEffect(() => {
     document.title = `Clothing Store - Cart (${totalItems})`
@@ -105,16 +108,26 @@ function ProductCart() {
     }
   };
 
-  const handleClearCart = async () => {
-    if (window.confirm('Are you sure you want to clear your cart?')) {
-      try {
-        await dispatch(clearCartBackend()).unwrap();
-      } catch (error) {
-        console.error('Failed to clear cart from backend:', error);
-        // Still clear local cart
-        dispatch(clearCart());
-      }
+  const handleClearCartClick = () => {
+    setShowClearModal(true);
+  };
+
+  const handleClearCartConfirm = async () => {
+    try {
+      await dispatch(clearCartBackend()).unwrap();
+      toast.success('Cart cleared successfully');
+    } catch (error) {
+      console.error('Failed to clear cart from backend:', error);
+      // Still clear local cart
+      dispatch(clearCart());
+      toast.success('Cart cleared');
+    } finally {
+      setShowClearModal(false);
     }
+  };
+
+  const handleClearCartCancel = () => {
+    setShowClearModal(false);
   };
 
   const handleProductClick = (productId) => {
@@ -320,7 +333,7 @@ function ProductCart() {
         </div>
 
         <button
-          onClick={handleClearCart}
+          onClick={handleClearCartClick}
           disabled={loading}
           className='w-full md:w-auto border border-black bg-white text-black text-base font-normal cursor-pointer 
           transition-all hover:bg-black hover:text-white text-center disabled:opacity-50'
@@ -337,6 +350,16 @@ function ProductCart() {
           Proceed to Payment - ₹{totalPrice.toFixed(2)}
         </button>
       </div>
+
+      {/* Clear Cart Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showClearModal}
+        onClose={handleClearCartCancel}
+        onConfirm={handleClearCartConfirm}
+        productName={`${totalItems} item${totalItems > 1 ? 's' : ''} in your cart`}
+        loading={loading}
+        type="cart"
+      />
     </div>
   )
 }

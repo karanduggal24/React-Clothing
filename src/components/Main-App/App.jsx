@@ -131,22 +131,34 @@ function App() {
       </Routes>
 
       <ToastContainer
-        position="top-right"
-        autoClose={2000}
+        position="bottom-left"
+        autoClose={3000}
         hideProgressBar={false}
         closeOnClick
         pauseOnHover
         draggable
-        theme="dark"
+        theme="light"
+        limit={3}
+        newestOnTop={true}
+        preventDuplicates={true}
         toastStyle={{
-          backgroundColor: "#000",
-          color: "#fff",
-          borderRadius: "12px",
-          border: "1px solid #fff",
-          fontFamily: "Poppins, sans-serif",
-          letterSpacing: "0.5px",
-          padding: "10px 16px",
-          boxShadow: "0 4px 10px rgba(255,255,255,0.1)",
+          backgroundColor: "#ffffff",
+          color: "#000000",
+          borderRadius: "8px",
+          border: "2px solid #000000",
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          fontSize: "14px",
+          fontWeight: "500",
+          padding: "12px 20px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          minHeight: "60px",
+        }}
+        progressStyle={{
+          background: "#000000",
+        }}
+        style={{
+          bottom: "20px",
+          left: "20px",
         }}
         progressStyle={{
           background: "#fff",

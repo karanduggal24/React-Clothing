@@ -19,6 +19,7 @@ import {
 import { addOrder } from "../Slices/OrdersSlice";
 import { updateProductStock } from "../Slices/AddProductSlice";
 import { toast } from "react-toastify";
+import { initiateRazorpayPayment } from "../../utils/razorpay";
 
 function PaymentDetailsForm() {
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ function PaymentDetailsForm() {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState('razorpay'); // 'razorpay' or 'cod'
 
   // Reset form when user changes or logs out
   useEffect(() => {
@@ -105,20 +107,7 @@ function PaymentDetailsForm() {
     if (!userInfo.pincode.trim()) errors.pincode = "Pincode is required";
     if (!userInfo.address.trim()) errors.address = "Address is required";
 
-    // Payment info validation
-    if (!paymentInfo.cardholderName.trim())
-      errors.cardholderName = "Cardholder name is required";
-    if (!paymentInfo.cardNumber.trim())
-      errors.cardNumber = "Card number is required";
-    else if (paymentInfo.cardNumber.replace(/\s/g, "").length < 16)
-      errors.cardNumber = "Card number must be 16 digits";
-    if (!paymentInfo.expiryDate.trim())
-      errors.expiryDate = "Expiry date is required";
-    else if (!/^\d{2}\/\d{2}$/.test(paymentInfo.expiryDate))
-      errors.expiryDate = "Expiry date must be MM/YY format";
-    if (!paymentInfo.cvv.trim()) errors.cvv = "CVV is required";
-    else if (paymentInfo.cvv.length < 3)
-      errors.cvv = "CVV must be at least 3 digits";
+    // Payment info validation removed - Cash on Delivery
 
     // Cart validation
     if (cartItems.length === 0) {
@@ -142,6 +131,65 @@ function PaymentDetailsForm() {
     }
   }, [countdown, isProcessing]);
 
+  // Helper function to save order
+  const saveOrder = async (orderId, status, paymentId = null) => {
+    try {
+      // Save to backend
+      await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/orders/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: orderId,
+          customer_name: userInfo.name,
+          customer_email: userInfo.email,
+          customer_phone: userInfo.phone,
+          address: userInfo.address,
+          city: userInfo.city,
+          state: userInfo.state,
+          pincode: userInfo.pincode,
+          country: userInfo.country || 'India',
+          order_items: cartItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            category: item.category,
+            img: item.img
+          })),
+          total_items: totalItems,
+          total_price: totalPrice,
+          status: status
+        })
+      });
+      
+      // Add to local state
+      dispatch(addOrder({
+        orderId,
+        userInfo,
+        paymentInfo: { paymentId },
+        orderInfo: { items: cartItems, totalItems, totalPrice },
+        orderDate: new Date().toISOString(),
+        status: status,
+      }));
+      
+      // Reduce stock
+      for (const item of cartItems) {
+        await fetch(
+          `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/products/${item.id}/reduce-stock?quantity=${item.quantity}`,
+          { method: 'PATCH' }
+        );
+        dispatch(updateProductStock({ productId: item.id, quantity: item.quantity }));
+      }
+      
+      // Clear cart
+      dispatch(clearCart());
+      await dispatch(clearCartBackend()).unwrap();
+      sessionStorage.removeItem('products');
+    } catch (error) {
+      console.error('Error saving order:', error);
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -152,105 +200,47 @@ function PaymentDetailsForm() {
     }
 
     if (validateForm()) {
+      const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      
+      if (paymentMethod === 'razorpay') {
+        // Razorpay Payment
+        console.log('Initiating Razorpay payment:', {
+          amount: totalPrice,
+          orderId,
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID
+        });
+        
+        initiateRazorpayPayment({
+          amount: totalPrice,
+          orderId: orderId,
+          customerName: userInfo.name,
+          customerEmail: userInfo.email,
+          customerPhone: userInfo.phone,
+          onSuccess: async (paymentData) => {
+            console.log('Payment successful:', paymentData);
+            setIsProcessing(true);
+            setCountdown(5);
+            await saveOrder(orderId, 'Paid', paymentData.razorpay_payment_id);
+            toast.success("Payment successful!");
+            setTimeout(() => navigate('/order-confirmed'), 1500);
+          },
+          onFailure: (error) => {
+            console.error('Payment failed:', error);
+            toast.error(`Payment failed: ${error}`);
+            setIsProcessing(false);
+            setCountdown(0);
+          },
+        });
+        return;
+      }
+      
+      // Cash on Delivery
       setIsProcessing(true);
       setCountdown(5);
       
       try {
-        // Generate unique order ID
-        const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-        
-        // Save order to backend database
-        try {
-          const orderResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/orders/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              order_id: orderId,
-              customer_name: userInfo.name,
-              customer_email: userInfo.email,
-              customer_phone: userInfo.phone,
-              address: userInfo.address,
-              city: userInfo.city,
-              state: userInfo.state,
-              pincode: userInfo.pincode,
-              country: userInfo.country || 'India',
-              order_items: cartItems.map(item => ({
-                id: item.id,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                category: item.category,
-                img: item.img
-              })),
-              total_items: totalItems,
-              total_price: totalPrice,
-              status: 'Confirmed'
-            })
-          });
-          
-          if (!orderResponse.ok) {
-            console.error('Failed to save order to backend');
-          }
-        } catch (error) {
-          console.error('Error saving order to backend:', error);
-        }
-        
-        // Add order to local orders slice for immediate display
-        dispatch(
-          addOrder({
-            orderId,
-            userInfo,
-            paymentInfo: {
-              cardholderName: paymentInfo.cardholderName,
-              // Don't store sensitive payment info
-            },
-            orderInfo: {
-              items: cartItems,
-              totalItems,
-              totalPrice,
-            },
-            orderDate: new Date().toISOString(),
-            status: "Confirmed",
-          })
-        );
-
-        // Reduce product stock in database for each item
-        for (const item of cartItems) {
-          try {
-            const response = await fetch(
-              `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/products/${item.id}/reduce-stock?quantity=${item.quantity}`,
-              { method: 'PATCH' }
-            );
-            
-            if (!response.ok) {
-              console.error(`Failed to reduce stock for product ${item.id}`);
-            } else {
-              // Update local product stock
-              dispatch(updateProductStock({ 
-                productId: item.id, 
-                quantity: item.quantity 
-              }));
-            }
-          } catch (error) {
-            console.error(`Error reducing stock for product ${item.id}:`, error);
-          }
-        }
-        
-        // Clear products from sessionStorage to force refresh on next load
-        sessionStorage.removeItem('products');
-
-        // Clear cart from local state
-        dispatch(clearCart());
-        
-        // Clear cart from backend
-        try {
-          await dispatch(clearCartBackend()).unwrap();
-        } catch (error) {
-          console.error('Failed to clear cart from backend:', error);
-        }
-
-        // Show success message
-        toast.success("Payment processed successfully!");
+        await saveOrder(orderId, 'Confirmed', null);
+        toast.success("Order placed successfully!");
 
         // Navigate to order confirmed page
         setTimeout(() => {
@@ -448,104 +438,46 @@ function PaymentDetailsForm() {
           </div>
         </div>
 
-        {/* Payment Details Section */}
+        {/* Payment Method Selection */}
         <div className="space-y-4">
           <h2
             className="text-2xl text-black tracking-wider border-b-2 border-black"
             style={{ paddingBottom: "0.5rem" }}
           >
-            Payment Details
+            Payment Method
           </h2>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-black tracking-wider">
-              Cardholder Name *
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Cardholder Name"
-              value={paymentInfo.cardholderName}
-              onChange={(e) =>
-                handlePaymentInfoChange("cardholderName", e.target.value)
-              }
-              className={`border-2 ${
-                formErrors.cardholderName ? "border-red-500" : "border-black"
-              } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-              style={{ padding: "0.75rem" }}
-            />
-            {formErrors.cardholderName && (
-              <span className="text-red-500 text-xs">
-                {formErrors.cardholderName}
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-black tracking-wider">
-              Card Number *
-            </label>
-            <input
-              maxLength={16}
-              type="text"
-              placeholder="Enter Card Number"
-              value={paymentInfo.cardNumber}
-              onChange={(e) =>
-                handlePaymentInfoChange("cardNumber", e.target.value)
-              }
-              className={`border-2 ${
-                formErrors.cardNumber ? "border-red-500" : "border-black"
-              } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-              style={{ padding: "0.75rem" }}
-            />
-            {formErrors.cardNumber && (
-              <span className="text-red-500 text-xs">
-                {formErrors.cardNumber}
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                Expiry Date *
-              </label>
+          
+          <div className="flex flex-col gap-3">
+            <label className="flex items-center gap-3 p-4 border-2 border-black rounded cursor-pointer hover:bg-gray-50 transition-colors">
               <input
-                maxLength={5}
-                type="text"
-                placeholder="MM/YY"
-                value={paymentInfo.expiryDate}
-                onChange={(e) =>
-                  handlePaymentInfoChange("expiryDate", e.target.value)
-                }
-                className={`border-2 ${
-                  formErrors.expiryDate ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
+                type="radio"
+                name="paymentMethod"
+                value="razorpay"
+                checked={paymentMethod === 'razorpay'}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-5 h-5 accent-black"
               />
-              {formErrors.expiryDate && (
-                <span className="text-red-500 text-xs">
-                  {formErrors.expiryDate}
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">CVV *</label>
+              <div className="flex-1">
+                <div className="font-semibold text-black">Pay Online (Razorpay)</div>
+                <div className="text-sm text-gray-600">Credit/Debit Card, UPI, Net Banking, Wallets</div>
+              </div>
+              <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Secure</div>
+            </label>
+            
+            <label className="flex items-center gap-3 p-4 border-2 border-black rounded cursor-pointer hover:bg-gray-50 transition-colors">
               <input
-                maxLength={3}
-                type="password"
-                placeholder="Enter CVV"
-                value={paymentInfo.cvv}
-                onChange={(e) => handlePaymentInfoChange("cvv", e.target.value)}
-                className={`border-2 ${
-                  formErrors.cvv ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
+                type="radio"
+                name="paymentMethod"
+                value="cod"
+                checked={paymentMethod === 'cod'}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-5 h-5 accent-black"
               />
-              {formErrors.cvv && (
-                <span className="text-red-500 text-xs">{formErrors.cvv}</span>
-              )}
-            </div>
+              <div className="flex-1">
+                <div className="font-semibold text-black">Cash on Delivery</div>
+                <div className="text-sm text-gray-600">Pay when you receive the order</div>
+              </div>
+            </label>
           </div>
         </div>
 
@@ -563,7 +495,9 @@ function PaymentDetailsForm() {
         >
           {isProcessing 
             ? `Processing... (${countdown}s)` 
-            : `Pay Now - Rs ${totalPrice.toFixed(2)}`
+            : paymentMethod === 'razorpay'
+              ? `Pay ₹${totalPrice.toFixed(2)} with Razorpay`
+              : `Place Order - ₹${totalPrice.toFixed(2)} (Cash on Delivery)`
           }
         </button>
       </form>

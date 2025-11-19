@@ -26,9 +26,23 @@ function ProductsList() {
     // console.log('Filtered Products:', filteredProducts);
   }, [dispatch]);
 
+  const cartItems = useSelector(selectCartItems);
+  
   const handleAddToCart = async (product) => {
+    // Check if product is already in cart
+    const existingItem = cartItems.find(item => item.id === product.id);
+    const currentQuantityInCart = existingItem ? existingItem.quantity : 0;
+    
+    // Check if adding one more would exceed stock
+    if (currentQuantityInCart >= product.stockQuantity) {
+      toast.error(`Cannot add more. Only ${product.stockQuantity} available in stock.`);
+      return;
+    }
+    
     // Add to local state first for immediate feedback
     dispatch(addToCart(product));
+    toast.success(`${product.name} added to cart`);
+    
     // Then sync with backend
     try {
       await dispatch(addToCartBackend(product)).unwrap();
