@@ -90,6 +90,8 @@ def get_order(order_id: str):
 async def create_order(data: OrderCreate):
     """Create a new order"""
     try:
+        from datetime import datetime
+        
         # Check if order_id already exists
         check_query = orders.select().where(orders.c.order_id == data.order_id)
         existing = conn.execute(check_query).fetchone()
@@ -97,7 +99,8 @@ async def create_order(data: OrderCreate):
         if existing:
             raise HTTPException(status_code=400, detail=f"Order {data.order_id} already exists")
         
-        # Insert order
+        # Insert order with explicit datetime
+        now = datetime.now()
         result = conn.execute(orders.insert().values(
             order_id=data.order_id,
             customer_name=data.customer_name,
@@ -111,7 +114,9 @@ async def create_order(data: OrderCreate):
             order_items=data.order_items,  # SQLAlchemy JSON type handles serialization
             total_items=data.total_items,
             total_price=data.total_price,
-            status=data.status
+            status=data.status,
+            order_date=now,
+            updated_at=now
         ))
 
         

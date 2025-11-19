@@ -82,9 +82,11 @@ async def add_to_cart(data: CartItem):
         
         if existing:
             # Update quantity if item already exists
+            from datetime import datetime
             new_quantity = existing.quantity + data.quantity
             update_query = cart.update().where(cart.c.id == existing.id).values(
-                quantity=new_quantity
+                quantity=new_quantity,
+                updated_at=datetime.now()
             )
             conn.execute(update_query)
     
@@ -97,6 +99,8 @@ async def add_to_cart(data: CartItem):
             }
         else:
             # Add new item to cart
+            from datetime import datetime
+            now = datetime.now()
             result = conn.execute(cart.insert().values(
                 user_id=data.user_id,
                 product_id=data.product_id,
@@ -104,7 +108,9 @@ async def add_to_cart(data: CartItem):
                 product_price=data.product_price,
                 product_category=data.product_category,
                 product_image=data.product_image,
-                quantity=data.quantity
+                quantity=data.quantity,
+                created_at=now,
+                updated_at=now
             ))
     
             
@@ -131,8 +137,10 @@ async def update_cart_item(cart_item_id: int, data: CartItemUpdate):
             raise HTTPException(status_code=404, detail=f"Cart item with ID {cart_item_id} not found")
         
         # Update quantity
+        from datetime import datetime
         update_query = cart.update().where(cart.c.id == cart_item_id).values(
-            quantity=data.quantity
+            quantity=data.quantity,
+            updated_at=datetime.now()
         )
         conn.execute(update_query)
 

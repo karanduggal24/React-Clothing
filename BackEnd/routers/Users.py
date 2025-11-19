@@ -19,6 +19,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 async def signup(data: UserCreate):
     """Register a new user"""
     try:
+        from datetime import datetime
+        
         # Check if email already exists
         check_query = users.select().where(users.c.email == data.email)
         existing = conn.execute(check_query).fetchone()
@@ -32,13 +34,16 @@ async def signup(data: UserCreate):
         # Hash password
         hashed_password = hash_password(data.password)
         
-        # Insert user
+        # Insert user with explicit datetime
+        now = datetime.now()
         result = conn.execute(users.insert().values(
             email=data.email,
             password=hashed_password,
             name=data.name,
             phone=data.phone,
-            role="user"  # Default role
+            role="user",  # Default role
+            created_at=now,
+            updated_at=now
         ))
 
         
