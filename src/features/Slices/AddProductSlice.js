@@ -144,8 +144,21 @@ export const fetchProductsWithFilters = createAsyncThunk(
     }
 );
 
+// Load products from sessionStorage if available
+const loadProductsFromSession = () => {
+    try {
+        const savedProducts = sessionStorage.getItem('products');
+        if (savedProducts) {
+            return JSON.parse(savedProducts);
+        }
+    } catch (error) {
+        console.error('Failed to load products from session:', error);
+    }
+    return [{ id:"1", name:'T-Shirt',price:299,category:"Men's Clothing", img:SuperHero, stockQuantity:0 }];
+};
+
 const initialState = {
-    products: [{ id:"1", name:'T-Shirt',price:299,category:"Men's Clothing", img:SuperHero, stockQuantity:0 }],
+    products: loadProductsFromSession(),
     loading: false,
     error: null
 }
@@ -211,6 +224,13 @@ export const AddProductSlice = createSlice({
                 const existingIds = new Set(state.products.map(p => p.id));
                 const newProducts = backendProducts.filter(p => !existingIds.has(p.id));
                 state.products = [...state.products, ...newProducts];
+                
+                // Save products to sessionStorage
+                try {
+                    sessionStorage.setItem('products', JSON.stringify(state.products));
+                } catch (error) {
+                    console.error('Failed to save products to session:', error);
+                }
             })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.loading = false;
