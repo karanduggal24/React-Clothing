@@ -166,6 +166,8 @@ async def update_product(product_id: int, data: Product):
         )
         conn.execute(update_query)
 
+        # Clear cache when product is updated
+        cache.clear()
         
         return {
             "message": "Product updated successfully",
@@ -194,6 +196,8 @@ async def delete_product(product_id: int):
         delete_query = products.delete().where(products.c.id == product_id)
         conn.execute(delete_query)
 
+        # Clear cache when product is deleted
+        cache.clear()
         
         return {
             "message": "Product deleted successfully",
@@ -231,6 +235,8 @@ async def reduce_product_stock(product_id: int, quantity: int = Query(..., descr
         )
         conn.execute(update_query)
 
+        # Clear cache when stock is reduced
+        cache.clear()
         
         return {
             "message": "Stock reduced successfully",

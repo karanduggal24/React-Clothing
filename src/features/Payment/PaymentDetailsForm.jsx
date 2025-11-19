@@ -235,6 +235,9 @@ function PaymentDetailsForm() {
             console.error(`Error reducing stock for product ${item.id}:`, error);
           }
         }
+        
+        // Clear products from sessionStorage to force refresh on next load
+        sessionStorage.removeItem('products');
 
         // Clear cart from local state
         dispatch(clearCart());
