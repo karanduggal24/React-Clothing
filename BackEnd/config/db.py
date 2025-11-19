@@ -20,15 +20,26 @@ if not DATABASE_URL:
 # Create engine with connection pooling settings
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,  # Verify connections before using them
-    pool_recycle=3600,   # Recycle connections after 1 hour
+    pool_pre_ping=True,  # Test connections before using
+    pool_recycle=280,    # Recycle connections before MySQL timeout (default 300s)
+    pool_size=5,
+    max_overflow=10,
     echo=False
 )
 meta = MetaData()
 
-# Create connection function instead of immediate connection
-def get_connection():
-    return engine.connect()
+# Create a simple wrapper that provides conn interface
+class DBConnection:
+    def execute(self, *args, **kwargs):
+        with engine.connect() as connection:
+            result = connection.execute(*args, **kwargs)
+            connection.commit()  # Commit after each execute
+            return result
+    
+    def commit(self):
+        pass  # No-op since we commit in execute
+    
+    def rollback(self):
+        pass  # No-op for now
 
-# For backward compatibility
-conn = get_connection()
+conn = DBConnection()
