@@ -32,23 +32,35 @@ function App() {
   const synced = useSelector((state) => state.cart.synced);
   const products = useSelector((state) => state.products.products);
   
-  // Fetch products and cart from backend on app load
+  // Fetch products and cart simultaneously on app load
   useEffect(() => {
-    // Fetch products first
-    if (products.length === 0) {
-      import('../../features/Slices/AddProductSlice').then(module => {
-        dispatch(module.fetchProducts()).catch(err => {
-          console.error('Failed to fetch products on app load:', err);
-        });
-      });
-    }
+    const loadData = async () => {
+      try {
+        // Import fetchProducts dynamically
+        const { fetchProducts } = await import('../../features/Slices/AddProductSlice');
+        
+        // Fetch both products and cart at the same time
+        const promises = [];
+        
+        if (products.length === 0) {
+          promises.push(dispatch(fetchProducts()));
+        }
+        
+        if (!synced) {
+          promises.push(dispatch(fetchCartFromBackend()));
+        }
+        
+        // Wait for both to complete
+        if (promises.length > 0) {
+          await Promise.all(promises);
+          console.log('Products and cart loaded successfully');
+        }
+      } catch (error) {
+        console.error('Failed to load data on app load:', error);
+      }
+    };
     
-    // Then fetch cart
-    if (!synced) {
-      dispatch(fetchCartFromBackend()).catch(err => {
-        console.error('Failed to fetch cart on app load:', err);
-      });
-    }
+    loadData();
   }, [dispatch, synced, products.length]);
   
   // Sync cart with product stock changes
