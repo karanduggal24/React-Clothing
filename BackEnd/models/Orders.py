@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from config.db import meta
 
 orders = Table(
-    "Orders",
+    "orders",
     meta,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("order_id", String(100), unique=True),  # Unique order ID

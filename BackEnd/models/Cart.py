@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from config.db import meta
 
 cart = Table(
-    "Cart",
+    "cart",
     meta,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("user_id", String(100)),  # Can be user email or session ID

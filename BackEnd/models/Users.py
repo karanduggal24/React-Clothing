@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from config.db import meta
 
 users = Table(
-    "Users",
+    "users",
     meta,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("email", String(100), unique=True, nullable=False),

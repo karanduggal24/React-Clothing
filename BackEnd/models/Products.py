@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, String
 from config.db import meta
 
 products = Table(
-    "Products",
+    "products",
     meta,
     Column("id", Integer, primary_key=True),
     Column("name", String(100)),
