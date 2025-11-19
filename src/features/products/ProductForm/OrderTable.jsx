@@ -441,6 +441,7 @@ function OrderTable() {
         onConfirm={handleDeleteConfirm}
         productName={orderToDelete ? `Order ${orderToDelete.id}` : ''}
         loading={loading}
+        type="order"
       />
     </div>
   );

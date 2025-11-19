@@ -71,10 +71,19 @@ function ProductsList() {
             className=" justify-between flex-col mt-12 bg-white w-60 rounded-lg shadow-md border border-black overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-lg cursor-pointer"
           >
             <div
-              className="w-full h-60 bg-contain bg-center bg-no-repeat"
-              style={product.img ? { backgroundImage: `url(${product.img})`, backgroundSize: 'cover' } : undefined}
+              className="w-full h-60 bg-gray-50 flex items-center justify-center overflow-hidden"
               onClick={() => navigate(`/product/${product.id}`)}
-            />
+            >
+              {product.img ? (
+                <img 
+                  src={product.img} 
+                  alt={product.name}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="text-gray-400 text-sm">No Image</div>
+              )}
+            </div>
 
             <div className="bg-white flex flex-col items-center text-center border-t border-black p-3 gap-2">
               <div className="font-bold text-lg" onClick={() => navigate(`/product/${product.id}`)}>

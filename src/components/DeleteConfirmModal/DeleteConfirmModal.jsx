@@ -1,7 +1,10 @@
 import { X } from 'lucide-react';
 
-function DeleteConfirmModal({ isOpen, onClose, onConfirm, productName, loading }) {
+function DeleteConfirmModal({ isOpen, onClose, onConfirm, productName, loading, type = 'product' }) {
   if (!isOpen) return null;
+
+  const itemType = type.toLowerCase();
+  const itemTypeCapitalized = itemType.charAt(0).toUpperCase() + itemType.slice(1);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -48,7 +51,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, productName, loading }
             </div>
             <div className="flex-1" style={{ margin: 0, padding: 0 }}>
               <p className="text-gray-700" style={{ marginBottom: '8px', marginTop: 0, padding: 0 }}>
-                Are you sure you want to delete this product?
+                Are you sure you want to delete this {itemType}?
               </p>
               {productName && (
                 <p className="text-sm font-medium text-gray-900 bg-gray-50 rounded" style={{ padding: '8px', margin: 0 }}>
@@ -56,7 +59,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, productName, loading }
                 </p>
               )}
               <p className="text-sm text-red-600" style={{ marginTop: '12px', padding: 0 }}>
-                This action cannot be undone. The product will be permanently removed from the database.
+                This action cannot be undone. The {itemType} will be permanently removed from the database.
               </p>
             </div>
           </div>
@@ -84,7 +87,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm, productName, loading }
                 Deleting...
               </>
             ) : (
-              'Delete Product'
+              `Delete ${itemTypeCapitalized}`
             )}
           </button>
         </div>
