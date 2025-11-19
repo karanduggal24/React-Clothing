@@ -66,43 +66,53 @@ function ProductsList() {
         <div style={{marginTop:"8px"}} className="flex justify-center flex-wrap gap-6 mt-8">
           {filteredProducts.map((product) => (
           <div
-          style={{marginTop:"12px"}}
             key={product.id}
-            className=" justify-between flex-col mt-12 bg-white w-60 rounded-lg shadow-md border border-black overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+            className="flex flex-col bg-white w-72 rounded-lg shadow-md border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            style={{marginTop:"12px"}}
           >
+            {/* Image Container - Fixed aspect ratio */}
             <div
-              className="w-full h-60 bg-gray-50 flex items-center justify-center overflow-hidden"
+              className="w-full h-80 bg-white flex items-center justify-center overflow-hidden cursor-pointer relative group"
               onClick={() => navigate(`/product/${product.id}`)}
             >
               {product.img ? (
                 <img 
                   src={product.img} 
                   alt={product.name}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
                 <div className="text-gray-400 text-sm">No Image</div>
               )}
             </div>
 
-            <div className="bg-white flex flex-col items-center text-center border-t border-black p-3 gap-2">
-              <div className="font-bold text-lg" onClick={() => navigate(`/product/${product.id}`)}>
-                <p style={{padding:"5px"}} className="m-0 cursor-pointer hover:text-gray-600 transition">{product.name}</p>
-              </div>
+            {/* Content Container */}
+            <div className="flex flex-col p-4 gap-3 bg-white">
+              {/* Product Name */}
+              <h3 
+                className="font-bold text-lg text-gray-900 cursor-pointer hover:text-gray-600 transition line-clamp-2 min-h-[3.5rem]"
+                onClick={() => navigate(`/product/${product.id}`)}
+              >
+                {product.name}
+              </h3>
 
-              <div>
-                <p style={{paddingLeft:"7px",paddingRight:"7px"}} className="m-0 text-sm text-black inline-block px-3 py-1 border border-black rounded-full">
+              {/* Category Badge */}
+              <div className="flex justify-center">
+                <span className="text-xs text-gray-700 px-3 py-1 border border-gray-300 rounded-full bg-gray-50">
                   {product.category}
-                </p>
+                </span>
               </div>
 
-              <div>
-                <p style={{paddingLeft:"7px",paddingRight:"7px"}} className="m-0 font-bold text-white bg-black inline-block px-3 py-1 rounded-md">{product.price} Rs</p>
+              {/* Price */}
+              <div className="flex justify-center">
+                <span className="text-xl font-bold text-white bg-black px-4 py-2 rounded-md">
+                  ₹{product.price}
+                </span>
               </div>
 
               {/* Stock Status */}
-              <div style={{marginBottom:"4px"}} className="mb-2">
-                <span style={{paddingLeft:"4px",paddingRight:"4px",paddingTop:"2px",paddingBottom:"2px"  }} className={`text-xs px-2 py-1 rounded-full ${
+              <div className="flex justify-center">
+                <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${
                   product.stockQuantity > 0 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-red-100 text-red-800'
@@ -111,29 +121,28 @@ function ProductsList() {
                 </span>
               </div>
 
-              <div className="flex gap-2 w-full">
+              {/* Action Buttons */}
+              <div className="flex gap-2 mt-2">
                 <button
-                  style={{padding:"7px",margin:"5px",marginBottom:"20px" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleAddToCart(product);
                   }}
                   disabled={product.stockQuantity <= 0}
-                  className={`flex-1 rounded px-3 py-2 border border-black uppercase text-xs font-medium transition ${
+                  className={`flex-1 py-2.5 px-4 rounded-md border border-black text-xs font-semibold uppercase tracking-wide transition-all ${
                     product.stockQuantity > 0 
                       ? 'bg-white text-black hover:bg-black hover:text-white' 
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300'
                   }`}
                 >
                   {product.stockQuantity > 0 ? 'Add To Cart' : 'Out of Stock'}
                 </button>
                 <button
-                  style={{padding:"7px",margin:"5px",marginBottom:"20px" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/product/${product.id}`);
                   }}
-                  className="flex-1 rounded px-3 py-2 bg-black text-white border border-black uppercase text-xs font-medium hover:bg-gray-800 transition"
+                  className="flex-1 py-2.5 px-4 rounded-md bg-black text-white border border-black text-xs font-semibold uppercase tracking-wide hover:bg-gray-800 transition-all"
                 >
                   View Details
                 </button>

@@ -173,7 +173,7 @@ function ProductCart() {
             {/* Mobile Layout */}
             <div className='md:hidden'>
               <div className='flex items-center gap-3' style={{ padding: '12px' }}>
-                <div className='w-16 h-16 bg-gray-100 border border-gray-200 rounded flex items-center justify-center overflow-hidden shrink-0'>
+                <div className='w-20 h-20 bg-white border border-gray-200 rounded-md flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:border-gray-400 transition-colors'>
                   {item.img ? (
                     <img
                       onClick={handleProductClick.bind(null, item.id)}
@@ -182,7 +182,7 @@ function ProductCart() {
                       className='w-full h-full object-cover'
                     />
                   ) : (
-                    <div className='w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs'>
+                    <div className='w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs'>
                       No Image
                     </div>
                   )}
@@ -244,7 +244,10 @@ function ProductCart() {
 
             {/* Desktop Layout */}
             <div className='hidden md:flex md:items-center gap-5' style={{ padding: '20px' }}>
-              <div className='w-20 h-20 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center overflow-hidden'>
+              <div 
+                className='w-24 h-24 bg-white border border-gray-200 rounded-md flex items-center justify-center overflow-hidden cursor-pointer hover:border-gray-400 transition-colors'
+                onClick={handleProductClick.bind(null, item.id)}
+              >
                 {item.img ? (
                   <img
                     src={item.img}
@@ -252,7 +255,7 @@ function ProductCart() {
                     className='w-full h-full object-cover'
                   />
                 ) : (
-                  <div className='w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm'>
+                  <div className='w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm'>
                     No Image
                   </div>
                 )}
