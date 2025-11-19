@@ -32,7 +32,7 @@ function App() {
   const synced = useSelector((state) => state.cart.synced);
   const products = useSelector((state) => state.products.products);
   
-  // Fetch products FIRST, then cart (sequential loading)
+  // Fetch products FIRST, wait 5 seconds, then cart (sequential loading)
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -43,8 +43,11 @@ function App() {
           console.log('Products loaded successfully');
         }
         
-        // Step 2: Then fetch cart (only after products are loaded)
+        // Step 2: Wait 5 seconds before fetching cart
         if (!synced) {
+          console.log('Waiting 5 seconds before loading cart...');
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          
           await dispatch(fetchCartFromBackend()).unwrap();
           console.log('Cart loaded successfully');
         }

@@ -339,9 +339,7 @@ export const cartSlice = createSlice({
 
       itemsToRemove.forEach((item) => {
         state.items = state.items.filter((cartItem) => cartItem.id !== item.id);
-        toast.error(`${item.name} removed from cart - Out of stock`, {
-          autoClose: 3000,
-        });
+        // Silently remove out of stock items without toast notification
       });
 
       recalculateTotals(state);
