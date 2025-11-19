@@ -30,15 +30,26 @@ import UserProfile from "../../features/User/UserProfile";
 function App() {
   const dispatch = useDispatch();
   const synced = useSelector((state) => state.cart.synced);
+  const products = useSelector((state) => state.products.products);
   
-  // Fetch cart from backend on app load
+  // Fetch products and cart from backend on app load
   useEffect(() => {
+    // Fetch products first
+    if (products.length === 0) {
+      import('../../features/Slices/AddProductSlice').then(module => {
+        dispatch(module.fetchProducts()).catch(err => {
+          console.error('Failed to fetch products on app load:', err);
+        });
+      });
+    }
+    
+    // Then fetch cart
     if (!synced) {
       dispatch(fetchCartFromBackend()).catch(err => {
         console.error('Failed to fetch cart on app load:', err);
       });
     }
-  }, [dispatch, synced]);
+  }, [dispatch, synced, products.length]);
   
   // Sync cart with product stock changes
   useCartStockSync();
