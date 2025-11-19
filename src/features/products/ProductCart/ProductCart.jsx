@@ -38,16 +38,8 @@ function ProductCart() {
     }
   }, [totalItems, synced, dispatch])
 
-  // Sync cart items with latest product stock - only when both cart and products are loaded
-  useEffect(() => {
-    // Only check stock if:
-    // 1. Cart is synced from backend
-    // 2. Cart has items
-    // 3. Products are loaded (not loading and has items)
-    if (synced && cartItems.length > 0 && products.length > 0 && !loading) {
-      dispatch(removeOutOfStockItems(products));
-    }
-  }, [synced, products.length, loading]) // Run when cart synced or products loaded
+  // Don't auto-check stock on load - it causes issues with async loading
+  // Stock is checked when user tries to increment quantity or checkout instead
 
   const handleIncrement = async (item) => {
     // Check if we can add more (stock limit check)
