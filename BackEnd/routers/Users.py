@@ -40,7 +40,7 @@ async def signup(data: UserCreate):
             phone=data.phone,
             role="user"  # Default role
         ))
-        conn.commit()
+
         
         return {
             "message": "User registered successfully",
@@ -52,7 +52,7 @@ async def signup(data: UserCreate):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error creating user: {str(e)}"
@@ -191,7 +191,7 @@ async def update_user_role(user_id: int, role: str):
         # Update role
         update_query = users.update().where(users.c.id == user_id).values(role=role)
         conn.execute(update_query)
-        conn.commit()
+
         
         return {
             "message": "User role updated successfully",
@@ -201,7 +201,7 @@ async def update_user_role(user_id: int, role: str):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error updating user role: {str(e)}"
@@ -225,7 +225,7 @@ async def delete_user(user_id: int):
         # Delete user
         delete_query = users.delete().where(users.c.id == user_id)
         conn.execute(delete_query)
-        conn.commit()
+
         
         return {
             "message": "User deleted successfully",
@@ -238,7 +238,7 @@ async def delete_user(user_id: int):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error deleting user: {str(e)}"

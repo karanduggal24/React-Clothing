@@ -87,7 +87,7 @@ async def add_to_cart(data: CartItem):
                 quantity=new_quantity
             )
             conn.execute(update_query)
-            conn.commit()
+    
             
             return {
                 "message": "Cart item quantity updated",
@@ -106,7 +106,7 @@ async def add_to_cart(data: CartItem):
                 product_image=data.product_image,
                 quantity=data.quantity
             ))
-            conn.commit()
+    
             
             return {
                 "message": "Item added to cart successfully",
@@ -115,7 +115,7 @@ async def add_to_cart(data: CartItem):
                 "action": "added"
             }
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error adding to cart: {str(e)}")
 
 
@@ -135,7 +135,7 @@ async def update_cart_item(cart_item_id: int, data: CartItemUpdate):
             quantity=data.quantity
         )
         conn.execute(update_query)
-        conn.commit()
+
         
         return {
             "message": "Cart item updated successfully",
@@ -145,7 +145,7 @@ async def update_cart_item(cart_item_id: int, data: CartItemUpdate):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error updating cart item: {str(e)}")
 
 
@@ -163,7 +163,7 @@ async def delete_cart_item(cart_item_id: int):
         # Delete cart item
         delete_query = cart.delete().where(cart.c.id == cart_item_id)
         conn.execute(delete_query)
-        conn.commit()
+
         
         return {
             "message": "Cart item deleted successfully",
@@ -172,7 +172,7 @@ async def delete_cart_item(cart_item_id: int):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error deleting cart item: {str(e)}")
 
 
@@ -182,14 +182,14 @@ async def clear_user_cart(user_id: str):
     try:
         delete_query = cart.delete().where(cart.c.user_id == user_id)
         result = conn.execute(delete_query)
-        conn.commit()
+
         
         return {
             "message": f"Cart cleared for user {user_id}",
             "items_deleted": result.rowcount
         }
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error clearing cart: {str(e)}")
 
 

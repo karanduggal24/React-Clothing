@@ -113,7 +113,7 @@ async def create_order(data: OrderCreate):
             total_price=data.total_price,
             status=data.status
         ))
-        conn.commit()
+
         
         return {
             "message": "Order created successfully",
@@ -123,7 +123,7 @@ async def create_order(data: OrderCreate):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error creating order: {str(e)}")
 
 
@@ -153,7 +153,7 @@ async def update_order(order_id: str, data: OrderUpdate):
         # Update order
         update_query = orders.update().where(orders.c.order_id == order_id).values(**update_data)
         conn.execute(update_query)
-        conn.commit()
+
         
         return {
             "message": "Order updated successfully",
@@ -163,7 +163,7 @@ async def update_order(order_id: str, data: OrderUpdate):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error updating order: {str(e)}")
 
 
@@ -181,7 +181,7 @@ async def delete_order(order_id: str):
         # Delete order
         delete_query = orders.delete().where(orders.c.order_id == order_id)
         conn.execute(delete_query)
-        conn.commit()
+
         
         return {
             "message": "Order deleted successfully",
@@ -190,5 +190,5 @@ async def delete_order(order_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error deleting order: {str(e)}")

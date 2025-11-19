@@ -117,7 +117,7 @@ async def create_product(data: Product):
             Image=data.Image,
             Quantity=data.Quantity
         ))
-        conn.commit()
+
         
         return {
             "message": "Product created successfully",
@@ -125,7 +125,7 @@ async def create_product(data: Product):
             "product": data.dict()
         }
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error creating product: {str(e)}")
 
 
@@ -150,7 +150,7 @@ async def update_product(product_id: int, data: Product):
             Quantity=data.Quantity
         )
         conn.execute(update_query)
-        conn.commit()
+
         
         return {
             "message": "Product updated successfully",
@@ -160,7 +160,7 @@ async def update_product(product_id: int, data: Product):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
 
 
@@ -178,7 +178,7 @@ async def delete_product(product_id: int):
         # Delete product
         delete_query = products.delete().where(products.c.id == product_id)
         conn.execute(delete_query)
-        conn.commit()
+
         
         return {
             "message": "Product deleted successfully",
@@ -187,7 +187,7 @@ async def delete_product(product_id: int):
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error deleting product: {str(e)}")
 
 
@@ -215,7 +215,7 @@ async def reduce_product_stock(product_id: int, quantity: int = Query(..., descr
             Quantity=new_quantity
         )
         conn.execute(update_query)
-        conn.commit()
+
         
         return {
             "message": "Stock reduced successfully",
@@ -227,14 +227,14 @@ async def reduce_product_stock(product_id: int, quantity: int = Query(..., descr
     except HTTPException:
         raise
     except Exception as e:
-        conn.rollback()
+
         raise HTTPException(status_code=500, detail=f"Error reducing stock: {str(e)}")
 
 
 @router.post("/upload-image")
 async def upload_product_image(file: UploadFile = File(...)):
     """
-    Upload a product image and return the file path
+    Upload a product image to Cloudinary and return the URL
     """
     try:
         # Validate file type
@@ -247,23 +247,46 @@ async def upload_product_image(file: UploadFile = File(...)):
                 detail=f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
             )
         
-        # Generate unique filename
-        unique_filename = f"{uuid.uuid4()}{file_extension}"
-        file_path = UPLOAD_DIR / unique_filename
-        
-        # Save file
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
-        # Return relative path for frontend
-        relative_path = f"/uploads/products/{unique_filename}"
-        
-        return {
-            "message": "Image uploaded successfully",
-            "filename": unique_filename,
-            "path": relative_path,
-            "url": f"http://127.0.0.1:5173{relative_path}"
-        }
+        # Try Cloudinary first (for production)
+        try:
+            from config.cloudinary_config import upload_image
+            
+            # Read file content
+            file_content = await file.read()
+            
+            # Upload to Cloudinary
+            image_url = upload_image(file_content, folder="clothing-store/products")
+            
+            return {
+                "message": "Image uploaded successfully to Cloudinary",
+                "filename": file.filename,
+                "path": image_url,
+                "url": image_url
+            }
+        except Exception as cloudinary_error:
+            # Fallback to local storage if Cloudinary fails
+            print(f"Cloudinary upload failed: {cloudinary_error}, falling back to local storage")
+            
+            # Reset file pointer
+            await file.seek(0)
+            
+            # Generate unique filename
+            unique_filename = f"{uuid.uuid4()}{file_extension}"
+            file_path = UPLOAD_DIR / unique_filename
+            
+            # Save file locally
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            
+            # Return relative path for frontend
+            relative_path = f"/uploads/products/{unique_filename}"
+            
+            return {
+                "message": "Image uploaded successfully (local storage)",
+                "filename": unique_filename,
+                "path": relative_path,
+                "url": relative_path
+            }
     except HTTPException:
         raise
     except Exception as e:
