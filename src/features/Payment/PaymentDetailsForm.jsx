@@ -32,6 +32,8 @@ function PaymentDetailsForm() {
 
   const [formErrors, setFormErrors] = useState({});
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   // Reset form when user changes or logs out
   useEffect(() => {
@@ -130,11 +132,29 @@ function PaymentDetailsForm() {
     return isValid;
   };
 
+  // Countdown effect
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0 && isProcessing) {
+      setIsProcessing(false);
+    }
+  }, [countdown, isProcessing]);
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isProcessing) {
+      toast.info(`Please wait ${countdown} seconds before submitting again`);
+      return;
+    }
+
     if (validateForm()) {
+      setIsProcessing(true);
+      setCountdown(5);
+      
       try {
         // Generate unique order ID
         const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -528,7 +548,8 @@ function PaymentDetailsForm() {
 
         <button
           type="submit"
-          className="w-full bg-black text-white border-2 border-black tracking-wider hover:bg-white hover:text-black transition-all duration-300"
+          disabled={isProcessing}
+          className="w-full bg-black text-white border-2 border-black tracking-wider hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             paddingTop: "1rem",
             paddingBottom: "1rem",
@@ -537,7 +558,10 @@ function PaymentDetailsForm() {
             marginTop: "1.5rem",
           }}
         >
-          Pay Now - Rs {totalPrice.toFixed(2)}
+          {isProcessing 
+            ? `Processing... (${countdown}s)` 
+            : `Pay Now - Rs ${totalPrice.toFixed(2)}`
+          }
         </button>
       </form>
     </div>
