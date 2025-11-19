@@ -32,28 +32,21 @@ function App() {
   const synced = useSelector((state) => state.cart.synced);
   const products = useSelector((state) => state.products.products);
   
-  // Fetch products and cart simultaneously on app load
+  // Fetch products FIRST, then cart (sequential loading)
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Import fetchProducts dynamically
-        const { fetchProducts } = await import('../../features/Slices/AddProductSlice');
-        
-        // Fetch both products and cart at the same time
-        const promises = [];
-        
+        // Step 1: Fetch products first
         if (products.length === 0) {
-          promises.push(dispatch(fetchProducts()));
+          const { fetchProducts } = await import('../../features/Slices/AddProductSlice');
+          await dispatch(fetchProducts()).unwrap();
+          console.log('Products loaded successfully');
         }
         
+        // Step 2: Then fetch cart (only after products are loaded)
         if (!synced) {
-          promises.push(dispatch(fetchCartFromBackend()));
-        }
-        
-        // Wait for both to complete
-        if (promises.length > 0) {
-          await Promise.all(promises);
-          console.log('Products and cart loaded successfully');
+          await dispatch(fetchCartFromBackend()).unwrap();
+          console.log('Cart loaded successfully');
         }
       } catch (error) {
         console.error('Failed to load data on app load:', error);
