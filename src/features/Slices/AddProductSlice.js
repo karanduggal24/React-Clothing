@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import SuperHero from '/src/assets/Superhero.jpg'
+import { API_ENDPOINTS } from '../../config/api'
 
-const API_URL = 'http://127.0.0.1:8000/products/'
+const API_URL = `${API_ENDPOINTS.products}/`
 
 // Async thunk to fetch products from backend
 export const fetchProducts = createAsyncThunk(

@@ -14,7 +14,7 @@ function UserManagement() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/auth/users', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -43,7 +43,7 @@ function UserManagement() {
     setUpdatingUserId(userId);
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/auth/users/${userId}/role?role=${newRole}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users/${userId}/role?role=${newRole}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -77,7 +77,7 @@ function UserManagement() {
     setDeletingUserId(userId);
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/auth/users/${userId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
+import { API_ENDPOINTS } from '../../config/api';
 
-const API_URL = 'http://127.0.0.1:8000/cart';
+const API_URL = API_ENDPOINTS.cart;
 
 // Helper to get user ID (use logged-in user email or generate guest session ID)
 const getUserId = (getState) => {

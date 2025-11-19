@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { API_ENDPOINTS } from '../../config/api'
 
-const API_URL = 'http://127.0.0.1:8000/orders'
+const API_URL = API_ENDPOINTS.orders
 
 // Async thunk to fetch orders from backend
 export const fetchOrdersFromBackend = createAsyncThunk(

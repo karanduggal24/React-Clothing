@@ -69,15 +69,15 @@ function AdminDashboard() {
     setLoading(true);
     try {
       // Fetch products count
-      const productsRes = await fetch('http://127.0.0.1:8000/products/');
+      const productsRes = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/products/`);
       const products = await productsRes.json();
 
       // Fetch orders count
-      const ordersRes = await fetch('http://127.0.0.1:8000/orders/');
+      const ordersRes = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/orders/`);
       const orders = await ordersRes.json();
 
       // Fetch users count
-      const usersRes = await fetch('http://127.0.0.1:8000/auth/users');
+      const usersRes = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users`);
       const users = await usersRes.json();
 
       setStats({

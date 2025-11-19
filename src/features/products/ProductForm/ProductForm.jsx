@@ -83,7 +83,7 @@ function ProductForm() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://127.0.0.1:8000/products/upload-image', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/products/upload-image`, {
         method: 'POST',
         body: formData
       });
@@ -324,7 +324,7 @@ function ProductForm() {
             {imagePreview && (
               <div className="mt-2 relative">
                 <img 
-                  src={imagePreview.startsWith('/') ? `http://127.0.0.1:8000${imagePreview}` : imagePreview}
+                  src={imagePreview.startsWith('/') ? `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}${imagePreview}` : imagePreview}
                   alt="Preview" 
                   className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
                   onError={(e) => {
