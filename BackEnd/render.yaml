@@ -7,18 +7,6 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: DB_USER
-        value: sql12808483
-      - key: DB_PASSWORD
-        value: l9j2iUlh9i
-      - key: DB_HOST
-        value: sql12.freesqldatabase.com
-      - key: DB_PORT
-        value: 3306
-      - key: DB_NAME
-        value: sql12808483
-      - key: DATABASE_URL
-        value: mysql+pymysql://sql12808483:l9j2iUlh9i@sql12.freesqldatabase.com:3306/sql12808483
       - key: SECRET_KEY
         generateValue: true
       - key: JWT_SECRET_KEY
