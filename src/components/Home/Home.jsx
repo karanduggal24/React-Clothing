@@ -1,10 +1,6 @@
 import React, { useEffect } from "react";
 import { Marquee } from "../ui/marquee";
-import Superhero from "/src/assets/Batman.png";
-import Jersey from "/src/assets/Barca.png";
-import GraphicTee from "/src/assets/GraphicTee.png";
 import Autoplay from 'embla-carousel-autoplay';
-import { reviews } from "../../static";
 import ReviewMarquee from "./ReviewMarquee/ReviewMarquee";
 import {
   Carousel,
@@ -14,6 +10,7 @@ import {
   CarouselPrevious,
 } from "../ui/carousel";
 import HomeHero from "../HomeHero/HomeHero";
+import { carouselSlides } from "../../data/carouselData";
 
 function Home() {
   useEffect(() => {
@@ -22,14 +19,15 @@ function Home() {
 
   return (
     <div className="w-full flex flex-col">
+      
       {/* Marquee Section */}
       <div className="bg-white">
         <Marquee className="w-full text-sm md:text-base">
-          <span className="mx-4">Best Clothing Brand</span>
-          <span className="mx-4">Exclusive Collection</span>
-          <span className="mx-4">Premium Quality</span>
-          <span className="mx-4">Latest Fashion</span>
-          <span className="mx-4">Best Prices</span>
+          <span style={{ marginLeft: "1rem", marginRight: "1rem" }}>Best Clothing Brand</span>
+          <span style={{ marginLeft: "1rem", marginRight: "1rem" }}>Exclusive Collection</span>
+          <span style={{ marginLeft: "1rem", marginRight: "1rem" }}>Premium Quality</span>
+          <span style={{ marginLeft: "1rem", marginRight: "1rem" }}>Latest Fashion</span>
+          <span style={{ marginLeft: "1rem", marginRight: "1rem" }}>Best Prices</span>
         </Marquee>
       </div>
 
@@ -40,8 +38,6 @@ function Home() {
           plugins={[
             Autoplay({
               delay: 3000,
-              // stopOnInteraction: true,
-              // stopOnMouseEnter: true,
               rootNode: (emblaRoot) => emblaRoot.parentElement,
             })
           ]}
@@ -49,84 +45,90 @@ function Home() {
             loop: true
           }}
         >
-          <CarouselContent className="h-full ml-0">
-            <CarouselItem className="pl-0">
-              <div className="relative w-full h-full">
-                <img
-                  src={Superhero}
-                  alt="superhero"
-                  className="absolute inset-0 w-full h-full object-cover object-center md:object-center"
-                />
-                <div className="text-white absolute bottom-5 left-0 right-0 px-4 md:px-8">
-                  <h1 className="text-2xl md:text-4xl text-center font-bold">
-                    SuperHero Collection
-                  </h1>
-                  <p className="text-center text-sm md:text-base mt-2">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Quam, dolore dolorem perspiciatis earum eum qui. Sed, ad
-                    animi necessitatibus qui labore nisi alias nulla sunt dolore
-                    consectetur officiis doloremque odio.
-                  </p>
-                </div>
-              </div>
-            </CarouselItem>
+          <CarouselContent className="h-full ml-0" style={{ marginLeft: 0 }}>
+            {carouselSlides.map((slide) => (
+              <CarouselItem key={slide.id} className="pl-0 h-full" style={{ paddingLeft: 0 }}>
+                <div className="relative w-full h-[400px] md:h-[90vh]">
 
-            <CarouselItem className="pl-0">
-              <div className="w-full h-[400px] md:h-[80vh] bg-gray-800 flex items-center justify-center text-white text-xl md:text-2xl">
-                <div className="relative w-full h-full">
-                <img
-                  src={Jersey}
-                  alt="Jersey"
-                  className="absolute inset-0 w-full h-full object-cover object-center md:object-center"
-                />
-                <div className="text-white absolute bottom-5 left-0 right-0 px-4 md:px-8">
-                  <h1 className="text-2xl md:text-4xl text-center font-bold">
-                    Trending Jersey Collection
-                  </h1>
-                  <p className="text-center text-sm md:text-base mt-2">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Quam, dolore dolorem perspiciatis earum eum qui. Sed, ad
-                    animi necessitatibus qui labore nisi alias nulla sunt dolore
-                    consectetur officiis doloremque odio.
-                  </p>
-                </div>
-              </div>
-              </div>
-            </CarouselItem>
+                  <img
+                    src={slide.image}
+                    alt={slide.alt}
+                    className="absolute inset-0 w-full h-full object-cover object-center brightness-75"
+                  />
 
-            <CarouselItem className="pl-0">
-              <div className="w-full h-[400px] md:h-[80vh] bg-gray-700 flex items-center justify-center text-white text-xl md:text-2xl">
-                  <div className="relative w-full h-full">
-                <img
-                  src={GraphicTee}
-                  alt="Graphic Tee"
-                  className="absolute inset-0 w-full h-full object-cover object-center md:object-center"
-                />
-                <div className="text-white absolute bottom-5 left-0 right-0 px-4 md:px-8">
-                  <h1 className="text-2xl md:text-4xl text-center font-bold">
-                    Graphic Tee Collection
-                  </h1>
-                  <p className="text-center text-sm md:text-base mt-2">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Quam, dolore dolorem perspiciatis earum eum qui. Sed, ad
-                    animi necessitatibus qui labore nisi alias nulla sunt dolore
-                    consectetur officiis doloremque odio.
-                  </p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+                  <div 
+                    className="absolute inset-0 flex flex-col items-center justify-end text-white"
+                    style={{
+                      paddingLeft: "1rem",
+                      paddingRight: "1rem",
+                      paddingBottom: "3rem",
+                    }}
+                  >
+                    {/* md:px-8 md:pb-20 responsive spacing */}
+                    <style>{`
+                      @media (min-width: 768px) {
+                        .home-hero-spacing {
+                          padding-left: 2rem !important;
+                          padding-right: 2rem !important;
+                          padding-bottom: 5rem !important;
+                        }
+                      }
+                    `}</style>
+
+                    <div className="home-hero-spacing w-full flex flex-col items-center">
+
+                      <h1 
+                        className="text-3xl md:text-6xl font-bold text-center drop-shadow-lg"
+                        style={{ marginBottom: "1rem" }}
+                      >
+                        {slide.title}
+                      </h1>
+
+                      <p 
+                        className="text-center text-base md:text-xl max-w-2xl drop-shadow-md"
+                        style={{ marginBottom: "2rem" }}
+                      >
+                        {slide.description}
+                      </p>
+
+                      <button 
+                        onClick={() => window.location.href = '/ProductsList'}
+                        className="bg-black text-white font-bold border-2 border-white hover:bg-white hover:text-black transition-all duration-300 shadow-xl uppercase tracking-wider text-sm md:text-base"
+                        style={{
+                          paddingTop: "14px",
+                          paddingBottom: "14px",
+                          paddingLeft: "40px",
+                          paddingRight: "40px"
+                        }}
+                      >
+                        {slide.buttonText}
+                      </button>
+
+                    </div>
+
+                  </div>
                 </div>
-              </div>
-              </div>
-            </CarouselItem>
+              </CarouselItem>
+            ))}
           </CarouselContent>
 
-          {/* Carousel Navigation Buttons */}
-          <CarouselPrevious className="absolute left-2 md:left-4 z-10" />
-          <CarouselNext className="absolute right-2 md:right-4 z-10" />
+          {/* Carousel Navigation */}
+          <CarouselPrevious 
+            className="absolute left-2 md:left-4 z-10"
+            style={{ left: "0.5rem" }}
+          />
+          <CarouselNext 
+            className="absolute right-2 md:right-4 z-10"
+            style={{ right: "0.5rem" }}
+          />
         </Carousel>
       </div>
+
       <HomeHero />
       <ReviewMarquee />
     </div>
-
   );
 }
 

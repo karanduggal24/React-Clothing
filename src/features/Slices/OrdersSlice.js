@@ -8,7 +8,9 @@ export const fetchOrdersFromBackend = createAsyncThunk(
   'orders/fetchOrdersFromBackend',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch(API_URL);
+      // Add cache busting parameter to ensure fresh data
+      const timestamp = new Date().getTime();
+      const response = await fetch(`${API_URL}?_t=${timestamp}`);
       if (!response.ok) throw new Error('Failed to fetch orders');
       const data = await response.json();
       return data;

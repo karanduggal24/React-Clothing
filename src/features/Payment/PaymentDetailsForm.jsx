@@ -3,10 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   updateUserInfo,
-  updatePaymentInfo,
   setFormValid,
   selectUserInfo,
-  selectPaymentInfo,
   resetPaymentForm,
 } from "../Slices/PaymentFormSlice";
 import {
@@ -20,12 +18,13 @@ import { addOrder } from "../Slices/OrdersSlice";
 import { updateProductStock } from "../Slices/AddProductSlice";
 import { toast } from "react-toastify";
 import { initiateRazorpayPayment } from "../../utils/razorpay";
+import AddressForm from "./AddressForm";
+import PaymentMethodSelector from "./PaymentMethodSelector";
 
 function PaymentDetailsForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userInfo = useSelector(selectUserInfo);
-  const paymentInfo = useSelector(selectPaymentInfo);
   const cartItems = useSelector(selectCartItems);
   const totalItems = useSelector(selectCartTotalItems);
   const totalPrice = useSelector(selectCartTotalPrice);
@@ -35,18 +34,13 @@ function PaymentDetailsForm() {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('razorpay'); // 'razorpay' or 'cod'
+  const [paymentMethod, setPaymentMethod] = useState('razorpay');
 
-  // Reset form when user changes or logs out
   useEffect(() => {
     if (isAuthenticated && user) {
-      // If user ID changed, reset the form
-      if (currentUserId !== null && currentUserId !== user.id) {
-        dispatch(resetPaymentForm());
-      }
+      if (currentUserId !== null && currentUserId !== user.id) dispatch(resetPaymentForm());
       setCurrentUserId(user.id);
     } else {
-      // User logged out
       if (currentUserId !== null) {
         dispatch(resetPaymentForm());
         setCurrentUserId(null);
@@ -54,88 +48,47 @@ function PaymentDetailsForm() {
     }
   }, [isAuthenticated, user, currentUserId, dispatch]);
 
-  // Prefill ONLY name and email from logged-in user (not phone, address, or payment details)
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Always update to current user's data
       const updates = {};
-      
-      if (user.name && userInfo.name !== user.name) {
-        updates.name = user.name;
-      }
-      if (user.email && userInfo.email !== user.email) {
-        updates.email = user.email;
-      }
-      
-      // Only dispatch if there are updates
-      if (Object.keys(updates).length > 0) {
-        dispatch(updateUserInfo(updates));
-      }
+      if (user.name && userInfo.name !== user.name) updates.name = user.name;
+      if (user.email && userInfo.email !== user.email) updates.email = user.email;
+      if (Object.keys(updates).length > 0) dispatch(updateUserInfo(updates));
     }
   }, [isAuthenticated, user, dispatch, userInfo.name, userInfo.email]);
 
-  // Handle user info changes
   const handleUserInfoChange = (field, value) => {
     dispatch(updateUserInfo({ [field]: value }));
-    // Clear error for this field when user starts typing
-    if (formErrors[field]) {
-      setFormErrors((prev) => ({ ...prev, [field]: "" }));
-    }
+    if (formErrors[field]) setFormErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  // Handle payment info changes
-  const handlePaymentInfoChange = (field, value) => {
-    dispatch(updatePaymentInfo({ [field]: value }));
-    // Clear error for this field when user starts typing
-    if (formErrors[field]) {
-      setFormErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
-
-  // Validate form
   const validateForm = () => {
     const errors = {};
-
-    // User info validation
     if (!userInfo.name.trim()) errors.name = "Full name is required";
     if (!userInfo.email.trim()) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(userInfo.email))
-      errors.email = "Email is invalid";
+    else if (!/\S+@\S+\.\S+/.test(userInfo.email)) errors.email = "Email is invalid";
     if (!userInfo.phone.trim()) errors.phone = "Phone number is required";
     if (!userInfo.state.trim()) errors.state = "State is required";
     if (!userInfo.city.trim()) errors.city = "City is required";
     if (!userInfo.pincode.trim()) errors.pincode = "Pincode is required";
     if (!userInfo.address.trim()) errors.address = "Address is required";
-
-    // Payment info validation removed - Cash on Delivery
-
-    // Cart validation
-    if (cartItems.length === 0) {
-      toast.error("Your cart is empty!");
-      return false;
-    }
-
+    if (cartItems.length === 0) { toast.error("Your cart is empty!"); return false; }
     setFormErrors(errors);
     const isValid = Object.keys(errors).length === 0;
     dispatch(setFormValid(isValid));
     return isValid;
   };
 
-  // Countdown effect
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (countdown === 0 && isProcessing) {
-      setIsProcessing(false);
-    }
+    } else if (countdown === 0 && isProcessing) setIsProcessing(false);
   }, [countdown, isProcessing]);
-
-  // Helper function to save order
   const saveOrder = async (orderId, status, paymentId = null) => {
     try {
-      // Save to backend
-      await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/orders/`, {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+      await fetch(`${baseUrl}/orders/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,39 +102,23 @@ function PaymentDetailsForm() {
           pincode: userInfo.pincode,
           country: userInfo.country || 'India',
           order_items: cartItems.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            category: item.category,
-            img: item.img
+            id: item.id, name: item.name, price: item.price,
+            quantity: item.quantity, category: item.category, img: item.img
           })),
           total_items: totalItems,
           total_price: totalPrice,
           status: status
         })
       });
-      
-      // Add to local state
       dispatch(addOrder({
-        orderId,
-        userInfo,
-        paymentInfo: { paymentId },
+        orderId, userInfo, paymentInfo: { paymentId },
         orderInfo: { items: cartItems, totalItems, totalPrice },
-        orderDate: new Date().toISOString(),
-        status: status,
+        orderDate: new Date().toISOString(), status: status,
       }));
-      
-      // Reduce stock
       for (const item of cartItems) {
-        await fetch(
-          `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/products/${item.id}/reduce-stock?quantity=${item.quantity}`,
-          { method: 'PATCH' }
-        );
+        await fetch(`${baseUrl}/products/${item.id}/reduce-stock?quantity=${item.quantity}`, { method: 'PATCH' });
         dispatch(updateProductStock({ productId: item.id, quantity: item.quantity }));
       }
-      
-      // Clear cart
       dispatch(clearCart());
       await dispatch(clearCartBackend()).unwrap();
       sessionStorage.removeItem('products');
@@ -190,34 +127,19 @@ function PaymentDetailsForm() {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (isProcessing) {
       toast.info(`Please wait ${countdown} seconds before submitting again`);
       return;
     }
-
     if (validateForm()) {
       const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-      
       if (paymentMethod === 'razorpay') {
-        // Razorpay Payment
-        console.log('Initiating Razorpay payment:', {
-          amount: totalPrice,
-          orderId,
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID
-        });
-        
         initiateRazorpayPayment({
-          amount: totalPrice,
-          orderId: orderId,
-          customerName: userInfo.name,
-          customerEmail: userInfo.email,
-          customerPhone: userInfo.phone,
+          amount: totalPrice, orderId, customerName: userInfo.name,
+          customerEmail: userInfo.email, customerPhone: userInfo.phone,
           onSuccess: async (paymentData) => {
-            console.log('Payment successful:', paymentData);
             setIsProcessing(true);
             setCountdown(5);
             await saveOrder(orderId, 'Paid', paymentData.razorpay_payment_id);
@@ -225,7 +147,6 @@ function PaymentDetailsForm() {
             setTimeout(() => navigate('/order-confirmed'), 1500);
           },
           onFailure: (error) => {
-            console.error('Payment failed:', error);
             toast.error(`Payment failed: ${error}`);
             setIsProcessing(false);
             setCountdown(0);
@@ -233,27 +154,13 @@ function PaymentDetailsForm() {
         });
         return;
       }
-      
-      // Cash on Delivery
       setIsProcessing(true);
       setCountdown(5);
-      
       try {
         await saveOrder(orderId, 'Confirmed', null);
         toast.success("Order placed successfully!");
-
-        // Navigate to order confirmed page
-        setTimeout(() => {
-          navigate('/order-confirmed');
-        }, 1500); // Small delay to show the success toast
-
-        console.log("Payment completed:", {
-          userInfo,
-          paymentInfo,
-          orderInfo: { items: cartItems, totalItems, totalPrice },
-        });
+        setTimeout(() => navigate('/order-confirmed'), 1500);
       } catch (error) {
-        console.error('Error processing order:', error);
         toast.error("Failed to process order. Please try again.");
       }
     } else {
@@ -263,235 +170,23 @@ function PaymentDetailsForm() {
 
   return (
     <div style={{ padding: "1.5rem" }}>
-      <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-        {/* Personal Details Section */}
-        <div className="space-y-4">
-          <h2
-            className="text-2xl text-black tracking-wider border-b-2 border-black"
-            style={{ paddingBottom: "0.5rem" }}
-          >
-            Address Details
-          </h2>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Full Name"
-                value={userInfo.name}
-                onChange={(e) => handleUserInfoChange("name", e.target.value)}
-                className={`border-2 ${
-                  formErrors.name ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
-              />
-              {formErrors.name && (
-                <span className="text-red-500 text-xs">{formErrors.name}</span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                placeholder="Enter Email Address"
-                value={userInfo.email}
-                onChange={(e) => handleUserInfoChange("email", e.target.value)}
-                readOnly={isAuthenticated && user?.email}
-                className={`border-2 ${
-                  formErrors.email ? "border-red-500" : "border-black"
-                } ${isAuthenticated && user?.email ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
-                title={isAuthenticated && user?.email ? "Email from your account" : ""}
-              />
-              {formErrors.email && (
-                <span className="text-red-500 text-xs">{formErrors.email}</span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                Phone Number *
-              </label>
-              <input
-                maxLength={10}
-                type="text"
-                placeholder="Enter Phone Number"
-                value={userInfo.phone}
-                onChange={(e) => handleUserInfoChange("phone", e.target.value)}
-                className={`border-2 ${
-                  formErrors.phone ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
-              />
-              {formErrors.phone && (
-                <span className="text-red-500 text-xs">{formErrors.phone}</span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                Country
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Country"
-                value={userInfo.country}
-                onChange={(e) =>
-                  handleUserInfoChange("country", e.target.value)
-                }
-                className="border-2 border-black bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors"
-                style={{ padding: "0.75rem" }}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                State *
-              </label>
-              <input
-                type="text"
-                placeholder="Enter State"
-                value={userInfo.state}
-                onChange={(e) => handleUserInfoChange("state", e.target.value)}
-                className={`border-2 ${
-                  formErrors.state ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
-              />
-              {formErrors.state && (
-                <span className="text-red-500 text-xs">{formErrors.state}</span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                City *
-              </label>
-              <input
-                type="text"
-                placeholder="Enter City"
-                value={userInfo.city}
-                onChange={(e) => handleUserInfoChange("city", e.target.value)}
-                className={`border-2 ${
-                  formErrors.city ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
-              />
-              {formErrors.city && (
-                <span className="text-red-500 text-xs">{formErrors.city}</span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm text-black tracking-wider">
-                Area Pincode *
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Area Pincode"
-                value={userInfo.pincode}
-                onChange={(e) =>
-                  handleUserInfoChange("pincode", e.target.value)
-                }
-                className={`border-2 ${
-                  formErrors.pincode ? "border-red-500" : "border-black"
-                } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-                style={{ padding: "0.75rem" }}
-              />
-              {formErrors.pincode && (
-                <span className="text-red-500 text-xs">
-                  {formErrors.pincode}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm text-black tracking-wider">
-              Address *
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Address"
-              value={userInfo.address}
-              onChange={(e) => handleUserInfoChange("address", e.target.value)}
-              className={`border-2 ${
-                formErrors.address ? "border-red-500" : "border-black"
-              } bg-white text-black focus:outline-none focus:bg-gray-50 transition-colors`}
-              style={{ padding: "0.75rem" }}
-            />
-            {formErrors.address && (
-              <span className="text-red-500 text-xs">{formErrors.address}</span>
-            )}
-          </div>
-        </div>
-
-        {/* Payment Method Selection */}
-        <div className="space-y-4">
-          <h2
-            className="text-2xl text-black tracking-wider border-b-2 border-black"
-            style={{ paddingBottom: "0.5rem" }}
-          >
-            Payment Method
-          </h2>
-          
-          <div className="flex flex-col gap-3">
-            <label className="flex items-center gap-3 p-4 border-2 border-black rounded cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="razorpay"
-                checked={paymentMethod === 'razorpay'}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-5 h-5 accent-black"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-black">Pay Online (Razorpay)</div>
-                <div className="text-sm text-gray-600">Credit/Debit Card, UPI, Net Banking, Wallets</div>
-              </div>
-              <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Secure</div>
-            </label>
-            
-            <label className="flex items-center gap-3 p-4 border-2 border-black rounded cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="cod"
-                checked={paymentMethod === 'cod'}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-5 h-5 accent-black"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-black">Cash on Delivery</div>
-                <div className="text-sm text-gray-600">Pay when you receive the order</div>
-              </div>
-            </label>
-          </div>
-        </div>
-
+      <form className="flex flex-col" style={{ gap: "1.5rem" }} onSubmit={handleSubmit}>
+        <AddressForm
+          userInfo={userInfo}
+          formErrors={formErrors}
+          handleUserInfoChange={handleUserInfoChange}
+          isAuthenticated={isAuthenticated}
+          user={user}
+        />
+        <PaymentMethodSelector
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+        />
         <button
           type="submit"
           disabled={isProcessing}
           className="w-full bg-black text-white border-2 border-black tracking-wider hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            paddingTop: "1rem",
-            paddingBottom: "1rem",
-            paddingLeft: "1.5rem",
-            paddingRight: "1.5rem",
-            marginTop: "1.5rem",
-          }}
+          style={{ padding: "1rem 1.5rem", marginTop: "1.5rem" }}
         >
           {isProcessing 
             ? `Processing... (${countdown}s)` 

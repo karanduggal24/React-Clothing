@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { User, Mail, Phone, Package, Calendar, MapPin, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
+import Loader from '../../components/Loader/Loader';
 
 function UserProfile() {
   const [orders, setOrders] = useState([]);
@@ -61,19 +62,7 @@ function UserProfile() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div 
-            className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"
-            style={{ margin: '0 auto' }}
-          ></div>
-          <p className="text-gray-600" style={{ marginTop: '16px' }}>
-            Loading your profile...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen text="Loading your profile..." />;
   }
 
   return (

@@ -88,7 +88,7 @@ function SearchBar({ isMobile = false, isVisible = false, onClose = () => {} }) 
                   style={{ padding: '12px' }}
                   className="hover:bg-gray-100 cursor-pointer transition-all flex items-center gap-3"
                 >
-                  <img src={product.img} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                  <img src={product.img} alt={product.name} className="object-cover rounded" style={{ width: '36px', height: '64px', objectPosition: 'top' }} />
                   <div>
                     <h4 className="font-semibold">{product.name}</h4>
                     <p className="text-sm text-gray-600">{product.category}</p>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, Users, TrendingUp } from 'lucide-react';
+import { Package, ShoppingBag, Users, TrendingUp, RefreshCw } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import Loader from '../../components/Loader/Loader';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -14,12 +15,10 @@ function AdminDashboard() {
   const [ordersData, setOrdersData] = useState([]);
   const [usersData, setUsersData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchDashboardStats();
-    // Refresh data every 30 seconds
-    const interval = setInterval(fetchDashboardStats, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   const processOrdersData = (orders) => {
@@ -68,19 +67,29 @@ function AdminDashboard() {
     return last7Days;
   };
 
-  const fetchDashboardStats = async () => {
-    setLoading(true);
+  const fetchDashboardStats = async (isManualRefresh = false) => {
+    if (isManualRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    
     try {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+      
+      // Add cache busting parameter to force fresh data
+      const timestamp = new Date().getTime();
+      
       // Fetch products count
-      const productsRes = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/products/`);
+      const productsRes = await fetch(`${baseUrl}/products/?_t=${timestamp}`);
       const products = await productsRes.json();
 
       // Fetch orders count
-      const ordersRes = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/orders/`);
+      const ordersRes = await fetch(`${baseUrl}/orders/?_t=${timestamp}`);
       const orders = await ordersRes.json();
 
       // Fetch users count
-      const usersRes = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users`);
+      const usersRes = await fetch(`${baseUrl}/auth/users?_t=${timestamp}`);
       const users = await usersRes.json();
 
       setStats({
@@ -101,7 +110,12 @@ function AdminDashboard() {
       console.error('Error fetching dashboard stats:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleManualRefresh = () => {
+    fetchDashboardStats(true);
   };
 
   const statCards = [
@@ -144,21 +158,7 @@ function AdminDashboard() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          {/* mx-auto -> marginLeft/Right: auto */}
-          <div 
-            className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"
-            style={{ marginLeft: 'auto', marginRight: 'auto' }}
-          ></div>
-          {/* mt-4 -> marginTop: 16px */}
-          <p className="text-gray-600" style={{ marginTop: '16px' }}>
-            Loading dashboard...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen text="Loading dashboard..." />;
   }
 
   return (
@@ -166,12 +166,29 @@ function AdminDashboard() {
     <div style={{ padding: '32px' }}>
       {/* Header */}
       {/* mb-8 -> marginBottom: 32px */}
-      <div style={{ marginBottom: '32px' }}>
-        <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-        {/* mt-2 -> marginTop: 8px */}
-        <p className="text-gray-600" style={{ marginTop: '8px' }}>
-            Welcome to your admin dashboard
-        </p>
+      <div className="flex items-center justify-between" style={{ marginBottom: '32px' }}>
+        <div>
+          <h1 className="text-3xl font-bold text-black">Dashboard</h1>
+          {/* mt-2 -> marginTop: 8px */}
+          <p className="text-gray-600" style={{ marginTop: '8px' }}>
+              Welcome to your admin dashboard
+          </p>
+        </div>
+        <button
+  onClick={handleManualRefresh}
+  disabled={refreshing}
+  className="flex items-center gap-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  style={{
+    paddingLeft: "1rem",   // px-4
+    paddingRight: "1rem",
+    paddingTop: "0.5rem",  // py-2
+    paddingBottom: "0.5rem"
+  }}
+>
+  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+  {refreshing ? 'Refreshing...' : 'Refresh Data'}
+</button>
+
       </div>
 
       {/* Stats Grid */}

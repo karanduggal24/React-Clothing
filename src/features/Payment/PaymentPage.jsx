@@ -60,7 +60,8 @@ function PaymentPage() {
                     <img 
                       src={item.img} 
                       alt={item.name} 
-                      className='w-16 h-16 object-cover border-2 border-black shrink-0' 
+                      className='object-cover border-2 border-black shrink-0' 
+                      style={{ width: '45px', height: '80px' }}
                     />
                     <div className='flex-1 min-w-0'>
                       <p className='text-sm font-medium text-black uppercase tracking-wide truncate'>

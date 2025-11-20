@@ -222,8 +222,8 @@ function ProductForm() {
 
   return (
     <div
-      className="w-full mx-auto font-inter bg-gray-200 min-h-screen text-black relative"
-      style={{ padding: "24px" }}
+      className="w-full mx-auto font-inter bg-white min-h-screen text-black relative"
+      style={{ padding: "0 24px 24px 24px" }}
     >
       {/* Heading */}
       <div

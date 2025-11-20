@@ -70,11 +70,11 @@ function AdminLayout() {
         {/* Sidebar */}
         <aside className={`
           w-64 bg-white border-r border-gray-200 flex flex-col
-          fixed lg:static inset-y-0 left-0 z-40
+          fixed lg:sticky left-0 z-40
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
-        style={{ top: '80px' }} // Account for header height
+        style={{ top: '80px', height: 'calc(100vh - 80px)' }}
         >
         
         {/* Sidebar Header */}
@@ -159,7 +159,7 @@ function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto w-full lg:w-auto">
+      <main className="flex-1 overflow-auto w-full">
         <Outlet />
       </main>
       </div>

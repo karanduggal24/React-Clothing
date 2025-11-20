@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { selectAllOrders } from "../Slices/OrdersSlice";
 import { CheckCircle, Package, Calendar, CreditCard, MapPin, ArrowLeft } from 'lucide-react';
+import Loader from '../../components/Loader/Loader';
 
 function OrderConfirmed() {
   const navigate = useNavigate();
@@ -23,17 +24,7 @@ function OrderConfirmed() {
   }, [latestOrder, navigate]);
 
   if (!latestOrder) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center" style={{ margin: 0, padding: 0 }}>
-          <div
-            className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"
-            style={{ marginBottom: '1rem' }}
-          ></div>
-          <p className="text-gray-600">Loading order details...</p>
-        </div>
-      </div>
-    );
+    return <Loader fullScreen text="Loading order details..." />;
   }
 
   const formatDate = (dateString) => {
@@ -130,10 +121,17 @@ function OrderConfirmed() {
                     style={{ padding: '1rem' }}
                   >
                     <img
-                      src={item.img}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded border"
-                    />
+  src={item.img}
+  alt={item.name}
+  className="rounded border bg-white"
+  style={{
+    width: "90px",
+    height: "90px",
+    objectFit: "contain",
+    padding: "4px",
+  }}
+/>
+
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{item.name}</h4>
                       <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>

@@ -1,104 +1,30 @@
-import React from "react";
-import { BlurFade } from "../ui/blur-fade";
-import Superhero from "/src/assets/Batman.png";
-import Jersey from "/src/assets/Barca.png";
-import GraphicTee from "/src/assets/GraphicTee.png";
-import { AuroraText } from "../ui/aurora-text";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import HomeHeroDesktop from "./HomeHeroDesktop";
+import HomeHeroMobile from "./HomeHeroMobile";
 
-function HomeHero() {
+export default function HomeHero() {
+  const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
-    <div>
-      {/* Section 1 */}
-      <div className="w-full flex flex-col md:flex-row items-center justify-around p-6 md:p-10 gap-8 h-[70vh]">
-        <div className="pt-6 md:pt-10">
-          <BlurFade delay={0.25} inView>
-            <img
-              src={Superhero}
-              alt="Superhero"
-              className="mx-auto shadow-lg w-60 h-60 md:w-96 md:h-96 object-cover object-center rounded-lg"
-            />
-          </BlurFade>
-        </div>
-
-        <div className="flex flex-col justify-center max-w-md md:max-w-lg space-y-4 text-center md:text-left">
-          <BlurFade delay={0.25} inView>
-            <AuroraText className="text-3xl md:text-5xl font-bold text-gray-900">
-              Best Styles
-            </AuroraText>
-            <p
-              style={{ marginTop: "10px" }}
-              className="text-base md:text-lg leading-relaxed block"
-            >
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi
-              labore minima impedit quisquam dicta velit, repellat repudiandae,
-              officiis molestias natus, perferendis quae exercitationem
-              necessitatibus! Suscipit ab non distinctio nulla dolorum?
-            </p>
-          </BlurFade>
-        </div>
-      </div>
-
-      {/* Section 2 - Flip only on desktop */}
-      <div className="w-full flex flex-col md:flex-row-reverse items-center justify-around p-6 md:p-10 gap-8 h-[70vh]">
-        <div className="pt-6 md:pt-10">
-          <BlurFade delay={0.25} inView>
-            <img
-              src={Jersey}
-              alt="Jersey"
-              className="mx-auto shadow-lg w-60 h-60 md:w-96 md:h-96 object-cover object-center rounded-lg"
-            />
-          </BlurFade>
-        </div>
-
-        <div className="flex flex-col justify-center max-w-md md:max-w-lg space-y-4 text-center md:text-left">
-          <BlurFade delay={0.25} inView>
-            <AuroraText className="text-3xl md:text-5xl font-bold text-gray-900">
-              Trending Jerseys
-            </AuroraText>
-            <p
-              style={{ marginTop: "10px" }}
-              className="text-base md:text-lg leading-relaxed block"
-            >
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi
-              labore minima impedit quisquam dicta velit, repellat repudiandae,
-              officiis molestias natus, perferendis quae exercitationem
-              necessitatibus! Suscipit ab non distinctio nulla dolorum?
-            </p>
-          </BlurFade>
-        </div>
-      </div>
-
-      {/* Section 3 */}
-      <div className="w-full flex flex-col md:flex-row items-center justify-around p-6 md:p-10 gap-8 h-[70vh]">
-        <div className="pt-6 md:pt-10">
-          <BlurFade delay={0.25} inView>
-            <img
-              src={GraphicTee}
-              alt="Graphic Tee"
-              className="mx-auto shadow-lg w-60 h-60 md:w-96 md:h-96 object-cover object-center rounded-lg"
-            />
-          </BlurFade>
-        </div>
-
-        <div className="flex flex-col justify-center max-w-md md:max-w-lg space-y-4 text-center md:text-left">
-          <BlurFade delay={0.25} inView>
-            <AuroraText className="text-3xl md:text-5xl font-bold text-gray-900">
-              Gen-Z Designs
-            </AuroraText>
-            <p
-              style={{ marginTop: "10px" }}
-              className="text-base md:text-lg leading-relaxed block"
-            >
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi
-              labore minima impedit quisquam dicta velit, repellat repudiandae,
-              officiis molestias natus, perferendis quae exercitationem
-              necessitatibus! Suscipit ab non distinctio nulla dolorum?
-            </p>
-          </BlurFade>
-        </div>
-      </div>
-    </div>
+    <>
+      {isMobile ? (
+        <HomeHeroMobile navigate={navigate} />
+      ) : (
+        <HomeHeroDesktop navigate={navigate} />
+      )}
+    </>
   );
 }
-
-export default HomeHero;
