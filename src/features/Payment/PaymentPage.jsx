@@ -14,9 +14,7 @@ function PaymentPage() {
 
   useEffect(() => {
     document.title = `Clothing Store - Payment Page`;
-    console.log("Payment Page Loaded");
-    console.log("Cart Items:", cartItems);
-  }, [cartItems]);
+  }, []);
 
   return (
     <div

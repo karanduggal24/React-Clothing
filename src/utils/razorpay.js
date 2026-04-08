@@ -2,7 +2,19 @@
  * Razorpay Payment Integration
  */
 
-export const initiateRazorpayPayment = ({
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
+export const initiateRazorpayPayment = async ({
   amount,
   currency = 'INR',
   orderId,
@@ -12,7 +24,6 @@ export const initiateRazorpayPayment = ({
   onSuccess,
   onFailure,
 }) => {
-  // Validate Razorpay key
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
   
   if (!razorpayKey || razorpayKey === 'your_test_key_id_here') {
@@ -20,7 +31,8 @@ export const initiateRazorpayPayment = ({
     return;
   }
 
-  if (!window.Razorpay) {
+  const loaded = await loadRazorpayScript();
+  if (!loaded || !window.Razorpay) {
     onFailure('Razorpay SDK not loaded. Please check your internet connection.');
     return;
   }
