@@ -6,6 +6,7 @@ import UserStatsCards from './UserStatsCards';
 import UserTableRow from './UserTableRow';
 import DeleteUserModal from './DeleteUserModal';
 import Loader from '../../components/Loader/Loader';
+import { authApi } from '../../config/api';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -18,17 +19,7 @@ function UserManagement() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-
-      const data = await response.json();
+      const data = await authApi.getUsers(token);
       setUsers(data);
     } catch (error) {
       toast.error('Failed to load users');
@@ -47,22 +38,8 @@ function UserManagement() {
     setUpdatingUserId(userId);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users/${userId}/role?role=${newRole}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update role');
-      }
-
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, role: newRole } : user
-      ));
-
+      await authApi.updateRole(userId, newRole, token);
+      setUsers(users.map(user => user.id === userId ? { ...user, role: newRole } : user));
       toast.success(`User role updated to ${newRole}`);
     } catch (error) {
       toast.error('Failed to update user role');
@@ -81,17 +58,7 @@ function UserManagement() {
     setDeletingUserId(userId);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete user');
-      }
-
+      await authApi.deleteUser(userId, token);
       setUsers(users.filter(user => user.id !== userId));
       toast.success('User deleted successfully');
       setDeleteConfirmModal({ show: false, user: null });

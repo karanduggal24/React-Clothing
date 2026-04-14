@@ -1,77 +1,84 @@
 import { Routes, Route } from "react-router-dom";
-import ProductsList from "../../features/products/ProductList/ProductsList";
-import ProductCart from "../../features/products/ProductCart/ProductCart";
-import ProductDetail from "../../features/products/ProductDetail/ProductDetail";
 import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
+import ProtectedRoute from "../Routes/ProtectedRoute";
+import PaymentProtectedRoute from "../Routes/PaymentProtectedRoute";
+
+// Pages
+import Home from "../Home/Home";
 import Login from "../Login/Login";
 import Signup from "../Signup/Signup";
-import Home from "../Home/Home";
-import ProtectedRoute from "../ProtectedRoute";
-import Footer from "../Footer/Footer";
+import NotFound from "./NotFound";
+
+// Product
+import ProductsList from "../../features/products/ProductList/ProductsList";
+import ProductDetail from "../../features/products/ProductDetail/ProductDetail";
+import ProductCart from "../../features/products/ProductCart/ProductCart";
+
+// Payment & Orders
 import PaymentPage from "../../features/Payment/PaymentPage";
 import OrderConfirmed from "../../features/Order/OrderConfirmed";
-import PaymentProtectedRoute from "../PaymentProtectedRoute";
-import NotFound from "./NotFound";
+
+// User
+import UserProfile from "../../features/User/UserProfile";
+
+// Admin
 import AdminLayout from "../../features/Admin/AdminLayout";
 import AdminDashboard from "../../features/Admin/AdminDashboard";
 import AdminProducts from "../../features/Admin/AdminProducts";
 import AdminOrders from "../../features/Admin/AdminOrders";
 import AdminUsers from "../../features/Admin/AdminUsers";
-import UserProfile from "../../features/User/UserProfile";
+
+// Wraps a page with Header + Footer
+const WithLayout = ({ children }) => (
+  <>
+    <Header />
+    {children}
+    <Footer />
+  </>
+);
 
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public Routes with Header and Footer */}
-      <Route path="/" element={<><Header /><Home /><Footer /></>} />
-      <Route path="/ProductsList" element={<><Header /><ProductsList /><Footer /></>} />
-      <Route path="/product/:id" element={<><Header /><ProductDetail /><Footer /></>} />
-      <Route path="/login" element={<><Header /><Login /><Footer /></>} />
-      <Route path="/signup" element={<><Header /><Signup /><Footer /></>} />
-      <Route path="/cart" element={<><Header /><ProductCart /><Footer /></>} />
-      <Route path="/order-confirmed" element={<><Header /><OrderConfirmed /><Footer /></>} />
-      <Route 
-        path="/Payment" 
+      {/* Public */}
+      <Route path="/" element={<WithLayout><Home /></WithLayout>} />
+      <Route path="/ProductsList" element={<WithLayout><ProductsList /></WithLayout>} />
+      <Route path="/product/:id" element={<WithLayout><ProductDetail /></WithLayout>} />
+      <Route path="/login" element={<WithLayout><Login /></WithLayout>} />
+      <Route path="/signup" element={<WithLayout><Signup /></WithLayout>} />
+      <Route path="/cart" element={<WithLayout><ProductCart /></WithLayout>} />
+      <Route path="/order-confirmed" element={<WithLayout><OrderConfirmed /></WithLayout>} />
+
+      {/* Payment (requires auth + non-empty cart) */}
+      <Route
+        path="/Payment"
         element={
-          <>
-            <Header />
+          <WithLayout>
             <PaymentProtectedRoute>
               <PaymentPage />
             </PaymentProtectedRoute>
-            <Footer />
-          </>
-        } 
+          </WithLayout>
+        }
       />
+
+      {/* User profile (requires auth) */}
       <Route
         path="/profile"
         element={
-          <>
-            <Header />
+          <WithLayout>
             <ProtectedRoute>
               <UserProfile />
             </ProtectedRoute>
-            <Footer />
-          </>
+          </WithLayout>
         }
       />
 
-      {/* Legacy Admin Route (redirect to new admin panel) */}
-      <Route
-        path="/ProductForm"
-        element={
-          <ProtectedRoute requireAdmin={true}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<AdminProducts />} />
-      </Route>
-
-      {/* Admin Panel Routes with Sidebar (No Header/Footer) */}
+      {/* Admin panel (requires admin role, no Header/Footer) */}
       <Route
         path="/admin"
         element={
-          <ProtectedRoute requireAdmin={true}>
+          <ProtectedRoute requireAdmin>
             <AdminLayout />
           </ProtectedRoute>
         }
@@ -83,7 +90,19 @@ function AppRoutes() {
         <Route path="users" element={<AdminUsers />} />
       </Route>
 
-      <Route path="*" element={<><Header /><NotFound /><Footer /></>} />
+      {/* Legacy admin route */}
+      <Route
+        path="/ProductForm"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AdminProducts />} />
+      </Route>
+
+      <Route path="*" element={<WithLayout><NotFound /></WithLayout>} />
     </Routes>
   );
 }

@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { User, Mail, Phone, Package, Calendar, MapPin, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import Loader from '../../components/Loader/Loader';
+import { ordersApi } from '../../config/api';
 
 function UserProfile() {
   const [orders, setOrders] = useState([]);
@@ -19,13 +20,7 @@ function UserProfile() {
     
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/orders/?customer_email=${user.email}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch orders');
-      }
-
-      const data = await response.json();
+      const data = await ordersApi.getByEmail(user.email);
       setOrders(data);
     } catch (error) {
       toast.error('Failed to load orders');

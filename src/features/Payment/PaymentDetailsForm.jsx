@@ -7,6 +7,7 @@ import {
   selectUserInfo,
   resetPaymentForm,
 } from "../Slices/PaymentFormSlice";
+import { ordersApi } from "../../config/api";
 import {
   selectCartItems,
   selectCartTotalItems,
@@ -87,28 +88,23 @@ function PaymentDetailsForm() {
   }, [countdown, isProcessing]);
   const saveOrder = async (orderId, status, paymentId = null) => {
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-      await fetch(`${baseUrl}/orders/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order_id: orderId,
-          customer_name: userInfo.name,
-          customer_email: userInfo.email,
-          customer_phone: userInfo.phone,
-          address: userInfo.address,
-          city: userInfo.city,
-          state: userInfo.state,
-          pincode: userInfo.pincode,
-          country: userInfo.country || 'India',
-          order_items: cartItems.map(item => ({
-            id: item.id, name: item.name, price: item.price,
-            quantity: item.quantity, category: item.category, img: item.img
-          })),
-          total_items: totalItems,
-          total_price: totalPrice,
-          status: status
-        })
+      await ordersApi.create({
+        order_id: orderId,
+        customer_name: userInfo.name,
+        customer_email: userInfo.email,
+        customer_phone: userInfo.phone,
+        address: userInfo.address,
+        city: userInfo.city,
+        state: userInfo.state,
+        pincode: userInfo.pincode,
+        country: userInfo.country || 'India',
+        order_items: cartItems.map(item => ({
+          id: item.id, name: item.name, price: item.price,
+          quantity: item.quantity, category: item.category, img: item.img
+        })),
+        total_items: totalItems,
+        total_price: totalPrice,
+        status: status
       });
       dispatch(addOrder({
         orderId, userInfo, paymentInfo: { paymentId },

@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Package, ShoppingBag, Users, TrendingUp, RefreshCw } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Loader from '../../components/Loader/Loader';
+import StatCard from '../../components/ui/StatCard';
+import PageHeader from '../../components/ui/PageHeader';
+import AppButton from '../../components/ui/AppButton';
+import { productsApi, ordersApi, authApi } from '../../config/api';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -75,22 +79,11 @@ function AdminDashboard() {
     }
     
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-      
-      // Add cache busting parameter to force fresh data
-      const timestamp = new Date().getTime();
-      
-      // Fetch products count
-      const productsRes = await fetch(`${baseUrl}/products/?_t=${timestamp}`);
-      const products = await productsRes.json();
-
-      // Fetch orders count
-      const ordersRes = await fetch(`${baseUrl}/orders/?_t=${timestamp}`);
-      const orders = await ordersRes.json();
-
-      // Fetch users count
-      const usersRes = await fetch(`${baseUrl}/auth/users?_t=${timestamp}`);
-      const users = await usersRes.json();
+      const [products, orders, users] = await Promise.all([
+        productsApi.getAll(),
+        ordersApi.getAll(),
+        authApi.getUsers()
+      ]);
 
       setStats({
         totalProducts: products.length,
@@ -162,61 +155,35 @@ function AdminDashboard() {
   }
 
   return (
-    // p-8 -> padding: 32px
     <div style={{ padding: '32px' }}>
-      {/* Header */}
-      {/* mb-8 -> marginBottom: 32px */}
-      <div className="flex items-center justify-between" style={{ marginBottom: '32px' }}>
-        <div>
-          <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-          {/* mt-2 -> marginTop: 8px */}
-          <p className="text-gray-600" style={{ marginTop: '8px' }}>
-              Welcome to your admin dashboard
-          </p>
-        </div>
-        <button
-  onClick={handleManualRefresh}
-  disabled={refreshing}
-  className="flex items-center gap-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-  style={{
-    paddingLeft: "1rem",   // px-4
-    paddingRight: "1rem",
-    paddingTop: "0.5rem",  // py-2
-    paddingBottom: "0.5rem"
-  }}
->
-  <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-  {refreshing ? 'Refreshing...' : 'Refresh Data'}
-</button>
-
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Welcome to your admin dashboard"
+        action={
+          <AppButton
+            variant="primary"
+            size="sm"
+            onClick={handleManualRefresh}
+            loading={refreshing}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh Data'}
+          </AppButton>
+        }
+      />
 
       {/* Stats Grid */}
-      {/* gap-6 -> gap: 24px, mb-8 -> marginBottom: 32px */}
-      <div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" 
-        style={{ gap: '24px', marginBottom: '32px' }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: '24px', marginBottom: '32px' }}>
         {statCards.map((stat) => (
-          <div
+          <StatCard
             key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            bgColor={stat.bgColor}
+            textColor={stat.textColor}
             onClick={() => navigate(stat.link)}
-            // p-6 -> padding: 24px
-            className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-            style={{ padding: '24px' }}
-          >
-            {/* mb-4 -> marginBottom: 16px */}
-            <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
-              <div className={`w-12 h-12 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
-                <stat.icon className={`w-6 h-6 ${stat.textColor}`} />
-              </div>
-            </div>
-            {/* mb-1 -> marginBottom: 4px */}
-            <h3 className="text-gray-600 text-sm font-medium" style={{ marginBottom: '4px' }}>
-                {stat.title}
-            </h3>
-            <p className="text-3xl font-bold text-black">{stat.value}</p>
-          </div>
+          />
         ))}
       </div>
 

@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { API_ENDPOINTS } from '../../config/api';
-
-const API_URL = API_ENDPOINTS.cart;
+import { cartApi } from '../../config/api';
 
 // Helper to get user ID (use logged-in user email or generate guest session ID)
 const getUserId = (getState) => {
@@ -23,50 +21,33 @@ const getUserId = (getState) => {
   return userId;
 };
 
-// Async thunk to fetch cart from backend
 export const fetchCartFromBackend = createAsyncThunk(
   'cart/fetchCartFromBackend',
   async (_, { rejectWithValue, getState }) => {
     try {
       const userId = getUserId(getState);
-      const response = await fetch(`${API_URL}/?user_id=${userId}`);
-      if (!response.ok) throw new Error('Failed to fetch cart');
-      const data = await response.json();
-      return data;
+      return await cartApi.getByUser(userId);
     } catch (error) {
       console.error('Cart fetch error:', error);
-      // Return empty array on error to prevent crash
       return rejectWithValue(error.message);
     }
   }
 );
 
-// Async thunk to add item to cart in backend
 export const addToCartBackend = createAsyncThunk(
   'cart/addToCartBackend',
   async (product, { rejectWithValue, getState }) => {
     try {
       const userId = getUserId(getState);
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: userId,
-          product_id: parseInt(product.id),
-          product_name: product.name,
-          product_price: parseInt(product.price),
-          product_category: product.category,
-          product_image: product.img || '',
-          quantity: 1
-        })
+      const data = await cartApi.add({
+        user_id: userId,
+        product_id: parseInt(product.id),
+        product_name: product.name,
+        product_price: parseInt(product.price),
+        product_category: product.category,
+        product_image: product.img || '',
+        quantity: 1
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to add to cart');
-      }
-      
-      const data = await response.json();
       return { ...data, product };
     } catch (error) {
       return rejectWithValue(error.message);
@@ -74,23 +55,11 @@ export const addToCartBackend = createAsyncThunk(
   }
 );
 
-// Async thunk to update cart item quantity
 export const updateCartItemBackend = createAsyncThunk(
   'cart/updateCartItemBackend',
   async ({ cartItemId, quantity }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/${cartItemId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to update cart');
-      }
-      
-      const data = await response.json();
+      await cartApi.update(cartItemId, quantity);
       return { cartItemId, quantity };
     } catch (error) {
       return rejectWithValue(error.message);
@@ -98,20 +67,11 @@ export const updateCartItemBackend = createAsyncThunk(
   }
 );
 
-// Async thunk to remove item from cart
 export const removeFromCartBackend = createAsyncThunk(
   'cart/removeFromCartBackend',
   async (cartItemId, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_URL}/${cartItemId}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to remove from cart');
-      }
-      
+      await cartApi.remove(cartItemId);
       return cartItemId;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -119,21 +79,12 @@ export const removeFromCartBackend = createAsyncThunk(
   }
 );
 
-// Async thunk to clear cart
 export const clearCartBackend = createAsyncThunk(
   'cart/clearCartBackend',
   async (_, { rejectWithValue, getState }) => {
     try {
       const userId = getUserId(getState);
-      const response = await fetch(`${API_URL}/user/${userId}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to clear cart');
-      }
-      
+      await cartApi.clearByUser(userId);
       return true;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -141,57 +92,38 @@ export const clearCartBackend = createAsyncThunk(
   }
 );
 
-// Async thunk to sync guest cart to user cart on login
 export const syncGuestCartToUser = createAsyncThunk(
   'cart/syncGuestCartToUser',
-  async (userEmail, { rejectWithValue, getState }) => {
+  async (userEmail, { rejectWithValue }) => {
     try {
       const guestId = sessionStorage.getItem('cart_user_id');
-      
-      // If no guest cart, just fetch user cart
+
       if (!guestId) {
-        const response = await fetch(`${API_URL}/?user_id=${userEmail}`);
-        if (!response.ok) throw new Error('Failed to fetch user cart');
-        return await response.json();
+        return await cartApi.getByUser(userEmail);
       }
-      
-      // Fetch guest cart items
-      const guestResponse = await fetch(`${API_URL}/?user_id=${guestId}`);
-      if (!guestResponse.ok) throw new Error('Failed to fetch guest cart');
-      const guestItems = await guestResponse.json();
-      
-      // If guest cart is empty, just fetch user cart
+
+      const guestItems = await cartApi.getByUser(guestId);
+
       if (guestItems.length === 0) {
-        const response = await fetch(`${API_URL}/?user_id=${userEmail}`);
-        if (!response.ok) throw new Error('Failed to fetch user cart');
-        return await response.json();
+        return await cartApi.getByUser(userEmail);
       }
-      
-      // Migrate guest cart items to user cart
+
       for (const item of guestItems) {
-        await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userEmail,
-            product_id: item.product_id,
-            product_name: item.product_name,
-            product_price: item.product_price,
-            product_category: item.product_category,
-            product_image: item.product_image,
-            quantity: item.quantity
-          })
+        await cartApi.add({
+          user_id: userEmail,
+          product_id: item.product_id,
+          product_name: item.product_name,
+          product_price: item.product_price,
+          product_category: item.product_category,
+          product_image: item.product_image,
+          quantity: item.quantity
         });
       }
-      
-      // Clear guest cart
-      await fetch(`${API_URL}/user/${guestId}`, { method: 'DELETE' });
+
+      await cartApi.clearByUser(guestId);
       sessionStorage.removeItem('cart_user_id');
-      
-      // Fetch updated user cart
-      const response = await fetch(`${API_URL}/?user_id=${userEmail}`);
-      if (!response.ok) throw new Error('Failed to fetch user cart');
-      return await response.json();
+
+      return await cartApi.getByUser(userEmail);
     } catch (error) {
       console.error('Cart sync error:', error);
       return rejectWithValue(error.message);

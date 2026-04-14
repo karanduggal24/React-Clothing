@@ -23,7 +23,7 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup_event():
     logger.info("Application starting up...")
-    logger.info(f"DATABASE_URL configured: {bool(os.getenv('DATABASE_URL'))}")
+    logger.info(f"SUPABASE configured: {bool(os.getenv('SUPABASE_URL'))}")
     logger.info(f"CORS_ORIGINS: {os.getenv('CORS_ORIGINS', '*')}")
 
 # Mount static files for uploaded images

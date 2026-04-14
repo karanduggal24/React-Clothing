@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { login } from '../../features/Slices/authSlice'
+import { syncGuestCartToUser } from '../../features/Slices/CartSlice'
 import { useNavigate } from 'react-router-dom'
 import { User, KeyRound } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { authApi } from '../../config/api'
 
 function Login() {
   useEffect(() => {
@@ -31,38 +33,15 @@ function Login() {
     setLoading(true)
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password
-        }),
-      })
+      const data = await authApi.login(email.trim(), password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.detail || 'Login failed')
-      }
-
-      // Dispatch login action with user data and token
-      dispatch(login({ 
-        user: data.user, 
-        token: data.token 
-      }))
-
-      // Sync cart after login
-      const { syncGuestCartToUser } = await import('../../features/Slices/CartSlice')
+      dispatch(login({ user: data.user, token: data.token }))
       dispatch(syncGuestCartToUser(data.user.email))
 
       toast.success(`Welcome back, ${data.user.name}!`)
-      
-      // Navigate based on role
+
       if (data.user.role === 'admin') {
-        navigate('/ProductForm')
+        navigate('/admin/dashboard')
       } else {
         navigate('/')
       }

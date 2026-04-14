@@ -79,9 +79,11 @@ async def create_product(data: Product):
         }).execute()
 
         cache.clear()
+        inserted = result.data[0] if result.data else {}
         return {
             "message": "Product created successfully",
-            "product": result.data[0] if result.data else None
+            "product_id": inserted.get("id"),
+            "product": inserted
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating product: {str(e)}")

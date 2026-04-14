@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { User, Mail, Lock, Phone } from 'lucide-react';
+import { authApi } from '../../config/api';
 
 function Signup() {
   const navigate = useNavigate();
@@ -107,24 +108,12 @@ function Signup() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone || null
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || 'Signup failed');
-      }
+      const data = await authApi.signup(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.phone || null
+      );
 
       toast.success('Account created successfully! Please login.');
       navigate('/login');

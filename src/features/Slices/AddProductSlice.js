@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import SuperHero from '/src/assets/Superhero.jpg'
 import { API_ENDPOINTS } from '../../config/api'
 
 const API_URL = `${API_ENDPOINTS.products}/`
@@ -46,7 +45,7 @@ export const addProductToBackend = createAsyncThunk(
             
             const data = await response.json();
             return {
-                id: data.product_id.toString(),
+                id: (data.product_id || data.product?.id)?.toString(),
                 name: productData.name,
                 price: productData.price,
                 category: productData.category,
@@ -154,7 +153,7 @@ const loadProductsFromSession = () => {
     } catch (error) {
         console.error('Failed to load products from session:', error);
     }
-    return [{ id:"1", name:'T-Shirt',price:299,category:"Men's Clothing", img:SuperHero, stockQuantity:0 }];
+    return [];
 };
 
 const initialState = {
@@ -212,20 +211,16 @@ export const AddProductSlice = createSlice({
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.loading = false;
-                const backendProducts = action.payload.map(product => ({
+                // Always replace with fresh data from backend
+                state.products = action.payload.map(product => ({
                     id: product.id.toString(),
                     name: product.name,
                     price: product.Price,
                     category: product.Category,
                     img: product.Image,
-                    stockQuantity: product.Quantity
+                    stockQuantity: product.Quantity,
+                    description: product.Description
                 }));
-                
-                const existingIds = new Set(state.products.map(p => p.id));
-                const newProducts = backendProducts.filter(p => !existingIds.has(p.id));
-                state.products = [...state.products, ...newProducts];
-                
-                // Save products to sessionStorage
                 try {
                     sessionStorage.setItem('products', JSON.stringify(state.products));
                 } catch (error) {
@@ -264,7 +259,7 @@ export const AddProductSlice = createSlice({
             })
             .addCase(addProductToBackend.fulfilled, (state, action) => {
                 state.loading = false;
-                state.products.push(action.payload);
+                // fetchProducts is called after this, so no need to manually push
             })
             .addCase(addProductToBackend.rejected, (state, action) => {
                 state.loading = false;

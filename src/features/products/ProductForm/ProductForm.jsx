@@ -11,6 +11,7 @@ import { Button, styled } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { toast } from "react-toastify";
 import AdminTable from "./AdminTable";
+import { productsApi, API_BASE_URL } from "../../../config/api";
 
 // Predefined categories
 const categories = [
@@ -80,21 +81,7 @@ function ProductForm() {
     // Upload to backend
     setUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/products/upload-image`, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      const data = await response.json();
-      
-      // Store the path returned from backend
+      const data = await productsApi.uploadImage(file);
       setNewImage(data.path);
       toast.success('Image uploaded successfully!');
     } catch (error) {
@@ -324,7 +311,7 @@ function ProductForm() {
             {imagePreview && (
               <div className="mt-2 relative">
                 <img 
-                  src={imagePreview.startsWith('/') ? `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}${imagePreview}` : imagePreview}
+                  src={imagePreview.startsWith('/') ? `${API_BASE_URL}${imagePreview}` : imagePreview}
                   alt="Preview" 
                   className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
                   onError={(e) => {
