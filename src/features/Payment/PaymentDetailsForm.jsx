@@ -7,7 +7,7 @@ import {
   selectUserInfo,
   resetPaymentForm,
 } from "../Slices/PaymentFormSlice";
-import { ordersApi } from "../../config/api";
+import { ordersApi, productsApi } from "../../config/api";
 import {
   selectCartItems,
   selectCartTotalItems,
@@ -112,12 +112,14 @@ function PaymentDetailsForm() {
         orderDate: new Date().toISOString(), status: status,
       }));
       for (const item of cartItems) {
-        await fetch(`${baseUrl}/products/${item.id}/reduce-stock?quantity=${item.quantity}`, { method: 'PATCH' });
+        await productsApi.reduceStock(item.id, item.quantity);
         dispatch(updateProductStock({ productId: item.id, quantity: item.quantity }));
       }
       dispatch(clearCart());
       await dispatch(clearCartBackend()).unwrap();
+      // Clear product cache so stock updates are reflected immediately
       sessionStorage.removeItem('products');
+      localStorage.removeItem('cart_items');
     } catch (error) {
       console.error('Error saving order:', error);
     }

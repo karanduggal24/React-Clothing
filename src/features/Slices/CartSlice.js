@@ -131,19 +131,39 @@ export const syncGuestCartToUser = createAsyncThunk(
   }
 );
 
-const initialState = {
-  items: [], // Array of cart items with product info and quantity
-  totalItems: 0, // Total number of items in cart
-  totalPrice: 0, // Total price of all items
-  loading: false,
-  error: null,
-  synced: false, // Track if cart is synced with backend
+// Persist cart items to localStorage
+const saveCartToStorage = (items) => {
+  try {
+    localStorage.setItem('cart_items', JSON.stringify(items));
+  } catch {}
 };
 
-// Helper to recalculate totals
+// Load cart items from localStorage (instant on refresh, before API responds)
+const loadCartFromStorage = () => {
+  try {
+    const saved = localStorage.getItem('cart_items');
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+};
+
+const savedItems = loadCartFromStorage();
+
+const initialState = {
+  items: savedItems,
+  totalItems: savedItems.reduce((t, i) => t + i.quantity, 0),
+  totalPrice: savedItems.reduce((t, i) => t + i.price * i.quantity, 0),
+  loading: false,
+  error: null,
+  synced: false,
+};
+
+// Helper to recalculate totals and persist to localStorage
 const recalculateTotals = (state) => {
   state.totalItems = state.items.reduce((total, item) => total + item.quantity, 0);
   state.totalPrice = state.items.reduce((total, item) => total + item.price * item.quantity, 0);
+  saveCartToStorage(state.items);
 };
 
 export const cartSlice = createSlice({
@@ -250,6 +270,7 @@ export const cartSlice = createSlice({
       state.totalItems = 0;
       state.totalPrice = 0;
       state.synced = false;
+      saveCartToStorage([]);
       toast.info("Cart cleared", { autoClose: 2000 });
     },
 
@@ -371,6 +392,7 @@ export const cartSlice = createSlice({
         state.items = [];
         state.totalItems = 0;
         state.totalPrice = 0;
+        saveCartToStorage([]);
         toast.info("Cart cleared", { autoClose: 2000 });
       })
       // Sync guest cart to user cart
