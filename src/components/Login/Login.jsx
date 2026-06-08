@@ -87,7 +87,7 @@ function Login() {
 
   if (isAuthenticated) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-300 font-sans">
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 font-sans">
         <div
           className="bg-white rounded-lg shadow-md w-full max-w-sm text-center"
           style={{ padding: '40px' }}
@@ -105,7 +105,7 @@ function Login() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-300 font-sans">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 font-sans">
       <div
         className="bg-white rounded-lg shadow-md w-full max-w-sm text-center relative"
         style={{ padding: '40px' }}

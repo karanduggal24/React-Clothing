@@ -123,7 +123,7 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ padding: '20px', paddingTop: '100px', backgroundColor: theme.colors.background }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50" style={{ padding: '20px', paddingTop: '100px' }}>
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg" style={{ padding: '40px', border: `1px solid ${theme.colors.border.light}` }}>
         
         {/* Header */}

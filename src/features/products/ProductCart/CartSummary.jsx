@@ -14,7 +14,7 @@ function CartSummary({ totalItems, totalPrice, loading, onClearCart }) {
 
   const handleCheckout = async () => {
     if (!isAuthenticated) {
-      toast.error("Please login to proceed to payment.");
+      // Navigate to login without showing toast
       navigate('/login');
       return;
     }

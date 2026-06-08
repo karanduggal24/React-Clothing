@@ -39,7 +39,7 @@ function Header() {
         style={{ backgroundColor: 'rgba(252,249,248,0.85)' }}
       >
         <div
-          className="flex items-center w-full max-w-[1920px] mx-auto"
+          className="flex items-center w-full max-w-[1920px] mx-auto relative"
           style={{ padding: '20px 32px', gap: '32px' }}
         >
           {/* Logo */}
@@ -70,12 +70,13 @@ function Header() {
             ))}
           </div>
 
-          {/* Search bar — center */}
-          <div className="hidden md:flex flex-1 justify-center">
-            <div style={{ width: '100%', maxWidth: '480px' }}>
-              <SearchBar />
-            </div>
+          {/* Search bar — absolute centered */}
+          <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2" style={{ width: '100%', maxWidth: '480px', pointerEvents: 'auto' }}>
+            <SearchBar />
           </div>
+
+          {/* Spacer to push right icons */}
+          <div className="flex-1"></div>
 
           {/* Right icons */}
           <div
