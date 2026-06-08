@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectFilters, toggleCategory, clearFilters } from '../../Slices/filterSlice';
 import { FiFilter } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
+import { Button } from '../../../components/ui';
 
 function FilterBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,20 +32,16 @@ function FilterBar() {
   return (
     <div className='relative w-full'>
       {/* Mobile Filter Button */}
-      <button
-        style={{
-          marginBottom: '8px',
-          paddingLeft: '8px',
-          paddingRight: '8px',
-          paddingTop: '4px',
-          paddingBottom: '4px',
-        }}
+      <Button
+        variant="default"
+        size="sm"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className='md:hidden flex items-center gap-2 bg-black text-white rounded-md'
+        className='md:hidden flex items-center gap-2'
+        style={{ marginBottom: '8px' }}
       >
         <FiFilter className='text-xl' />
         <span>Filters {selectedCategories.length > 0 && `(${selectedCategories.length})`}</span>
-      </button>
+      </Button>
 
       {/* Filter Container */}
       <div
@@ -59,7 +56,7 @@ function FilterBar() {
           md:opacity-100 
           transition-all duration-300 ease-in-out
           ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 md:opacity-100'}
-          bg-white z-50
+          bg-white z-40
         `}
       >
         {/* Mobile Header */}
@@ -68,9 +65,14 @@ function FilterBar() {
           className='md:hidden flex items-center justify-between border-b'
         >
           <h3 className='text-xl font-medium'>Filters</h3>
-          <button onClick={() => setIsMenuOpen(false)} className='text-2xl'>
-            <IoMdClose />
-          </button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(false)}
+            aria-label="Close filters"
+          >
+            <IoMdClose className='text-2xl' />
+          </Button>
         </div>
 
         {/* Filter Content */}
@@ -85,15 +87,16 @@ function FilterBar() {
             <span className='text-sm text-gray-500'>
               {selectedCategories.length} selected
             </span>
-            <button
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => {
                 handleClear();
                 setIsMenuOpen(false);
               }}
-              className='text-sm text-black underline'
             >
               Clear all
-            </button>
+            </Button>
           </div>
 
           {/* Categories */}
@@ -114,16 +117,18 @@ function FilterBar() {
               </label>
             ))}
 
-            <button
-              style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '4px', paddingBottom: '4px' }}
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 handleClear();
                 setIsMenuOpen(false);
               }}
-              className='md:inline-block hidden rounded bg-white text-black border-2 border-black cursor-pointer font-sans text-sm font-medium uppercase tracking-wider transition-all min-w-[70px] hover:bg-black hover:text-white'
+              className='md:inline-block hidden'
+              style={{ minWidth: '70px' }}
             >
               Clear
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -132,20 +137,21 @@ function FilterBar() {
           style={{ padding: '16px' }}
           className='md:hidden fixed bottom-0 left-0 w-full bg-white border-t'
         >
-          <button
-            style={{ paddingTop: '12px', paddingBottom: '12px' }}
+          <Button
+            variant="default"
+            size="default"
             onClick={() => setIsMenuOpen(false)}
-            className='w-full bg-black text-white rounded-md font-medium'
+            style={{ width: '100%' }}
           >
             Apply Filters
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Mobile Overlay */}
       {isMenuOpen && (
         <div
-          className='md:hidden fixed inset-0 bg-black bg-opacity-50 z-40'
+          className='md:hidden fixed inset-0 bg-black bg-opacity-50 z-30'
           onClick={() => setIsMenuOpen(false)}
         />
       )}

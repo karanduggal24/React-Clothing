@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchProducts } from "../../Slices/AddProductSlice";
@@ -7,20 +7,28 @@ import FilterBar from "../FilterBar/FilterBar";
 import { selectFilteredProducts, selectFilters } from "../../Slices/filterSlice";
 import { toast } from "react-toastify";
 import Loader from "../../../components/Loader/Loader";
+import { Button, Pagination } from "../../../components/ui";
 
 function ProductsList() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state.products.products);
+  const pagination = useSelector((state) => state.products.pagination);
   const filteredProducts = useSelector(selectFilteredProducts);
   const filters = useSelector(selectFilters);
   const loading = useSelector((state) => state.products.loading);
   const cartItems = useSelector(selectCartItems);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     document.title = "Clothing Store • Products";
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(fetchProducts({ page: currentPage, pageSize: 20 }));
+  }, [dispatch, currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleAddToCart = async (product) => {
     const existingItem = cartItems.find((item) => item.id === product.id);
@@ -41,11 +49,7 @@ function ProductsList() {
   };
 
   if (loading) {
-    return (
-      <div className="w-full flex justify-center items-center min-h-[400px]">
-        <Loader text="Loading products…" />
-      </div>
-    );
+    return <Loader fullScreen text="Loading products…" />;
   }
 
   if (!products) {
@@ -63,7 +67,7 @@ function ProductsList() {
         paddingLeft: "16px",
         paddingRight: "16px",
         paddingBottom: "80px",
-        paddingTop: "20px",
+        paddingTop: "100px",
       }}
     >
       <FilterBar />
@@ -162,40 +166,48 @@ function ProductsList() {
                 {/* Buttons */}
                 <div className="flex" style={{ gap: "10px" }}>
                   {/* Add to Cart */}
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddToCart(product);
                     }}
                     disabled={product.stockQuantity <= 0}
-                    className={`flex-1 text-xs font-semibold uppercase border transition-all
-                      ${
-                        product.stockQuantity > 0
-                          ? "border-black text-black hover:bg-black hover:text-white"
-                          : "border-gray-300 text-gray-400 cursor-not-allowed"
-                      }
-                    `}
-                    style={{ padding: "10px" }}
+                    className="flex-1 uppercase"
                   >
                     Add
-                  </button>
+                  </Button>
 
                   {/* View */}
-                  <button
+                  <Button
+                    variant="default"
+                    size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/product/${product.id}`);
                     }}
-                    className="flex-1 text-xs font-semibold uppercase text-white bg-black hover:bg-gray-800 transition"
-                    style={{ padding: "10px" }}
+                    className="flex-1 uppercase"
                   >
                     View
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Pagination */}
+      {filteredProducts.length > 0 && pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={pagination.page || currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={handlePageChange}
+          hasNext={pagination.hasNext}
+          hasPrev={pagination.hasPrev}
+          totalItems={pagination.totalItems}
+        />
       )}
     </div>
   );

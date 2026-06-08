@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { heroSections } from "../../data/homeHeroData";
+import { Button } from "../ui";
 
 export default function HomeHeroDesktop({ navigate }) {
   return (
@@ -82,37 +83,29 @@ function HeroBlock({ section, navigate }) {
             className="flex gap-4"
             style={{ paddingTop: "0.5rem", zIndex: 22 }}
           >
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => navigate("/ProductsList")}
-              className="bg-white text-black font-semibold rounded-full shadow-xl hover:bg-gray-200 transition-all"
-              style={{
-                paddingTop: "14px",
-                paddingBottom: "14px",
-                paddingLeft: "40px",
-                paddingRight: "40px",
-                zIndex: 22,
-              }}
-            >
-              Shop Now
-            </motion.button>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
+              <Button
+                variant="default"
+                size="lg"
+                onClick={() => navigate("/ProductsList")}
+                className="bg-white text-black font-semibold rounded-full shadow-xl hover:bg-gray-200"
+                style={{ paddingLeft: "40px", paddingRight: "40px", zIndex: 22 }}
+              >
+                Shop Now
+              </Button>
+            </motion.div>
 
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => navigate("/ProductsList")}
-              className="border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-black transition-all"
-              style={{
-                paddingTop: "14px",
-                paddingBottom: "14px",
-                paddingLeft: "40px",
-                paddingRight: "40px",
-                zIndex: 22,
-              }}
-            >
-              Explore
-            </motion.button>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate("/ProductsList")}
+                className="border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-black"
+                style={{ paddingLeft: "40px", paddingRight: "40px", zIndex: 22 }}
+              >
+                Explore
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
 

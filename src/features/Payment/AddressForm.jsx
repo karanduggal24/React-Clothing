@@ -4,10 +4,12 @@ function AddressForm({ userInfo, formErrors, handleUserInfoChange, isAuthenticat
   const inputFields = [
     [
       { name: "name", label: "Full Name *", type: "text", placeholder: "Enter Full Name", required: true },
+      // Changed type to email for built-in mobile keyboard layout optimization
       { name: "email", label: "Email Address *", type: "email", placeholder: "Enter Email Address", required: true, readOnly: isAuthenticated && user?.email }
     ],
     [
-      { name: "phone", label: "Phone Number *", type: "text", placeholder: "Enter Phone Number", required: true, maxLength: 10 },
+      // Changed type to tel to prevent numeric scroll issues natively while supporting length limits
+      { name: "phone", label: "Phone Number *", type: "tel", placeholder: "Enter Phone Number", required: true, maxLength: 10 },
       { name: "country", label: "Country", type: "text", placeholder: "Enter Country", required: false }
     ],
     [
@@ -15,9 +17,30 @@ function AddressForm({ userInfo, formErrors, handleUserInfoChange, isAuthenticat
       { name: "city", label: "City *", type: "text", placeholder: "Enter City", required: true }
     ],
     [
-      { name: "pincode", label: "Area Pincode *", type: "text", placeholder: "Enter Area Pincode", required: true }
+      // Using type number to demonstrate the scroll/arrow fix requested
+      { name: "pincode", label: "Area Pincode *", type: "number", placeholder: "Enter Area Pincode", required: true }
     ]
   ];
+
+  // Restricts non-numeric characters for phone fields (since type="tel" accepts letters)
+  const handlePhoneInput = (name, value) => {
+    const numericValue = value.replace(/[^0-9]/g, "");
+    handleUserInfoChange(name, numericValue);
+  };
+
+  // Prevents scroll wheel modifications on focused numeric fields
+  const handleWheelBlur = (e) => {
+    if (e.target.type === "number") {
+      e.target.blur();
+    }
+  };
+
+  // Prevents Up/Down arrow keys from changing numbers
+  const handleKeyDownBlock = (e) => {
+    if (e.target.type === "number" && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -33,11 +56,20 @@ function AddressForm({ userInfo, formErrors, handleUserInfoChange, isAuthenticat
               <input
                 type={field.type}
                 placeholder={field.placeholder}
-                value={userInfo[field.name]}
-                onChange={(e) => handleUserInfoChange(field.name, e.target.value)}
+                value={userInfo[field.name] ?? ""}
+                onChange={(e) => {
+                  if (field.name === "phone") {
+                    handlePhoneInput(field.name, e.target.value);
+                  } else {
+                    handleUserInfoChange(field.name, e.target.value);
+                  }
+                }}
+                onWheel={handleWheelBlur}
+                onKeyDown={handleKeyDownBlock}
                 readOnly={field.readOnly}
                 maxLength={field.maxLength}
-                className={`border-2 ${
+                // Included custom Tailwind class groupings below to target both WebKit and Firefox spinners
+                className={`border-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                   formErrors[field.name] ? "border-red-500" : "border-black"
                 } ${field.readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} text-black focus:outline-none focus:bg-gray-50 transition-colors`}
                 style={{ padding: "0.75rem" }}
@@ -56,7 +88,7 @@ function AddressForm({ userInfo, formErrors, handleUserInfoChange, isAuthenticat
         <input
           type="text"
           placeholder="Enter Address"
-          value={userInfo.address}
+          value={userInfo.address ?? ""}
           onChange={(e) => handleUserInfoChange("address", e.target.value)}
           className={`border-2 ${
             formErrors.address ? "border-red-500" : "border-black"

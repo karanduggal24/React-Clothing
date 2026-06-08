@@ -6,9 +6,9 @@ const API_URL = `${API_ENDPOINTS.products}/`
 // Async thunk to fetch products from backend
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
-    async (_, { rejectWithValue }) => {
+    async ({ page = 1, pageSize = 20 } = {}, { rejectWithValue }) => {
         try {
-            const response = await fetch(API_URL);
+            const response = await fetch(`${API_URL}?page=${page}&page_size=${pageSize}`);
             if (!response.ok) throw new Error('Failed to fetch products');
             const data = await response.json();
             return data;
@@ -130,6 +130,8 @@ export const fetchProductsWithFilters = createAsyncThunk(
             if (filters.maxPrice) params.append('max_price', filters.maxPrice);
             if (filters.search) params.append('search', filters.search);
             if (filters.inStock !== undefined) params.append('in_stock', filters.inStock);
+            if (filters.page) params.append('page', filters.page);
+            if (filters.pageSize) params.append('page_size', filters.pageSize);
             
             const url = params.toString() ? `${API_URL}?${params.toString()}` : API_URL;
             const response = await fetch(url);
@@ -158,6 +160,14 @@ const loadProductsFromSession = () => {
 
 const initialState = {
     products: loadProductsFromSession(),
+    pagination: {
+        page: 1,
+        pageSize: 20,
+        totalItems: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false
+    },
     loading: false,
     error: null
 }
@@ -211,8 +221,11 @@ export const AddProductSlice = createSlice({
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.loading = false;
-                // Always replace with fresh data from backend
-                state.products = action.payload.map(product => ({
+                // Handle both paginated and non-paginated responses
+                const data = action.payload;
+                const products = data.products || data;
+                
+                state.products = products.map(product => ({
                     id: product.id.toString(),
                     name: product.name,
                     price: product.Price,
@@ -221,6 +234,12 @@ export const AddProductSlice = createSlice({
                     stockQuantity: product.Quantity,
                     description: product.Description
                 }));
+                
+                // Update pagination if available
+                if (data.pagination) {
+                    state.pagination = data.pagination;
+                }
+                
                 try {
                     sessionStorage.setItem('products', JSON.stringify(state.products));
                 } catch (error) {
@@ -238,7 +257,10 @@ export const AddProductSlice = createSlice({
             })
             .addCase(fetchProductsWithFilters.fulfilled, (state, action) => {
                 state.loading = false;
-                const backendProducts = action.payload.map(product => ({
+                const data = action.payload;
+                const products = data.products || data;
+                
+                const backendProducts = products.map(product => ({
                     id: product.id.toString(),
                     name: product.name,
                     price: product.Price,
@@ -247,6 +269,11 @@ export const AddProductSlice = createSlice({
                     stockQuantity: product.Quantity
                 }));
                 state.products = backendProducts;
+                
+                // Update pagination if available
+                if (data.pagination) {
+                    state.pagination = data.pagination;
+                }
             })
             .addCase(fetchProductsWithFilters.rejected, (state, action) => {
                 state.loading = false;

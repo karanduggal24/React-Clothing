@@ -21,34 +21,63 @@ def get_products(
     min_price: Optional[int] = Query(None),
     max_price: Optional[int] = Query(None),
     search: Optional[str] = Query(None),
-    in_stock: Optional[bool] = Query(None)
+    in_stock: Optional[bool] = Query(None),
+    page: int = Query(1, ge=1, description="Page number starting from 1"),
+    page_size: int = Query(20, ge=1, le=100, description="Number of items per page")
 ):
     try:
-        cache_key = f"products_{category}_{min_price}_{max_price}_{search}_{in_stock}"
+        cache_key = f"products_{category}_{min_price}_{max_price}_{search}_{in_stock}_{page}_{page_size}"
         cached = cache.get(cache_key)
         if cached is not None:
             return cached
 
-        query = supabase.table("products").select("*")
+        # Build base query with count
+        count_query = supabase.table("products").select("*", count="exact")
+        data_query = supabase.table("products").select("*")
 
-        if category:
-            query = query.eq("Category", category)
-        if min_price is not None:
-            query = query.gte("Price", min_price)
-        if max_price is not None:
-            query = query.lte("Price", max_price)
-        if search:
-            query = query.ilike("name", f"%{search}%")
-        if in_stock is True:
-            query = query.gt("Quantity", 0)
-        elif in_stock is False:
-            query = query.eq("Quantity", 0)
+        # Apply filters to both queries
+        for query in [count_query, data_query]:
+            if category:
+                query = query.eq("Category", category)
+            if min_price is not None:
+                query = query.gte("Price", min_price)
+            if max_price is not None:
+                query = query.lte("Price", max_price)
+            if search:
+                query = query.ilike("name", f"%{search}%")
+            if in_stock is True:
+                query = query.gt("Quantity", 0)
+            elif in_stock is False:
+                query = query.eq("Quantity", 0)
 
-        result = query.execute()
+        # Get total count
+        count_result = count_query.execute()
+        total_count = count_result.count if hasattr(count_result, 'count') else len(count_result.data or [])
+
+        # Apply pagination
+        offset = (page - 1) * page_size
+        data_query = data_query.range(offset, offset + page_size - 1).order("id", desc=False)
+        
+        result = data_query.execute()
         products_list = result.data or []
 
-        cache.set(cache_key, products_list, ttl_seconds=300)
-        return products_list
+        # Calculate pagination metadata
+        total_pages = (total_count + page_size - 1) // page_size
+        
+        response = {
+            "products": products_list,
+            "pagination": {
+                "page": page,
+                "page_size": page_size,
+                "total_items": total_count,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1
+            }
+        }
+
+        cache.set(cache_key, response, ttl_seconds=300)
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching products: {str(e)}")
 

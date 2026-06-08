@@ -14,7 +14,8 @@ function Login() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  // Changed to an object to track individual field errors alongside general API errors
+  const [errors, setErrors] = useState({ email: '', password: '', general: '' })
   const [loading, setLoading] = useState(false)
 
   const dispatch = useDispatch()
@@ -23,10 +24,23 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
+    
+    // Reset errors before validation
+    let validationErrors = { email: '', password: '', general: '' }
+    let hasError = false
 
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter both email and password')
+    if (!email.trim()) {
+      validationErrors.email = 'Email is required'
+      hasError = true
+    }
+    
+    if (!password.trim()) {
+      validationErrors.password = 'Password is required'
+      hasError = true
+    }
+
+    if (hasError) {
+      setErrors(validationErrors)
       return
     }
 
@@ -46,10 +60,28 @@ function Login() {
         navigate('/')
       }
     } catch (error) {
-      setError(error.message || 'Invalid email or password')
+      setErrors((prev) => ({
+        ...prev,
+        general: error.message || 'Invalid email or password'
+      }))
       toast.error(error.message || 'Login failed')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Clear specific field errors when user starts typing
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value)
+    if (errors.email) {
+      setErrors((prev) => ({ ...prev, email: '' }))
+    }
+  }
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value)
+    if (errors.password) {
+      setErrors((prev) => ({ ...prev, password: '' }))
     }
   }
 
@@ -85,44 +117,65 @@ function Login() {
           Login
         </h2>
 
-        {error && (
+        {/* General API error banner */}
+        {errors.general && (
           <div
-            className="bg-red-100 text-red-700 border border-red-300 rounded text-sm"
+            className="bg-red-100 text-red-700 border border-red-300 rounded text-sm text-left"
             style={{ padding: '10px 16px', marginBottom: '20px' }}
           >
-            {error}
+            {errors.general}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col">
           {/* Email field */}
           <div className="relative text-left" style={{ marginBottom: '20px' }}>
-            <User className="absolute left-3 top-3 text-gray-500" size={20} />
+            <User 
+              className={`absolute left-3 top-3 transition-colors ${errors.email ? 'text-red-500' : 'text-gray-500'}`} 
+              size={20} 
+            />
             <input
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               placeholder="Enter email"
-              className="w-full border border-gray-300 rounded text-gray-800 text-base focus:border-gray-500 outline-none"
+              className={`w-full border rounded text-gray-800 text-base outline-none transition-colors ${
+                errors.email 
+                  ? 'border-red-500 focus:border-red-500 bg-red-50' 
+                  : 'border-gray-300 focus:border-gray-500'
+              }`}
               style={{ padding: '12px 10px 12px 40px' }}
               disabled={loading}
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.email}</p>
+            )}
           </div>
 
           {/* Password field */}
           <div className="relative text-left" style={{ marginBottom: '20px' }}>
-            <KeyRound className="absolute left-3 top-3 text-gray-500" size={20} />
+            <KeyRound 
+              className={`absolute left-3 top-3 transition-colors ${errors.password ? 'text-red-500' : 'text-gray-500'}`} 
+              size={20} 
+            />
             <input
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               placeholder="Enter password"
-              className="w-full border border-gray-300 rounded text-gray-800 text-base focus:border-gray-500 outline-none"
+              className={`w-full border rounded text-gray-800 text-base outline-none transition-colors ${
+                errors.password 
+                  ? 'border-red-500 focus:border-red-500 bg-red-50' 
+                  : 'border-gray-300 focus:border-gray-500'
+              }`}
               style={{ padding: '12px 10px 12px 40px' }}
               disabled={loading}
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.password}</p>
+            )}
           </div>
 
           <button

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { heroSections } from "../../data/homeHeroData";
+import { Button } from "../ui";
 
 export default function HomeHeroMobile({ navigate }) {
   return (
@@ -121,30 +122,26 @@ function MobileHeroBlock({ section, navigate }) {
           }}
         >
           {/* PRIMARY BUTTON */}
-          <button
+          <Button
+            variant="default"
+            size="lg"
             onClick={() => navigate("/ProductsList")}
-            className="w-full bg-black text-white font-bold rounded-lg transition-all duration-300 shadow-md"
-            style={{
-              paddingTop: "14px",
-              paddingBottom: "14px",
-              fontSize: "1rem",
-            }}
+            className="w-full font-bold shadow-md"
+            style={{ fontSize: "1rem" }}
           >
             {section.buttonText || "Shop Now"}
-          </button>
+          </Button>
 
           {/* SECONDARY BUTTON */}
-          <button
+          <Button
+            variant="outline"
+            size="lg"
             onClick={() => navigate("/ProductsList")}
-            className="w-full bg-white text-black font-bold border-2 border-black rounded-lg transition-all duration-300"
-            style={{
-              paddingTop: "14px",
-              paddingBottom: "14px",
-              fontSize: "1rem",
-            }}
+            className="w-full font-bold"
+            style={{ fontSize: "1rem" }}
           >
             View All
-          </button>
+          </Button>
         </div>
       </motion.div>
     </section>

@@ -1,265 +1,204 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/Slices/authSlice';
 import { selectCartTotalItems, clearCart } from '../../features/Slices/CartSlice';
 import { resetPaymentForm } from '../../features/Slices/PaymentFormSlice';
-import { Menu, Search, X, ShoppingCart } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import SearchBar from '../../features/products/SearchBar/SearchBar';
 
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, user, isAdmin } = useSelector((state) => state.auth);
+  const { isAuthenticated, isAdmin } = useSelector((state) => state.auth);
   const totalItems = useSelector(selectCartTotalItems);
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
-    dispatch(clearCart()); // Clear cart on logout
-    dispatch(resetPaymentForm()); // Clear payment form on logout
+    dispatch(clearCart());
+    dispatch(resetPaymentForm());
     setIsMenuOpen(false);
     navigate('/');
   };
 
-  const navLinkClass = ({ isActive }) =>
-    `font-sans text-sm font-medium no-underline text-black rounded transition-all uppercase tracking-wider border-2 border-transparent
-    ${isActive ? 'bg-black text-white border-black' : 'hover:bg-gray-50 hover:border-gray-200'}`;
+  const close = () => setIsMenuOpen(false);
 
-  const mobileNavLinkClass = ({ isActive }) =>
-    `block text-center text-lg uppercase tracking-wider w-full transition-colors
-    ${isActive ? 'bg-black text-white font-semibold' : 'hover:bg-gray-100'}`;
+  const navLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/ProductsList', label: 'Shop' },
+    ...(isAuthenticated && !isAdmin ? [{ to: '/profile', label: 'Profile' }] : []),
+    ...(isAdmin ? [{ to: '/admin/dashboard', label: 'Admin' }] : []),
+  ];
 
   return (
-    <header className="w-full bg-white shadow-md border-b-2 border-black  top-0 z-1000 sticky">
-      <div className=" mx-auto" style={{ paddingLeft: '12px', paddingRight: '12px' }}>
-        {/* Top bar */}
+    <>
+      <nav
+        className="fixed top-0 w-full z-50 backdrop-blur-xl transition-all duration-300"
+        style={{ backgroundColor: 'rgba(252,249,248,0.85)' }}
+      >
         <div
-          className="flex items-center justify-between h-20"
-          style={{ paddingInline: '8px' }}
+          className="flex items-center w-full max-w-[1920px] mx-auto"
+          style={{ padding: '20px 32px', gap: '32px' }}
         >
-          {/* Left - Logo */}
-          <div
-            className="cursor-pointer flex items-center justify-center"
-            style={{ width: '70px', height: '70px', marginRight: '10px' }}
-            onClick={() => navigate('/')}
-          >
+          {/* Logo */}
+          <div style={{ flex: '0 0 auto', minWidth: '120px' }}>
             <span
-              className=" select-none text-4xl font-bold text-black tracking-tight hover:text-gray-700 transition-colors"
-              style={{ margin: 0 }}
+              className="text-xl font-black tracking-tighter text-[#1c1b1b] cursor-pointer select-none"
+              onClick={() => navigate('/')}
             >
-              <h1 style={{userSelect:"none"}}>CS</h1>
+              CS ATELIER
             </span>
           </div>
 
-          {/* Center - Search (desktop only) */}
-          <div className="hidden md:flex flex-1 justify-center" style={{ marginInline: '24px' }}>
-            <div style={{ width: '100%', maxWidth: '700px' }}>
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center" style={{ gap: '36px', flex: '0 0 auto' }}>
+            {navLinks.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  isActive
+                    ? 'text-[#004dea] border-b border-[#004dea] font-medium tracking-tight transition-colors text-sm'
+                    : 'text-[#1c1b1b] hover:text-[#004dea] font-medium tracking-tight transition-colors text-sm'
+                }
+                style={{ paddingBottom: '4px' }}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Search bar — center */}
+          <div className="hidden md:flex flex-1 justify-center">
+            <div style={{ width: '100%', maxWidth: '480px' }}>
               <SearchBar />
             </div>
           </div>
 
-          {/* Right - Nav / Buttons */}
-          <div className="flex items-center" style={{ gap: '24px' }}>
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center" style={{ gap: '16px' }}>
-              <NavLink to="/" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                Home
-              </NavLink>
-              <NavLink to="/ProductsList" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                Products
-              </NavLink>
-              <NavLink to="/cart" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                Cart
-              </NavLink>
-              {isAuthenticated && !isAdmin && (
-                <NavLink to="/profile" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                  Profile
-                </NavLink>
-              )}
-              {isAdmin && (
-                <NavLink to="/admin/dashboard" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                  Admin Panel
-                </NavLink>
-              )}
-              {!isAuthenticated ? (
-                <>
-                  <NavLink to="/login" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                    Login
-                  </NavLink>
-                  <NavLink to="/signup" className={navLinkClass} style={{ padding: '8px 16px' }}>
-                    Sign Up
-                  </NavLink>
-                </>
-              ) : (
-                <div className="flex items-center" style={{ gap: '8px' }}>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ padding: '8px', margin: 0 }}
-                  >
-                    Welcome, {user?.name || user?.username}
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    className="bg-black text-white rounded uppercase font-medium text-sm border-2 border-black hover:bg-white hover:text-black transition cursor-pointer"
-                    style={{ padding: '8px 16px' }}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </nav>
+          {/* Right icons */}
+          <div
+            className="flex items-center"
+            style={{ gap: '20px', flex: '0 0 auto', minWidth: '120px', justifyContent: 'flex-end' }}
+          >
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="md:hidden hover:opacity-70 transition-opacity"
+              aria-label="Search"
+            >
+              <Search size={20} className="text-[#1c1b1b]" />
+            </button>
 
-            {/* Mobile buttons */}
-            <div className="flex items-center md:hidden" style={{ gap: '8px' }}>
-              {/* Cart */}
-              <button
-                onClick={() => navigate('/cart')}
-                aria-label="View cart"
-                className="relative border border-gray-300 rounded-full hover:bg-gray-100 transition"
-                style={{ padding: '8px' }}
-              >
-                <ShoppingCart className="w-6 h-6 text-gray-700" />
-                
-              </button>
+            <button
+              onClick={() => navigate('/cart')}
+              className="hover:opacity-70 transition-opacity duration-300 relative"
+              aria-label="Cart"
+            >
+              <span className="material-symbols-outlined text-[#1c1b1b]">shopping_bag</span>
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#004dea] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
 
-              {/* Search */}
+            {!isAuthenticated ? (
               <button
-                onClick={() => setIsSearchOpen(true)}
-                aria-label="Open search"
-                className="border border-gray-300 rounded-full hover:bg-gray-100 transition"
-                style={{ padding: '8px' }}
+                onClick={() => navigate('/login')}
+                className="hover:opacity-70 transition-opacity duration-300"
+                aria-label="Login"
               >
-                <Search className="w-6 h-6 text-gray-700" />
+                <span className="material-symbols-outlined text-[#1c1b1b]">person</span>
               </button>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="hidden md:block uppercase text-[10px] tracking-widest text-[#1c1b1b] hover:text-[#004dea] transition-colors font-medium"
+              >
+                Logout
+              </button>
+            )}
 
-              {/* Menu */}
-              <button
-                onClick={() => setIsMenuOpen((s) => !s)}
-                aria-label="Open menu"
-                className="border border-gray-300 rounded-full hover:bg-gray-100 transition"
-                style={{ padding: '8px' }}
-              >
-                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
-            </div>
+            <button
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <span className="material-symbols-outlined text-[#1c1b1b]">menu</span>
+            </button>
           </div>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile search overlay */}
+      <SearchBar isMobile={true} isVisible={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
+      {/* Mobile drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-4/5 max-w-sm bg-white shadow-xl z-50 transform transition-transform duration-300 md:hidden ${
+        className={`fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[#fcf9f8] z-50 transform transition-transform duration-300 md:hidden ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
-        style={{ padding: '10px' }}
+        style={{ padding: '32px 24px' }}
       >
-        <div
-          className="flex items-center justify-between border-b border-gray-200"
-          style={{ padding: '16px 8px' }}
-        >
-          <div className="flex items-center" style={{ gap: '12px' }}>
-            <div
-              className="cursor-pointer flex items-center justify-center"
-              style={{ width: '40px', height: '40px' }}
-              onClick={() => {
-                navigate('/');
-                setIsMenuOpen(false);
-              }}
-            >
-              <span
-                className="text-2xl font-bold text-black hover:text-gray-700 transition"
-                style={{ margin: 0 }}
-              >
-                CS
-              </span>
-            </div>
-            <span className="font-semibold">Menu</span>
-          </div>
-          <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
-            <X size={20} />
+        <div className="flex justify-between items-center" style={{ marginBottom: '48px' }}>
+          <span className="text-xl font-black tracking-tighter text-[#1c1b1b]">CS ATELIER</span>
+          <button onClick={close} aria-label="Close menu">
+            <X size={20} className="text-[#1c1b1b]" />
           </button>
         </div>
 
-        <ul className="flex flex-col" style={{ gap: '12px', padding: '24px 12px' }}>
-          <li>
-            <NavLink to="/" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
-              Home
+        <nav className="flex flex-col" style={{ gap: '32px' }}>
+          {[...navLinks, { to: '/cart', label: `Cart (${totalItems})` }].map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={close}
+              className={({ isActive }) =>
+                `font-black text-3xl tracking-tighter transition-colors ${
+                  isActive ? 'text-[#004dea]' : 'text-[#1c1b1b] hover:text-[#004dea]'
+                }`
+              }
+            >
+              {label}
             </NavLink>
-          </li>
-          <li>
-            <NavLink to="/ProductsList" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
-              Products
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/cart" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
-              Cart
-            </NavLink>
-          </li>
-          {isAuthenticated && !isAdmin && (
-            <li>
-              <NavLink to="/profile" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
-                My Profile
-              </NavLink>
-            </li>
+          ))}
+        </nav>
+
+        <div className="absolute left-6 right-6" style={{ bottom: '48px' }}>
+          {!isAuthenticated ? (
+            <div className="flex flex-col" style={{ gap: '16px' }}>
+              <button
+                onClick={() => { navigate('/login'); close(); }}
+                className="w-full bg-[#1c1b1b] text-[#fcf9f8] uppercase text-xs tracking-widest font-medium"
+                style={{ padding: '16px' }}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => { navigate('/signup'); close(); }}
+                className="w-full border border-[#1c1b1b] text-[#1c1b1b] uppercase text-xs tracking-widest font-medium"
+                style={{ padding: '16px' }}
+              >
+                Sign Up
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="w-full border border-[#1c1b1b] text-[#1c1b1b] uppercase text-xs tracking-widest font-medium"
+              style={{ padding: '16px' }}
+            >
+              Logout
+            </button>
           )}
-          {isAdmin && (
-            <li>
-              <NavLink to="/admin/dashboard" className={mobileNavLinkClass} onClick={() => setIsMenuOpen(false)} style={{ padding: '12px 0' }}>
-                Admin Panel
-              </NavLink>
-            </li>
-          )}
-          <li style={{ marginTop: '24px' }}>
-            {!isAuthenticated ? (
-              <div className="flex flex-col" style={{ gap: '12px' }}>
-                <NavLink
-                  to="/login"
-                  className="block w-full text-center rounded bg-black text-white uppercase font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                  style={{ padding: '12px 0' }}
-                >
-                  Login
-                </NavLink>
-                <NavLink
-                  to="/signup"
-                  className="block w-full text-center rounded bg-white text-black border-2 border-black uppercase font-medium hover:bg-black hover:text-white transition"
-                  onClick={() => setIsMenuOpen(false)}
-                  style={{ padding: '12px 0' }}
-                >
-                  Sign Up
-                </NavLink>
-              </div>
-            ) : (
-              <div className="flex flex-col" style={{ gap: '12px' }}>
-                <div className="text-center font-medium">Welcome, {user?.name || user?.username}</div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full rounded bg-white text-black border-2 border-black uppercase font-medium"
-                  style={{ padding: '12px 0' }}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </li>
-        </ul>
+        </div>
       </div>
 
-      {/* Backdrop */}
       {isMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
-          onClick={() => setIsMenuOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={close} />
       )}
-
-      {/* Mobile Search Overlay */}
-      <SearchBar isMobile={true} isVisible={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-    </header>
+    </>
   );
 }
 
