@@ -4,7 +4,7 @@ function Footer() {
   const navigate = useNavigate();
 
   const links = [
-    { label: 'Collections', path: '/' },
+    { label: 'Home', path: '/' },
     { label: 'Shop', path: '/ProductsList' },
     { label: 'Cart', path: '/cart' },
     { label: 'Profile', path: '/profile' },

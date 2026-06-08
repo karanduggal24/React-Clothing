@@ -92,7 +92,7 @@ function CurationImage({ item, className = "", aspectRatio, onClick, style = {} 
         style={{ bottom: '32px', left: '32px', color: theme.colors.text.light }}
       >
         <span className="uppercase tracking-[0.2em] font-light text-[10px]">{item.title}</span>
-        <span className="text-[11px] font-light" style={{ opacity: 0.6 }}>View Project ↗</span>
+        <span className="text-[11px] font-light" style={{ opacity: 0.6 }}>View Collection ↗</span>
       </div>
     </div>
   );
