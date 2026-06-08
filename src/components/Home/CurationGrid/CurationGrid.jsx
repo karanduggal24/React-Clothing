@@ -24,12 +24,12 @@ function CurationGrid({ curationItems }) {
               01 / The Curation
             </h2>
             <h3 className="text-2xl font-normal tracking-tight leading-snug max-w-xs" style={{ color: theme.colors.text.primary }}>
-              Redefining form through structural core.
+              Redefining silhouette through structural tailoring.
             </h3>
           </div>
 
           <p className="font-light text-[15px] leading-relaxed max-w-[280px]" style={{ marginTop: '48px', color: theme.colors.text.secondary }}>
-            Objects defined by spatial awareness and structural integrity. A silent study in architectural reduction.
+           Garments defined by spatial awareness and impeccable tailoring. A silent study in minimalist reduction.
           </p>
         </div>
 

@@ -18,7 +18,7 @@ function PhilosophyQuote() {
           className="font-black tracking-tight"
           style={{ fontSize: 'clamp(1.8rem, 5vw, 3.5rem)', lineHeight: 1.1, marginBottom: '48px', color: theme.colors.text.primary }}
         >
-          "True utility is found in the intersection of structural permanence and functional beauty."
+          "True style lives where lasting quality meets everyday elegance"
         </blockquote>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Button

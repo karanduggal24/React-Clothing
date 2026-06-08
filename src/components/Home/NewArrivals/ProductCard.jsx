@@ -25,10 +25,10 @@ function ProductCard({ item, isProduct, onAddToCart, onNavigate, onError }) {
   };
 
   return (
-    <div style={{ flex: 'none', width: 'clamp(260px, 30vw, 420px)' }}>
+    <div style={{ flex: 'none', width: 'clamp(220px, 28vw, 320px)' }}>
       <div
         className="overflow-hidden relative group cursor-pointer"
-        style={{ aspectRatio: '3/4', marginBottom: '24px', backgroundColor: theme.colors.backgroundDark }}
+        style={{ aspectRatio: '3/4', marginBottom: '16px', backgroundColor: theme.colors.backgroundDark }}
         onClick={handleCardClick}
       >
         {img ? (
