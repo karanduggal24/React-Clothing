@@ -92,10 +92,10 @@ function Header() {
 
             <button
               onClick={() => navigate('/cart')}
-              className="hover:opacity-70 transition-opacity duration-300 relative"
+              className="hover:opacity-70 transition-opacity duration-300 relative cursor-pointer"
               aria-label="Cart"
             >
-              <span className="material-symbols-outlined text-[#1c1b1b]">shopping_bag</span>
+              <span className="hover:cursor-pointer material-symbols-outlined text-[#1c1b1b]">shopping_bag</span>
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#004dea] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                   {totalItems}

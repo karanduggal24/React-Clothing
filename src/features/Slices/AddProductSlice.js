@@ -91,7 +91,8 @@ export const updateProductInBackend = createAsyncThunk(
     'products/updateProductInBackend',
     async (productData, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${API_URL}${productData.id}`, {
+            console.log('Updating product with ID:', productData.id, 'Type:', typeof productData.id);
+            const response = await fetch(`${API_URL}/${productData.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,8 +107,11 @@ export const updateProductInBackend = createAsyncThunk(
                 }),
             });
             
+            console.log('Update response status:', response.status);
+            
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error('Update error:', errorData);
                 throw new Error(errorData.detail || 'Failed to update product');
             }
             
@@ -121,6 +125,7 @@ export const updateProductInBackend = createAsyncThunk(
                 stockQuantity: productData.stockQuantity
             };
         } catch (error) {
+            console.error('Update product error:', error);
             return rejectWithValue(error.message);
         }
     }
@@ -131,7 +136,7 @@ export const deleteProductFromBackend = createAsyncThunk(
     'products/deleteProductFromBackend',
     async (productId, { rejectWithValue }) => {
         try {
-            const response = await fetch(`${API_URL}${productId}`, {
+            const response = await fetch(`${API_URL}/${productId}`, {
                 method: 'DELETE',
             });
             
