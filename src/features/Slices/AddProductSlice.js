@@ -1,12 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { API_ENDPOINTS } from '../../config/api'
 
-const API_URL = `${API_ENDPOINTS.products}/`
+const API_URL = API_ENDPOINTS.products
 
-// Async thunk to fetch products from backend
+// Async thunk to fetch ALL products (for admin panel - no pagination)
+export const fetchAllProducts = createAsyncThunk(
+    'products/fetchAllProducts',
+    async (_, { rejectWithValue }) => {
+        try {
+            // Request with large page_size to get all products
+            const response = await fetch(`${API_URL}?page=1&page_size=10000`);
+            if (!response.ok) throw new Error('Failed to fetch products');
+            const data = await response.json();
+            // Return just the products array, not pagination data
+            return data.products || data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// Async thunk to fetch products from backend (with pagination for customer view)
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
-    async ({ page = 1, pageSize = 20 } = {}, { rejectWithValue }) => {
+    async ({ page = 1, pageSize = 5 } = {}, { rejectWithValue }) => {
         try {
             const response = await fetch(`${API_URL}?page=${page}&page_size=${pageSize}`);
             if (!response.ok) throw new Error('Failed to fetch products');
@@ -23,7 +40,7 @@ export const addProductToBackend = createAsyncThunk(
     'products/addProductToBackend',
     async (productData, { rejectWithValue }) => {
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${API_URL}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -162,7 +179,7 @@ const initialState = {
     products: loadProductsFromSession(),
     pagination: {
         page: 1,
-        pageSize: 20,
+        pageSize: 5,
         totalItems: 0,
         totalPages: 0,
         hasNext: false,
@@ -247,6 +264,46 @@ export const AddProductSlice = createSlice({
                 }
             })
             .addCase(fetchProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // Fetch ALL products (for admin)
+            .addCase(fetchAllProducts.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchAllProducts.fulfilled, (state, action) => {
+                state.loading = false;
+                // action.payload is already just the products array
+                const products = action.payload;
+                
+                state.products = products.map(product => ({
+                    id: product.id.toString(),
+                    name: product.name,
+                    price: product.Price,
+                    category: product.Category,
+                    img: product.Image,
+                    stockQuantity: product.Quantity,
+                    description: product.Description
+                }));
+                
+                // Reset pagination for admin view (show all)
+                state.pagination = {
+                    page: 1,
+                    pageSize: products.length,
+                    totalItems: products.length,
+                    totalPages: 1,
+                    hasNext: false,
+                    hasPrev: false
+                };
+                
+                try {
+                    sessionStorage.setItem('products', JSON.stringify(state.products));
+                } catch (error) {
+                    console.error('Failed to save products to session:', error);
+                }
+            })
+            .addCase(fetchAllProducts.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })

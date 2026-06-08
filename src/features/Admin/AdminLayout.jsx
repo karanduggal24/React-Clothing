@@ -159,7 +159,7 @@ function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto w-full">
+      <main className="flex-1 overflow-auto w-full" style={{ marginTop: '80px' }}>
         <Outlet />
       </main>
       </div>

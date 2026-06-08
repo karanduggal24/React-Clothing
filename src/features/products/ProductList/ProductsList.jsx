@@ -22,7 +22,7 @@ function ProductsList() {
 
   useEffect(() => {
     document.title = "Clothing Store • Products";
-    dispatch(fetchProducts({ page: currentPage, pageSize: 20 }));
+    dispatch(fetchProducts({ page: currentPage, pageSize: 5 }));
   }, [dispatch, currentPage]);
 
   const handlePageChange = (page) => {
@@ -198,17 +198,60 @@ function ProductsList() {
         </div>
       )}
 
-      {/* Pagination */}
-      {filteredProducts.length > 0 && pagination.totalPages > 1 && (
-        <Pagination
-          currentPage={pagination.page || currentPage}
-          totalPages={pagination.totalPages}
-          onPageChange={handlePageChange}
-          hasNext={pagination.hasNext}
-          hasPrev={pagination.hasPrev}
-          totalItems={pagination.totalItems}
-        />
-      )}
+      {/* Pagination - Simple hardcoded for now */}
+      <div className="flex flex-col items-center" style={{ gap: '16px', marginTop: '40px' }}>
+        <p className="text-sm text-gray-600">
+          Page {currentPage} of 2
+        </p>
+        
+        <div className="flex items-center" style={{ gap: '8px' }}>
+          {/* Previous Button */}
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ width: '40px', height: '40px' }}
+          >
+            ←
+          </button>
+
+          {/* Page 1 */}
+          <button
+            onClick={() => handlePageChange(1)}
+            className={`rounded-lg border-2 font-medium transition-all ${
+              currentPage === 1 
+                ? 'bg-black text-white border-black' 
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`}
+            style={{ width: '40px', height: '40px' }}
+          >
+            1
+          </button>
+
+          {/* Page 2 */}
+          <button
+            onClick={() => handlePageChange(2)}
+            className={`rounded-lg border-2 font-medium transition-all ${
+              currentPage === 2 
+                ? 'bg-black text-white border-black' 
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`}
+            style={{ width: '40px', height: '40px' }}
+          >
+            2
+          </button>
+
+          {/* Next Button */}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === 2}
+            className="flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ width: '40px', height: '40px' }}
+          >
+            →
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

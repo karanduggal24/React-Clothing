@@ -5,7 +5,7 @@ import {
   updateProduct,
   addProductToBackend,
   updateProductInBackend,
-  fetchProducts,
+  fetchAllProducts,
 } from "../../Slices/AddProductSlice";
 import { Button, styled } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -30,8 +30,8 @@ const categories = [
 function ProductForm() {
   useEffect(() => {
     document.title = "Clothing Store-Admin";
-    // Fetch products from backend on component mount
-    dispatch(fetchProducts());
+    // Fetch all products for admin panel without pagination
+    dispatch(fetchAllProducts());
   }, []);
 
   const dispatch = useDispatch();

@@ -28,7 +28,7 @@ function Header() {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/ProductsList', label: 'Shop' },
-    ...(isAuthenticated && !isAdmin ? [{ to: '/profile', label: 'Profile' }] : []),
+    ...(isAuthenticated ? [{ to: '/profile', label: 'Profile' }] : []),
     ...(isAdmin ? [{ to: '/admin/dashboard', label: 'Admin' }] : []),
   ];
 

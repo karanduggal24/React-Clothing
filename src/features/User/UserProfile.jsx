@@ -61,7 +61,7 @@ function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ padding: '40px 20px' }}>
+    <div className="min-h-screen bg-gray-50" style={{ padding: '40px 20px', paddingTop: '120px' }}>
       <div className="max-w-screen" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
         {/* Profile Header */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200" style={{ padding: '32px', marginBottom: '24px' }}>
