@@ -38,7 +38,7 @@ function OrderConfirmed() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ padding: '2rem 1rem' }}>
+    <div className="min-h-screen bg-gray-50" style={{ padding: '2rem 1rem', paddingTop: '120px' }}>
       <div className="max-w mx-auto" style={{ marginBottom: '0' }}>
         
         {/* Success Header */}
