@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useCartStockSync } from "../../hooks/useCartStockSync";
 import { fetchCartFromBackend } from "../../features/Slices/CartSlice";
-import { fetchProducts } from "../../features/Slices/AddProductSlice";
+import { fetchAllProducts } from "../../features/Slices/AddProductSlice";
 import ScrollToTop from "../../hooks/scrollToTop";
 import AppRoutes from "./AppRoutes";
 import ToastConfig from "./ToastConfig";
@@ -12,7 +12,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchAllProducts());
     dispatch(fetchCartFromBackend());
   }, []);
   

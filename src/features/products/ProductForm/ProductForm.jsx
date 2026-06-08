@@ -150,7 +150,7 @@ function ProductForm() {
         toast.success("Product Updated Successfully in Database");
         
         // Refresh products list
-        await dispatch(fetchProducts());
+        await dispatch(fetchAllProducts());
       } catch (error) {
         toast.error(`Failed to update product: ${error}`);
         console.error('Update error:', error);
@@ -176,7 +176,7 @@ function ProductForm() {
         toast.success("Product Added Successfully to Database");
         
         // Refresh products list
-        await dispatch(fetchProducts());
+        await dispatch(fetchAllProducts());
       } catch (error) {
         toast.error(`Failed to add product: ${error}`);
         return;

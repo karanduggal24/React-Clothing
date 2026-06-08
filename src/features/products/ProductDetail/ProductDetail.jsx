@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart } from '../../Slices/CartSlice';
-import { fetchProducts } from '../../Slices/AddProductSlice';
+import { fetchAllProducts } from '../../Slices/AddProductSlice';
 import Loader from '../../../components/Loader/Loader';
 
 function ProductDetail() {
@@ -15,7 +15,7 @@ function ProductDetail() {
   const product = products?.find(p => p.id.toString() === id.toString());
 
   useEffect(() => {
-    if (products.length === 0) dispatch(fetchProducts());
+    if (products.length === 0) dispatch(fetchAllProducts());
     if (product) document.title = `${product.name} - Clothing Store`;
   }, [product, products.length, dispatch]);
 

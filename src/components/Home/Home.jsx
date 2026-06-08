@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../../features/Slices/AddProductSlice";
+import { fetchAllProducts } from "../../features/Slices/AddProductSlice";
 import { carouselSlides } from "../../data/carouselData";
 import { heroSections } from "../../data/homeHeroData";
 import { theme } from "../../styles/theme";
@@ -16,7 +16,7 @@ function Home() {
 
   useEffect(() => {
     document.title = "CS Atelier — Collections";
-    if (products.length === 0) dispatch(fetchProducts());
+    if (products.length === 0) dispatch(fetchAllProducts());
   }, [dispatch, products.length]);
 
   const heroBg = carouselSlides[0]?.image;

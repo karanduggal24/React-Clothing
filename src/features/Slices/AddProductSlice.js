@@ -3,18 +3,29 @@ import { API_ENDPOINTS } from '../../config/api'
 
 const API_URL = API_ENDPOINTS.products
 
-// Async thunk to fetch ALL products (for admin panel - no pagination)
+// Async thunk to fetch ALL products (no pagination)
 export const fetchAllProducts = createAsyncThunk(
     'products/fetchAllProducts',
     async (_, { rejectWithValue }) => {
         try {
-            // Request with large page_size to get all products
-            const response = await fetch(`${API_URL}?page=1&page_size=10000`);
-            if (!response.ok) throw new Error('Failed to fetch products');
+            console.log('Fetching all products from:', API_URL);
+            const response = await fetch(`${API_URL}`);
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error:', errorText);
+                throw new Error(`Failed to fetch products: ${response.status} ${errorText}`);
+            }
+            
             const data = await response.json();
-            // Return just the products array, not pagination data
-            return data.products || data;
+            console.log('Received data:', data);
+            console.log('Data type:', Array.isArray(data) ? 'array' : typeof data);
+            
+            // API now returns array directly, not wrapped in object
+            return data;
         } catch (error) {
+            console.error('Fetch error:', error);
             return rejectWithValue(error.message);
         }
     }
@@ -274,7 +285,7 @@ export const AddProductSlice = createSlice({
             })
             .addCase(fetchAllProducts.fulfilled, (state, action) => {
                 state.loading = false;
-                // action.payload is already just the products array
+                // API now returns products array directly
                 const products = action.payload;
                 
                 state.products = products.map(product => ({
@@ -287,7 +298,7 @@ export const AddProductSlice = createSlice({
                     description: product.Description
                 }));
                 
-                // Reset pagination for admin view (show all)
+                // Reset pagination (all products loaded)
                 state.pagination = {
                     page: 1,
                     pageSize: products.length,
