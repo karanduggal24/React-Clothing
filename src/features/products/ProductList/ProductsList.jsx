@@ -1,34 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchProducts } from "../../Slices/AddProductSlice";
+import { fetchAllProducts } from "../../Slices/AddProductSlice";
 import { addToCart, addToCartBackend, selectCartItems } from "../../Slices/CartSlice";
 import FilterBar from "../FilterBar/FilterBar";
 import { selectFilteredProducts, selectFilters } from "../../Slices/filterSlice";
 import { toast } from "react-toastify";
 import Loader from "../../../components/Loader/Loader";
-import { Button, Pagination } from "../../../components/ui";
+import { Button } from "../../../components/ui";
 
 function ProductsList() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state.products.products);
-  const pagination = useSelector((state) => state.products.pagination);
   const filteredProducts = useSelector(selectFilteredProducts);
   const filters = useSelector(selectFilters);
   const loading = useSelector((state) => state.products.loading);
   const cartItems = useSelector(selectCartItems);
-  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     document.title = "Clothing Store • Products";
-    dispatch(fetchProducts({ page: currentPage, pageSize: 5 }));
-  }, [dispatch, currentPage]);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
 
   const handleAddToCart = async (product) => {
     const existingItem = cartItems.find((item) => item.id === product.id);
@@ -197,61 +190,6 @@ function ProductsList() {
           ))}
         </div>
       )}
-
-      {/* Pagination - Simple hardcoded for now */}
-      <div className="flex flex-col items-center" style={{ gap: '16px', marginTop: '40px' }}>
-        <p className="text-sm text-gray-600">
-          Page {currentPage} of 2
-        </p>
-        
-        <div className="flex items-center" style={{ gap: '8px' }}>
-          {/* Previous Button */}
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ width: '40px', height: '40px' }}
-          >
-            ←
-          </button>
-
-          {/* Page 1 */}
-          <button
-            onClick={() => handlePageChange(1)}
-            className={`rounded-lg border-2 font-medium transition-all ${
-              currentPage === 1 
-                ? 'bg-black text-white border-black' 
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
-            style={{ width: '40px', height: '40px' }}
-          >
-            1
-          </button>
-
-          {/* Page 2 */}
-          <button
-            onClick={() => handlePageChange(2)}
-            className={`rounded-lg border-2 font-medium transition-all ${
-              currentPage === 2 
-                ? 'bg-black text-white border-black' 
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
-            style={{ width: '40px', height: '40px' }}
-          >
-            2
-          </button>
-
-          {/* Next Button */}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === 2}
-            className="flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ width: '40px', height: '40px' }}
-          >
-            →
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
