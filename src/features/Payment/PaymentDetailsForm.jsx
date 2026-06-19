@@ -167,7 +167,7 @@ function PaymentDetailsForm() {
   };
 
   return (
-    <div style={{ padding: "1.5rem" }}>
+    <div style={{ padding: "1.5rem", paddingTop: "120px" }}>
       <form className="flex flex-col" style={{ gap: "1.5rem" }} onSubmit={handleSubmit}>
         <AddressForm
           userInfo={userInfo}

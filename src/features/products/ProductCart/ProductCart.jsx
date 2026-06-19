@@ -112,6 +112,7 @@ function ProductCart() {
       className="min-h-screen bg-gray-50"
       style={{
         padding: "28px 18px 40px",
+        paddingTop: "120px",
       }}
     >
       {/* HEADER */}
