@@ -10,7 +10,7 @@ import SearchBar from '../../features/products/SearchBar/SearchBar';
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, isAdmin } = useSelector((state) => state.auth);
+  const { isAuthenticated, isAdmin, user } = useSelector((state) => state.auth);
   const totalItems = useSelector(selectCartTotalItems);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -113,12 +113,35 @@ function Header() {
                 <span className="material-symbols-outlined text-[#1c1b1b]">person</span>
               </button>
             ) : (
-              <button
-                onClick={handleLogout}
-                className="hidden md:block uppercase text-[10px] tracking-widest text-[#1c1b1b] hover:text-[#004dea] transition-colors font-medium"
-              >
-                Logout
-              </button>
+              <>
+                {user?.profile_picture ? (
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="hidden md:block hover:opacity-70 transition-opacity duration-300"
+                    aria-label="Profile"
+                  >
+                    <img 
+                      src={user.profile_picture} 
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover border-2 border-[#1c1b1b]"
+                    />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="hidden md:block hover:opacity-70 transition-opacity duration-300"
+                    aria-label="Profile"
+                  >
+                    <span className="material-symbols-outlined text-[#1c1b1b]">person</span>
+                  </button>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="hidden md:block uppercase text-[10px] tracking-widest text-[#1c1b1b] hover:text-[#004dea] transition-colors font-medium"
+                >
+                  Logout
+                </button>
+              </>
             )}
 
             <button

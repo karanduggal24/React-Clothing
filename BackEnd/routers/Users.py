@@ -97,7 +97,8 @@ async def login(data: UserLogin):
                 "email": user["email"],
                 "name": user["name"],
                 "phone": user.get("phone"),
-                "role": user["role"]
+                "role": user["role"],
+                "profile_picture": user.get("profile_picture")
             }
         }
     except HTTPException:

@@ -66,9 +66,17 @@ function UserProfile() {
         {/* Profile Header */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200" style={{ padding: '32px', marginBottom: '24px' }}>
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-black text-white flex items-center justify-center text-3xl font-bold">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
+            {user?.profile_picture ? (
+              <img 
+                src={user.profile_picture} 
+                alt={user.name}
+                className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-black text-white flex items-center justify-center text-3xl font-bold">
+                {user?.name?.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-black">{user?.name}</h1>
               <div className="flex flex-wrap gap-4" style={{ marginTop: '12px' }}>
