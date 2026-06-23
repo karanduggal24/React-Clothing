@@ -160,17 +160,25 @@ export const cartApi = {
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
 export const ordersApi = {
+  // Get orders for current user
   getAll: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    // orders endpoint already has trailing slash, don't add another
     return request(`${API_ENDPOINTS.orders}${query ? `?${query}` : ''}`, {
-      headers: defaultHeaders(), // Add auth headers
+      headers: defaultHeaders(),
+    });
+  },
+
+  // Get ALL orders (admin only)
+  getAllAdmin: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`${API_ENDPOINTS.orders}/admin/all${query ? `?${query}` : ''}`, {
+      headers: defaultHeaders(),
     });
   },
 
   getByEmail: (email) =>
     request(`${API_ENDPOINTS.orders}/?customer_email=${email}`, {
-      headers: defaultHeaders(), // Add auth headers
+      headers: defaultHeaders(),
     }),
 
   create: (data) =>

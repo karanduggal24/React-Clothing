@@ -81,7 +81,7 @@ function AdminDashboard() {
     try {
       const [products, orders, users] = await Promise.all([
         productsApi.getAll(),
-        ordersApi.getAll(),
+        ordersApi.getAllAdmin(),  // Use admin-specific endpoint
         authApi.getUsers()
       ]);
 

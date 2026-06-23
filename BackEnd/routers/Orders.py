@@ -9,39 +9,55 @@ router = APIRouter()
 
 
 @router.get("/")
-def get_orders(
+def get_my_orders(
     status: Optional[str] = Query(None),
-    customer_email: Optional[str] = Query(None),
     current_user: dict = Depends(get_current_user)
 ):
+    """
+    Get orders for the current authenticated user
+    Regular users see only their own orders
+    """
     try:
-        # Debug logging
-        print(f"[ORDERS DEBUG] Current user data: {current_user}")
-        print(f"[ORDERS DEBUG] User email (sub): {current_user.get('sub')}")
-        print(f"[ORDERS DEBUG] User role: {current_user.get('role')}")
-        
-        query = supabase.table("orders").select("*").order("order_date", desc=True)
-
-        # Admin can see all orders, regular users can only see their own
         user_email = current_user.get("sub")
-        user_role = current_user.get("role")
+        print(f"[ORDERS DEBUG] User {user_email} fetching their own orders")
         
-        if user_role != "admin":
-            # Regular users can only see their own orders (filter by their email)
-            print(f"[ORDERS DEBUG] Non-admin user, filtering by email: {user_email}")
-            query = query.eq("customer_email", user_email)
-        else:
-            print(f"[ORDERS DEBUG] Admin user, fetching all orders")
-            if customer_email:
-                # Admin filtering by specific customer email
-                print(f"[ORDERS DEBUG] Admin filtering by customer_email: {customer_email}")
-                query = query.eq("customer_email", customer_email)
+        query = supabase.table("orders").select("*").eq("customer_email", user_email).order("order_date", desc=True)
 
         if status:
             query = query.eq("status", status)
 
         result = query.execute()
-        print(f"[ORDERS DEBUG] Found {len(result.data or [])} orders")
+        print(f"[ORDERS DEBUG] Found {len(result.data or [])} orders for user")
+        return result.data or []
+    except Exception as e:
+        print(f"[ORDERS ERROR] {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")
+
+
+@router.get("/admin/all")
+def get_all_orders_admin(
+    status: Optional[str] = Query(None),
+    customer_email: Optional[str] = Query(None),
+    current_user: dict = Depends(get_current_admin)
+):
+    """
+    Get ALL orders (Admin only)
+    Can optionally filter by status or customer_email
+    """
+    try:
+        print(f"[ORDERS DEBUG] Admin {current_user.get('sub')} fetching all orders")
+        
+        query = supabase.table("orders").select("*").order("order_date", desc=True)
+
+        if customer_email:
+            print(f"[ORDERS DEBUG] Admin filtering by customer_email: {customer_email}")
+            query = query.eq("customer_email", customer_email)
+
+        if status:
+            query = query.eq("status", status)
+
+        result = query.execute()
+        print(f"[ORDERS DEBUG] Found {len(result.data or [])} total orders")
         return result.data or []
     except Exception as e:
         print(f"[ORDERS ERROR] {str(e)}")
