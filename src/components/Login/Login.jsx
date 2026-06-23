@@ -43,7 +43,7 @@ function Login() {
   // Google OAuth login handler
   const handleGoogleLogin = () => {
     // Redirect to backend OAuth endpoint
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
     window.location.href = `${API_URL}/auth/google/login`
   }
 
