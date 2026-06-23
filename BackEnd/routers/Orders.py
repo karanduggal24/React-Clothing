@@ -15,6 +15,11 @@ def get_orders(
     current_user: dict = Depends(get_current_user)
 ):
     try:
+        # Debug logging
+        print(f"[ORDERS DEBUG] Current user data: {current_user}")
+        print(f"[ORDERS DEBUG] User email (sub): {current_user.get('sub')}")
+        print(f"[ORDERS DEBUG] User role: {current_user.get('role')}")
+        
         query = supabase.table("orders").select("*").order("order_date", desc=True)
 
         # Admin can see all orders, regular users can only see their own
@@ -23,17 +28,23 @@ def get_orders(
         
         if user_role != "admin":
             # Regular users can only see their own orders (filter by their email)
+            print(f"[ORDERS DEBUG] Non-admin user, filtering by email: {user_email}")
             query = query.eq("customer_email", user_email)
-        elif customer_email:
-            # Admin filtering by specific customer email
-            query = query.eq("customer_email", customer_email)
+        else:
+            print(f"[ORDERS DEBUG] Admin user, fetching all orders")
+            if customer_email:
+                # Admin filtering by specific customer email
+                print(f"[ORDERS DEBUG] Admin filtering by customer_email: {customer_email}")
+                query = query.eq("customer_email", customer_email)
 
         if status:
             query = query.eq("status", status)
 
         result = query.execute()
+        print(f"[ORDERS DEBUG] Found {len(result.data or [])} orders")
         return result.data or []
     except Exception as e:
+        print(f"[ORDERS ERROR] {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")
 
 

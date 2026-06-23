@@ -25,15 +25,20 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         HTTPException: 401 if token is invalid or expired
     """
     token = credentials.credentials
+    print(f"[AUTH DEBUG] Received token: {token[:50]}...")  # Print first 50 chars
+    
     payload = verify_token(token)
+    print(f"[AUTH DEBUG] Decoded payload: {payload}")
     
     if not payload:
+        print("[AUTH DEBUG] Token verification failed - invalid or expired")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    print(f"[AUTH DEBUG] User authenticated: {payload.get('sub')} (role: {payload.get('role')})")
     return payload
 
 
