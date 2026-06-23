@@ -19,18 +19,14 @@ def get_my_orders(
     """
     try:
         user_email = current_user.get("sub")
-        print(f"[ORDERS DEBUG] User {user_email} fetching their own orders")
-        
         query = supabase.table("orders").select("*").eq("customer_email", user_email).order("order_date", desc=True)
 
         if status:
             query = query.eq("status", status)
 
         result = query.execute()
-        print(f"[ORDERS DEBUG] Found {len(result.data or [])} orders for user")
         return result.data or []
     except Exception as e:
-        print(f"[ORDERS ERROR] {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")
 
 
@@ -45,22 +41,17 @@ def get_all_orders_admin(
     Can optionally filter by status or customer_email
     """
     try:
-        print(f"[ORDERS DEBUG] Admin {current_user.get('sub')} fetching all orders")
-        
         query = supabase.table("orders").select("*").order("order_date", desc=True)
 
         if customer_email:
-            print(f"[ORDERS DEBUG] Admin filtering by customer_email: {customer_email}")
             query = query.eq("customer_email", customer_email)
 
         if status:
             query = query.eq("status", status)
 
         result = query.execute()
-        print(f"[ORDERS DEBUG] Found {len(result.data or [])} total orders")
         return result.data or []
     except Exception as e:
-        print(f"[ORDERS ERROR] {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")
 
 
