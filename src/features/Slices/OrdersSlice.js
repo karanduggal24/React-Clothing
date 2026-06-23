@@ -13,7 +13,7 @@ export const fetchOrdersFromBackend = createAsyncThunk(
       return rejectWithValue(error.message);
     }
   }
-););
+);
 
 // Async thunk to update order
 export const updateOrderInBackend = createAsyncThunk(
