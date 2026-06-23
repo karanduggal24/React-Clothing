@@ -14,12 +14,15 @@ def get_cart_items(
     current_user: dict = Depends(get_current_user)
 ):
     try:
+        # Get user's email from JWT token (stored as 'sub')
+        user_email = current_user.get("sub")
+        
         # Users can only access their own cart
-        if user_id and str(user_id) != str(current_user.get("user_id")):
+        if user_id and str(user_id) != str(user_email):
             raise HTTPException(status_code=403, detail="Access denied")
         
-        # If no user_id provided, use current user's id
-        target_user_id = user_id or current_user.get("user_id")
+        # If no user_id provided, use current user's email
+        target_user_id = user_id or user_email
         
         query = supabase.table("cart").select("*").eq("user_id", target_user_id)
         result = query.execute()
@@ -37,8 +40,11 @@ def get_cart_item(cart_item_id: int, current_user: dict = Depends(get_current_us
         if not result.data:
             raise HTTPException(status_code=404, detail=f"Cart item {cart_item_id} not found")
         
+        # Get user's email from JWT token
+        user_email = current_user.get("sub")
+        
         # Verify the cart item belongs to the current user
-        if str(result.data["user_id"]) != str(current_user.get("user_id")):
+        if str(result.data["user_id"]) != str(user_email):
             raise HTTPException(status_code=403, detail="Access denied")
         
         return result.data
@@ -51,8 +57,11 @@ def get_cart_item(cart_item_id: int, current_user: dict = Depends(get_current_us
 @router.post("/")
 async def add_to_cart(data: CartItem, current_user: dict = Depends(get_current_user)):
     try:
+        # Get user's email from JWT token
+        user_email = current_user.get("sub")
+        
         # Verify user is adding to their own cart
-        if str(data.user_id) != str(current_user.get("user_id")):
+        if str(data.user_id) != str(user_email):
             raise HTTPException(status_code=403, detail="Access denied")
         
         # Check if item already exists for this user
@@ -110,8 +119,11 @@ async def update_cart_item(cart_item_id: int, data: CartItemUpdate, current_user
         if not existing.data:
             raise HTTPException(status_code=404, detail=f"Cart item {cart_item_id} not found")
         
+        # Get user's email from JWT token
+        user_email = current_user.get("sub")
+        
         # Verify the cart item belongs to the current user
-        if str(existing.data[0]["user_id"]) != str(current_user.get("user_id")):
+        if str(existing.data[0]["user_id"]) != str(user_email):
             raise HTTPException(status_code=403, detail="Access denied")
 
         now = datetime.now(timezone.utc).isoformat()
@@ -134,8 +146,11 @@ async def delete_cart_item(cart_item_id: int, current_user: dict = Depends(get_c
         if not existing.data:
             raise HTTPException(status_code=404, detail=f"Cart item {cart_item_id} not found")
         
+        # Get user's email from JWT token
+        user_email = current_user.get("sub")
+        
         # Verify the cart item belongs to the current user
-        if str(existing.data[0]["user_id"]) != str(current_user.get("user_id")):
+        if str(existing.data[0]["user_id"]) != str(user_email):
             raise HTTPException(status_code=403, detail="Access denied")
 
         supabase.table("cart").delete().eq("id", cart_item_id).execute()
@@ -149,8 +164,11 @@ async def delete_cart_item(cart_item_id: int, current_user: dict = Depends(get_c
 @router.delete("/user/{user_id}")
 async def clear_user_cart(user_id: str, current_user: dict = Depends(get_current_user)):
     try:
+        # Get user's email from JWT token
+        user_email = current_user.get("sub")
+        
         # Verify user is clearing their own cart
-        if str(user_id) != str(current_user.get("user_id")):
+        if str(user_id) != str(user_email):
             raise HTTPException(status_code=403, detail="Access denied")
         
         result = supabase.table("cart").delete().eq("user_id", user_id).execute()
@@ -164,8 +182,11 @@ async def clear_user_cart(user_id: str, current_user: dict = Depends(get_current
 @router.get("/user/{user_id}/summary")
 def get_cart_summary(user_id: str, current_user: dict = Depends(get_current_user)):
     try:
+        # Get user's email from JWT token
+        user_email = current_user.get("sub")
+        
         # Verify user is accessing their own cart
-        if str(user_id) != str(current_user.get("user_id")):
+        if str(user_id) != str(user_email):
             raise HTTPException(status_code=403, detail="Access denied")
         
         result = supabase.table("cart").select("*").eq("user_id", user_id).execute()
