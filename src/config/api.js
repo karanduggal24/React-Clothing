@@ -13,8 +13,16 @@ export const API_ENDPOINTS = {
 // Default headers - automatically gets token from localStorage
 const defaultHeaders = (token = null) => {
   const headers = { 'Content-Type': 'application/json' };
-  // Use provided token or get from localStorage
-  const authToken = token || localStorage.getItem('token');
+  // Use provided token or get from localStorage authState
+  let authToken = token;
+  if (!authToken) {
+    try {
+      const authState = JSON.parse(localStorage.getItem('authState') || '{}');
+      authToken = authState.token;
+    } catch {
+      authToken = null;
+    }
+  }
   if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   return headers;
 };
@@ -94,7 +102,14 @@ export const productsApi = {
   uploadImage: (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const token = localStorage.getItem('token');
+    // Get token from authState
+    let token = null;
+    try {
+      const authState = JSON.parse(localStorage.getItem('authState') || '{}');
+      token = authState.token;
+    } catch {
+      token = null;
+    }
     return request(`${API_ENDPOINTS.products}/upload-image`, {
       method: 'POST',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
