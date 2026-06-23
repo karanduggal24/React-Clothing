@@ -144,10 +144,11 @@ async def google_callback(request: Request):
         user_json = json.dumps(user_response)
         user_encoded = quote(user_json)
         
-        # Redirect to frontend with token and user data
+        # Redirect to frontend with JWT token
         frontend_redirect = f"{FRONTEND_URL}/auth/callback?token={token}&user={user_encoded}"
         
-        print(f"Redirecting to frontend: {FRONTEND_URL}/auth/callback")
+        print(f"✅ OAuth successful - Redirecting to: {frontend_redirect}")
+        print(f"FRONTEND_URL from env: {FRONTEND_URL}")
         return RedirectResponse(url=frontend_redirect)
         
     except HTTPException:

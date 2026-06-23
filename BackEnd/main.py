@@ -27,6 +27,9 @@ async def startup_event():
     logger.info("Application starting up...")
     logger.info(f"SUPABASE configured: {bool(os.getenv('SUPABASE_URL'))}")
     logger.info(f"CORS_ORIGINS: {os.getenv('CORS_ORIGINS', '*')}")
+    logger.info(f"FRONTEND_URL: {os.getenv('FRONTEND_URL', 'NOT SET')}")  # Add this line
+    logger.info(f"GOOGLE_REDIRECT_URI: {os.getenv('GOOGLE_REDIRECT_URI', 'NOT SET')}")  # Add this line
+    logger.info(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'development')}")  # Add this line
 
 # Mount static files for uploaded images
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "public/uploads"))

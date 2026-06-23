@@ -10,10 +10,12 @@ export const API_ENDPOINTS = {
   uploads: `${BASE_URL}/uploads`,
 };
 
-// Default headers
+// Default headers - automatically gets token from localStorage
 const defaultHeaders = (token = null) => {
   const headers = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  // Use provided token or get from localStorage
+  const authToken = token || localStorage.getItem('token');
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   return headers;
 };
 
@@ -72,25 +74,30 @@ export const productsApi = {
   create: (data) =>
     request(`${API_ENDPOINTS.products}/`, {
       method: 'POST',
-      headers: defaultHeaders(),
+      headers: defaultHeaders(), // Will automatically get token
       body: JSON.stringify(data),
     }),
 
   update: (id, data) =>
     request(`${API_ENDPOINTS.products}/${id}`, {
       method: 'PUT',
-      headers: defaultHeaders(),
+      headers: defaultHeaders(), // Will automatically get token
       body: JSON.stringify(data),
     }),
 
   delete: (id) =>
-    request(`${API_ENDPOINTS.products}/${id}`, { method: 'DELETE' }),
+    request(`${API_ENDPOINTS.products}/${id}`, { 
+      method: 'DELETE',
+      headers: defaultHeaders(), // Will automatically get token
+    }),
 
   uploadImage: (file) => {
     const formData = new FormData();
     formData.append('file', file);
+    const token = localStorage.getItem('token');
     return request(`${API_ENDPOINTS.products}/upload-image`, {
       method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       body: formData, // No Content-Type header — browser sets multipart boundary
     });
   },
@@ -98,13 +105,16 @@ export const productsApi = {
   reduceStock: (id, quantity) =>
     request(`${API_ENDPOINTS.products}/${id}/reduce-stock?quantity=${quantity}`, {
       method: 'PATCH',
+      headers: defaultHeaders(), // Will automatically get token
     }),
 };
 
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 export const cartApi = {
   getByUser: (userId) =>
-    request(`${API_ENDPOINTS.cart}/?user_id=${userId}`),
+    request(`${API_ENDPOINTS.cart}/?user_id=${userId}`, {
+      headers: defaultHeaders(), // Add auth headers
+    }),
 
   add: (item) =>
     request(`${API_ENDPOINTS.cart}/`, {
@@ -121,21 +131,31 @@ export const cartApi = {
     }),
 
   remove: (cartItemId) =>
-    request(`${API_ENDPOINTS.cart}/${cartItemId}`, { method: 'DELETE' }),
+    request(`${API_ENDPOINTS.cart}/${cartItemId}`, { 
+      method: 'DELETE',
+      headers: defaultHeaders(), // Add auth headers
+    }),
 
   clearByUser: (userId) =>
-    request(`${API_ENDPOINTS.cart}/user/${userId}`, { method: 'DELETE' }),
+    request(`${API_ENDPOINTS.cart}/user/${userId}`, { 
+      method: 'DELETE',
+      headers: defaultHeaders(), // Add auth headers
+    }),
 };
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
 export const ordersApi = {
   getAll: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return request(`${API_ENDPOINTS.orders}/${query ? `?${query}` : ''}`);
+    return request(`${API_ENDPOINTS.orders}/${query ? `?${query}` : ''}`, {
+      headers: defaultHeaders(), // Add auth headers
+    });
   },
 
   getByEmail: (email) =>
-    request(`${API_ENDPOINTS.orders}/?customer_email=${email}`),
+    request(`${API_ENDPOINTS.orders}/?customer_email=${email}`, {
+      headers: defaultHeaders(), // Add auth headers
+    }),
 
   create: (data) =>
     request(`${API_ENDPOINTS.orders}/`, {
@@ -152,5 +172,8 @@ export const ordersApi = {
     }),
 
   delete: (orderId) =>
-    request(`${API_ENDPOINTS.orders}/${orderId}`, { method: 'DELETE' }),
+    request(`${API_ENDPOINTS.orders}/${orderId}`, { 
+      method: 'DELETE',
+      headers: defaultHeaders(), // Add auth headers
+    }),
 };
