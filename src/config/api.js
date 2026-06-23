@@ -162,8 +162,8 @@ export const cartApi = {
 export const ordersApi = {
   getAll: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    // Always include trailing slash to avoid 307 redirect that loses auth header
-    return request(`${API_ENDPOINTS.orders}/${query ? `?${query}` : ''}`, {
+    // orders endpoint already has trailing slash, don't add another
+    return request(`${API_ENDPOINTS.orders}${query ? `?${query}` : ''}`, {
       headers: defaultHeaders(), // Add auth headers
     });
   },
