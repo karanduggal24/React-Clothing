@@ -18,8 +18,12 @@ def get_orders(
         query = supabase.table("orders").select("*").order("order_date", desc=True)
 
         # Admin can see all orders, regular users can only see their own
-        if current_user.get("role") != "admin":
-            query = query.eq("customer_email", current_user.get("sub"))
+        user_email = current_user.get("sub")
+        user_role = current_user.get("role")
+        
+        if user_role != "admin":
+            # Regular users can only see their own orders (filter by their email)
+            query = query.eq("customer_email", user_email)
         elif customer_email:
             # Admin filtering by specific customer email
             query = query.eq("customer_email", customer_email)
@@ -40,8 +44,12 @@ def get_order(order_id: str, current_user: dict = Depends(get_current_user)):
         if not result.data:
             raise HTTPException(status_code=404, detail=f"Order {order_id} not found")
         
+        # Get user's email and role from JWT token
+        user_email = current_user.get("sub")
+        user_role = current_user.get("role")
+        
         # Users can only access their own orders unless they're admin
-        if current_user.get("role") != "admin" and result.data["customer_email"] != current_user.get("sub"):
+        if user_role != "admin" and result.data["customer_email"] != user_email:
             raise HTTPException(status_code=403, detail="Access denied")
         
         return result.data
@@ -54,8 +62,11 @@ def get_order(order_id: str, current_user: dict = Depends(get_current_user)):
 @router.post("/")
 async def create_order(data: OrderCreate, current_user: dict = Depends(get_current_user)):
     try:
+        # Get user's email from JWT token
+        user_email = current_user.get("sub")
+        
         # Verify the order is being created for the authenticated user
-        if data.customer_email != current_user.get("sub"):
+        if data.customer_email != user_email:
             raise HTTPException(status_code=403, detail="Cannot create order for another user")
         
         # Check if order_id already exists
