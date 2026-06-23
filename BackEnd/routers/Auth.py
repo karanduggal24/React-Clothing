@@ -15,7 +15,7 @@ from urllib.parse import quote
 router = APIRouter()
 
 # Get environment variables
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://clothing-store-kd.vercel.app/')
 GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
 
 
