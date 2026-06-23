@@ -1,19 +1,24 @@
 from fastapi import APIRouter, HTTPException, status
 from config.db import supabase
 from Schemas.Users import UserCreate, UserLogin, UserResponse
-import hashlib
+from passlib.context import CryptContext
 import secrets
 from datetime import datetime, timezone
 
 router = APIRouter()
 
+# Password hashing context using bcrypt
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Hash a password using bcrypt with automatic salting"""
+    return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return hash_password(plain_password) == hashed_password
+    """Verify a password against a bcrypt hash"""
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)

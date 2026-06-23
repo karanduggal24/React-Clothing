@@ -5,10 +5,12 @@ from routers.Products import router as ProductRouter
 from routers.Cart import router as CartRouter
 from routers.Orders import router as OrderRouter
 from routers.Users import router as UserRouter
+from routers.Auth import router as AuthRouter
 from pathlib import Path
 import os
 from dotenv import load_dotenv
 import logging
+from starlette.middleware.sessions import SessionMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +36,12 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 # Get CORS origins from environment
 cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
 
+# Add session middleware (required for OAuth)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SESSION_SECRET_KEY", "your-secret-key-change-in-production")
+)
+
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
@@ -53,11 +61,13 @@ def read_root():
             "products": "/products",
             "cart": "/cart",
             "orders": "/orders",
-            "users": "/auth"
+            "users": "/signup, /login",
+            "oauth": "/auth/google/login"
         }
     }
 
 app.include_router(ProductRouter, prefix="/products", tags=["Products"])
 app.include_router(CartRouter, prefix="/cart", tags=["Cart"])
 app.include_router(OrderRouter, prefix="/orders", tags=["Orders"])
-app.include_router(UserRouter, prefix="/auth", tags=["Authentication"])
+app.include_router(UserRouter, prefix="", tags=["Users"])
+app.include_router(AuthRouter, prefix="/auth", tags=["OAuth"])

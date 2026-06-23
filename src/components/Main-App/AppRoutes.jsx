@@ -22,6 +22,9 @@ import OrderConfirmed from "../../features/Order/OrderConfirmed";
 // User
 import UserProfile from "../../features/User/UserProfile";
 
+// Auth
+import OAuthCallback from "../Auth/OAuthCallback";
+
 // Admin
 import AdminLayout from "../../features/Admin/AdminLayout";
 import AdminDashboard from "../../features/Admin/AdminDashboard";
@@ -49,6 +52,9 @@ function AppRoutes() {
       <Route path="/signup" element={<WithLayout><Signup /></WithLayout>} />
       <Route path="/cart" element={<WithLayout><ProductCart /></WithLayout>} />
       <Route path="/order-confirmed" element={<WithLayout><OrderConfirmed /></WithLayout>} />
+
+      {/* OAuth Callback Route (NO Layout - just processing) */}
+      <Route path="/auth/callback" element={<OAuthCallback />} />
 
       {/* Payment (requires auth + non-empty cart) */}
       <Route

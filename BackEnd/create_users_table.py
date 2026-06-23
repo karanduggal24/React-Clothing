@@ -1,10 +1,13 @@
 from BackEnd.config.db import engine, meta, conn
 from BackEnd.models.Users import users
-import hashlib
+from passlib.context import CryptContext
+
+# Password hashing context using bcrypt
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
-    """Hash password using SHA-256"""
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Hash password using bcrypt with automatic salting"""
+    return pwd_context.hash(password)
 
 # Create Users table
 meta.create_all(engine)
@@ -41,7 +44,7 @@ else:
 print("\nUsers table structure:")
 print("- id: Primary key (auto-increment)")
 print("- email: Unique email address")
-print("- password: Hashed password (SHA-256)")
+print("- password: Hashed password (bcrypt)")
 print("- name: User full name")
 print("- phone: Phone number (optional)")
 print("- role: User role (admin/user)")

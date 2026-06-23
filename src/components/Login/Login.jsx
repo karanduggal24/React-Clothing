@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { User, KeyRound } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { authApi } from '../../config/api'
+import GoogleButton from '../ui/GoogleButton'
 
 function Login() {
   useEffect(() => {
@@ -21,6 +22,13 @@ function Login() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { isAuthenticated } = useSelector((state) => state.auth)
+
+  // Google OAuth login handler
+  const handleGoogleLogin = () => {
+    // Redirect to backend OAuth endpoint
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    window.location.href = `${API_URL}/auth/google/login`
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -126,6 +134,20 @@ function Login() {
             {errors.general}
           </div>
         )}
+
+        {/* Google Login Button */}
+        <GoogleButton 
+          onClick={handleGoogleLogin}
+          text="Sign in with Google"
+          disabled={loading}
+        />
+
+        {/* Divider */}
+        <div className="flex items-center" style={{ margin: '24px 0' }}>
+          <div className="flex-1 border-t border-gray-300"></div>
+          <span className="px-4 text-sm text-gray-500">OR</span>
+          <div className="flex-1 border-t border-gray-300"></div>
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col">
           {/* Email field */}

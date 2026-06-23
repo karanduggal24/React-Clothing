@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { User, Mail, Lock, Phone } from 'lucide-react';
 import { authApi } from '../../config/api';
 import { theme } from '../../styles/theme';
+import GoogleButton from '../ui/GoogleButton';
 
 function Signup() {
   const navigate = useNavigate();
@@ -93,6 +94,12 @@ function Signup() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Google OAuth signup handler
+  const handleGoogleSignup = () => {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    window.location.href = `${API_URL}/auth/google/login`
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -140,6 +147,20 @@ function Signup() {
             {errors.server}
           </div>
         )}
+
+        {/* Google Signup Button */}
+        <GoogleButton 
+          onClick={handleGoogleSignup}
+          text="Sign up with Google"
+          disabled={loading}
+        />
+
+        {/* Divider */}
+        <div className="flex items-center" style={{ margin: '24px 0' }}>
+          <div className="flex-1 border-t border-gray-300"></div>
+          <span className="px-4 text-sm text-gray-500">OR</span>
+          <div className="flex-1 border-t border-gray-300"></div>
+        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
