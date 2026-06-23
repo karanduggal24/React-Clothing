@@ -5,7 +5,7 @@ export const API_BASE_URL = BASE_URL;
 export const API_ENDPOINTS = {
   products: `${BASE_URL}/products`,
   cart: `${BASE_URL}/cart`,
-  orders: `${BASE_URL}/orders/`,  // Add trailing slash to prevent 307 redirects
+  orders: `${BASE_URL}/orders`,  // Remove trailing slash
   auth: `${BASE_URL}/auth`,
   uploads: `${BASE_URL}/uploads`,
 };
@@ -163,7 +163,7 @@ export const ordersApi = {
   // Get orders for current user
   getAll: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return request(`${API_ENDPOINTS.orders}${query ? `?${query}` : ''}`, {
+    return request(`${API_ENDPOINTS.orders}/${query ? `?${query}` : ''}`, {
       headers: defaultHeaders(),
     });
   },
