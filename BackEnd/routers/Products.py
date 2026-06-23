@@ -4,7 +4,7 @@ from typing import Optional
 from config.db import supabase
 from Schemas.Products import Product
 from utils.cache import cache
-from utils.auth_dependency import get_current_admin
+from utils.auth_dependency import get_current_admin, get_current_user
 import os
 import shutil
 from pathlib import Path
