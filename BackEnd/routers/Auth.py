@@ -15,8 +15,12 @@ from urllib.parse import quote
 router = APIRouter()
 
 # Get environment variables
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://clothing-store-kd.vercel.app/')
-GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:8000/auth/google/callback')
+
+print(f"🔧 OAuth Config Loaded:")
+print(f"   FRONTEND_URL: {FRONTEND_URL}")
+print(f"   GOOGLE_REDIRECT_URI: {GOOGLE_REDIRECT_URI}")
 
 
 @router.get("/google/login")
