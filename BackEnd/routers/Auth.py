@@ -6,8 +6,8 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from config.db import supabase
 from config.google_oauth_config import get_google_oauth
+from utils.jwt_utils import create_access_token
 import os
-import secrets
 from datetime import datetime, timezone
 import json
 from urllib.parse import quote
@@ -45,6 +45,23 @@ async def google_callback(request: Request):
     Redirects to frontend with JWT token
     """
     try:
+        # Check if user denied access
+        error = request.query_params.get('error')
+        if error:
+            error_description = request.query_params.get('error_description', 'Access denied')
+            print(f"OAuth error: {error} - {error_description}")
+            
+            # Map error types to user-friendly messages
+            error_messages = {
+                'access_denied': 'You cancelled the sign-in process. Please try again if you want to sign in.',
+                'consent_required': 'Consent is required to sign in with Google.',
+                'interaction_required': 'Additional interaction is required to complete sign-in.',
+            }
+            
+            user_message = error_messages.get(error, 'Google sign-in was cancelled or failed.')
+            error_redirect = f"{FRONTEND_URL}/login?error=oauth_cancelled&message={quote(user_message)}"
+            return RedirectResponse(url=error_redirect)
+        
         google = get_google_oauth()
         
         # Exchange authorization code for access token
@@ -102,8 +119,16 @@ async def google_callback(request: Request):
             user_data = result.data[0] if result.data else {}
             print(f"Created new OAuth user: {user_data.get('id')}")
         
-        # Generate token (using secrets for simplicity)
-        token = secrets.token_urlsafe(32)
+        # Generate JWT token with user claims
+        token = create_access_token(
+            data={
+                "sub": user_data.get("email"),
+                "user_id": user_data.get("id"),
+                "role": user_data.get("role"),
+                "name": user_data.get("name"),
+                "oauth_provider": "google"
+            }
+        )
         
         # Prepare user response
         user_response = {

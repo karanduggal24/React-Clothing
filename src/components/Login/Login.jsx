@@ -11,6 +11,23 @@ import GoogleButton from '../ui/GoogleButton'
 function Login() {
   useEffect(() => {
     document.title = 'Clothing Store - Login'
+    
+    // Check for OAuth errors in URL
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const message = params.get('message');
+    
+    if (error && message) {
+      const decodedMessage = decodeURIComponent(message);
+      if (error === 'oauth_cancelled') {
+        toast.warning(decodedMessage, { autoClose: 5000 });
+      } else {
+        toast.error(decodedMessage, { autoClose: 5000 });
+      }
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/login');
+    }
   }, [])
 
   const [email, setEmail] = useState('')

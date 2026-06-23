@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from config.db import supabase
 from Schemas.Users import UserCreate, UserLogin, UserResponse
 from passlib.context import CryptContext
-import secrets
 from datetime import datetime, timezone
+from utils.jwt_utils import create_access_token
+from utils.auth_dependency import get_current_user, get_current_admin
 
 router = APIRouter()
 
@@ -65,13 +66,28 @@ async def login(data: UserLogin):
 
         user = result.data
 
+        # Check if OAuth user (no password)
+        if user.get("password") is None:
+            raise HTTPException(
+                status_code=401, 
+                detail="This account uses Google Sign-In. Please use 'Sign in with Google' button."
+            )
+
         if not verify_password(data.password, user["password"]):
             raise HTTPException(status_code=401, detail="Invalid email or password")
 
         if not user.get("is_active", True):
             raise HTTPException(status_code=403, detail="Account is deactivated")
 
-        token = secrets.token_urlsafe(32)
+        # Create JWT token with user claims
+        token = create_access_token(
+            data={
+                "sub": user["email"],  # Subject (user identifier)
+                "user_id": user["id"],
+                "role": user["role"],
+                "name": user["name"]
+            }
+        )
 
         return {
             "message": "Login successful",
@@ -91,18 +107,26 @@ async def login(data: UserLogin):
 
 
 @router.get("/users")
-async def get_all_users():
+async def get_all_users(current_user: dict = Depends(get_current_admin)):
+    """
+    Get all users (Admin only)
+    Requires valid JWT token with admin role
+    """
     try:
-        result = supabase.table("users").select("id, email, name, phone, role, is_active, created_at").execute()
+        result = supabase.table("users").select("id, email, name, phone, role, is_active, created_at, google_id, profile_picture, oauth_provider").execute()
         return result.data or []
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching users: {str(e)}")
 
 
 @router.get("/users/{user_id}")
-async def get_user(user_id: int):
+async def get_user(user_id: int, current_user: dict = Depends(get_current_user)):
+    """
+    Get user by ID
+    Requires valid JWT token
+    """
     try:
-        result = supabase.table("users").select("id, email, name, phone, role, is_active, created_at").eq("id", user_id).single().execute()
+        result = supabase.table("users").select("id, email, name, phone, role, is_active, created_at, google_id, profile_picture, oauth_provider").eq("id", user_id).single().execute()
         if not result.data:
             raise HTTPException(status_code=404, detail=f"User {user_id} not found")
         return result.data
@@ -113,7 +137,11 @@ async def get_user(user_id: int):
 
 
 @router.patch("/users/{user_id}/role")
-async def update_user_role(user_id: int, role: str):
+async def update_user_role(user_id: int, role: str, current_user: dict = Depends(get_current_admin)):
+    """
+    Update user role (Admin only)
+    Requires valid JWT token with admin role
+    """
     try:
         if role not in ["admin", "user"]:
             raise HTTPException(status_code=400, detail="Role must be 'admin' or 'user'")
@@ -131,7 +159,11 @@ async def update_user_role(user_id: int, role: str):
 
 
 @router.delete("/users/{user_id}")
-async def delete_user(user_id: int):
+async def delete_user(user_id: int, current_user: dict = Depends(get_current_admin)):
+    """
+    Delete user (Admin only)
+    Requires valid JWT token with admin role
+    """
     try:
         existing = supabase.table("users").select("id, email, name").eq("id", user_id).single().execute()
         if not existing.data:

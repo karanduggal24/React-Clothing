@@ -28,32 +28,32 @@ const request = async (url, options = {}) => {
 // ─── Auth ────────────────────────────────────────────────────────────────────
 export const authApi = {
   login: (email, password) =>
-    request(`${API_ENDPOINTS.auth}/login`, {
+    request(`${BASE_URL}/login`, {
       method: 'POST',
       headers: defaultHeaders(),
       body: JSON.stringify({ email, password }),
     }),
 
   signup: (name, email, password, phone) =>
-    request(`${API_ENDPOINTS.auth}/signup`, {
+    request(`${BASE_URL}/signup`, {
       method: 'POST',
       headers: defaultHeaders(),
       body: JSON.stringify({ name, email, password, phone }),
     }),
 
   getUsers: (token) =>
-    request(`${API_ENDPOINTS.auth}/users`, {
+    request(`${BASE_URL}/users`, {
       headers: defaultHeaders(token),
     }),
 
   updateRole: (userId, role, token) =>
-    request(`${API_ENDPOINTS.auth}/users/${userId}/role?role=${role}`, {
+    request(`${BASE_URL}/users/${userId}/role?role=${role}`, {
       method: 'PATCH',
       headers: defaultHeaders(token),
     }),
 
   deleteUser: (userId, token) =>
-    request(`${API_ENDPOINTS.auth}/users/${userId}`, {
+    request(`${BASE_URL}/users/${userId}`, {
       method: 'DELETE',
       headers: defaultHeaders(token),
     }),

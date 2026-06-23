@@ -1,30 +1,46 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import Optional
 from config.db import supabase
 from Schemas.Cart import CartItem, CartItemUpdate
 from datetime import datetime, timezone
+from utils.auth_dependency import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/")
-def get_cart_items(user_id: Optional[str] = Query(None)):
+def get_cart_items(
+    user_id: Optional[str] = Query(None),
+    current_user: dict = Depends(get_current_user)
+):
     try:
-        query = supabase.table("cart").select("*")
-        if user_id:
-            query = query.eq("user_id", user_id)
+        # Users can only access their own cart
+        if user_id and str(user_id) != str(current_user.get("user_id")):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # If no user_id provided, use current user's id
+        target_user_id = user_id or current_user.get("user_id")
+        
+        query = supabase.table("cart").select("*").eq("user_id", target_user_id)
         result = query.execute()
         return result.data or []
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching cart: {str(e)}")
 
 
 @router.get("/{cart_item_id}")
-def get_cart_item(cart_item_id: int):
+def get_cart_item(cart_item_id: int, current_user: dict = Depends(get_current_user)):
     try:
         result = supabase.table("cart").select("*").eq("id", cart_item_id).single().execute()
         if not result.data:
             raise HTTPException(status_code=404, detail=f"Cart item {cart_item_id} not found")
+        
+        # Verify the cart item belongs to the current user
+        if str(result.data["user_id"]) != str(current_user.get("user_id")):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
         return result.data
     except HTTPException:
         raise
@@ -33,8 +49,12 @@ def get_cart_item(cart_item_id: int):
 
 
 @router.post("/")
-async def add_to_cart(data: CartItem):
+async def add_to_cart(data: CartItem, current_user: dict = Depends(get_current_user)):
     try:
+        # Verify user is adding to their own cart
+        if str(data.user_id) != str(current_user.get("user_id")):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
         # Check if item already exists for this user
         existing = supabase.table("cart").select("*") \
             .eq("user_id", data.user_id) \
@@ -77,16 +97,22 @@ async def add_to_cart(data: CartItem):
                 "quantity": data.quantity,
                 "action": "added"
             }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error adding to cart: {str(e)}")
 
 
 @router.put("/{cart_item_id}")
-async def update_cart_item(cart_item_id: int, data: CartItemUpdate):
+async def update_cart_item(cart_item_id: int, data: CartItemUpdate, current_user: dict = Depends(get_current_user)):
     try:
-        existing = supabase.table("cart").select("id").eq("id", cart_item_id).execute()
+        existing = supabase.table("cart").select("*").eq("id", cart_item_id).execute()
         if not existing.data:
             raise HTTPException(status_code=404, detail=f"Cart item {cart_item_id} not found")
+        
+        # Verify the cart item belongs to the current user
+        if str(existing.data[0]["user_id"]) != str(current_user.get("user_id")):
+            raise HTTPException(status_code=403, detail="Access denied")
 
         now = datetime.now(timezone.utc).isoformat()
         supabase.table("cart").update({
@@ -102,11 +128,15 @@ async def update_cart_item(cart_item_id: int, data: CartItemUpdate):
 
 
 @router.delete("/{cart_item_id}")
-async def delete_cart_item(cart_item_id: int):
+async def delete_cart_item(cart_item_id: int, current_user: dict = Depends(get_current_user)):
     try:
-        existing = supabase.table("cart").select("id").eq("id", cart_item_id).execute()
+        existing = supabase.table("cart").select("*").eq("id", cart_item_id).execute()
         if not existing.data:
             raise HTTPException(status_code=404, detail=f"Cart item {cart_item_id} not found")
+        
+        # Verify the cart item belongs to the current user
+        if str(existing.data[0]["user_id"]) != str(current_user.get("user_id")):
+            raise HTTPException(status_code=403, detail="Access denied")
 
         supabase.table("cart").delete().eq("id", cart_item_id).execute()
         return {"message": "Cart item deleted", "cart_item_id": cart_item_id}
@@ -117,17 +147,27 @@ async def delete_cart_item(cart_item_id: int):
 
 
 @router.delete("/user/{user_id}")
-async def clear_user_cart(user_id: str):
+async def clear_user_cart(user_id: str, current_user: dict = Depends(get_current_user)):
     try:
+        # Verify user is clearing their own cart
+        if str(user_id) != str(current_user.get("user_id")):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
         result = supabase.table("cart").delete().eq("user_id", user_id).execute()
         return {"message": f"Cart cleared for user {user_id}", "items_deleted": len(result.data or [])}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error clearing cart: {str(e)}")
 
 
 @router.get("/user/{user_id}/summary")
-def get_cart_summary(user_id: str):
+def get_cart_summary(user_id: str, current_user: dict = Depends(get_current_user)):
     try:
+        # Verify user is accessing their own cart
+        if str(user_id) != str(current_user.get("user_id")):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
         result = supabase.table("cart").select("*").eq("user_id", user_id).execute()
         items = result.data or []
 
@@ -141,5 +181,7 @@ def get_cart_summary(user_id: str):
             "items_count": len(items),
             "items": items
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching cart summary: {str(e)}")

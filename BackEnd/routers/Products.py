@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends
 from fastapi.responses import FileResponse
 from typing import Optional
 from config.db import supabase
 from Schemas.Products import Product
 from utils.cache import cache
+from utils.auth_dependency import get_current_admin
 import os
 import shutil
 from pathlib import Path
@@ -75,8 +76,9 @@ def get_product_by_id(product_id: int):
 
 
 @router.post("/")
-async def create_product(data: Product):
+async def create_product(data: Product, current_user: dict = Depends(get_current_admin)):
     try:
+        # Only admins can create products
         result = supabase.table("products").insert({
             "name": data.name,
             "Category": data.Category,
@@ -98,8 +100,9 @@ async def create_product(data: Product):
 
 
 @router.put("/{product_id}")
-async def update_product(product_id: int, data: Product):
+async def update_product(product_id: int, data: Product, current_user: dict = Depends(get_current_admin)):
     try:
+        # Only admins can update products
         existing = supabase.table("products").select("id").eq("id", product_id).execute()
         if not existing.data:
             raise HTTPException(status_code=404, detail=f"Product {product_id} not found")
@@ -122,8 +125,9 @@ async def update_product(product_id: int, data: Product):
 
 
 @router.delete("/{product_id}")
-async def delete_product(product_id: int):
+async def delete_product(product_id: int, current_user: dict = Depends(get_current_admin)):
     try:
+        # Only admins can delete products
         existing = supabase.table("products").select("id").eq("id", product_id).execute()
         if not existing.data:
             raise HTTPException(status_code=404, detail=f"Product {product_id} not found")
@@ -138,8 +142,9 @@ async def delete_product(product_id: int):
 
 
 @router.patch("/{product_id}/reduce-stock")
-async def reduce_product_stock(product_id: int, quantity: int = Query(...)):
+async def reduce_product_stock(product_id: int, quantity: int = Query(...), current_user: dict = Depends(get_current_admin)):
     try:
+        # Only admins can reduce stock
         result = supabase.table("products").select("id, Quantity").eq("id", product_id).single().execute()
         if not result.data:
             raise HTTPException(status_code=404, detail=f"Product {product_id} not found")
@@ -166,8 +171,9 @@ async def reduce_product_stock(product_id: int, quantity: int = Query(...)):
 
 
 @router.post("/upload-image")
-async def upload_product_image(file: UploadFile = File(...)):
+async def upload_product_image(file: UploadFile = File(...), current_user: dict = Depends(get_current_admin)):
     try:
+        # Only admins can upload product images
         allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
         file_extension = Path(file.filename).suffix.lower()
 
