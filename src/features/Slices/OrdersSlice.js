@@ -1,24 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { API_ENDPOINTS } from '../../config/api'
+import { ordersApi } from '../../config/api'
 
-const API_URL = API_ENDPOINTS.orders
-
-// Async thunk to fetch orders from backend
+// Async thunk to fetch orders from backend (admin endpoint - all orders)
 export const fetchOrdersFromBackend = createAsyncThunk(
   'orders/fetchOrdersFromBackend',
   async (_, { rejectWithValue }) => {
     try {
-      // Add cache busting parameter to ensure fresh data
-      const timestamp = new Date().getTime();
-      const response = await fetch(`${API_URL}?_t=${timestamp}`);
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      const data = await response.json();
+      // Use admin endpoint to fetch ALL orders
+      const data = await ordersApi.getAllAdmin({ _t: new Date().getTime() });
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
-);
+););
 
 // Async thunk to update order
 export const updateOrderInBackend = createAsyncThunk(
