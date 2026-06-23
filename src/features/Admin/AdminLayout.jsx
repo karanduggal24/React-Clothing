@@ -103,9 +103,17 @@ function AdminLayout() {
         >
           {/* gap-3 converted to gap: 12px */}
           <div className="flex items-center" style={{ gap: '12px' }}>
-            <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-semibold">
-              {user?.name?.charAt(0).toUpperCase() || 'A'}
-            </div>
+            {user?.profile_picture ? (
+              <img 
+                src={user.profile_picture} 
+                alt={user.name}
+                className="w-10 h-10 rounded-full object-cover border-2 border-black"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-semibold">
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
                 {user?.name || 'Admin'}

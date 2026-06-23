@@ -142,9 +142,9 @@ async def delete_product(product_id: int, current_user: dict = Depends(get_curre
 
 
 @router.patch("/{product_id}/reduce-stock")
-async def reduce_product_stock(product_id: int, quantity: int = Query(...), current_user: dict = Depends(get_current_admin)):
+async def reduce_product_stock(product_id: int, quantity: int = Query(...), current_user: dict = Depends(get_current_user)):
     try:
-        # Only admins can reduce stock
+        # Authenticated users can reduce stock during order placement
         result = supabase.table("products").select("id, Quantity").eq("id", product_id).single().execute()
         if not result.data:
             raise HTTPException(status_code=404, detail=f"Product {product_id} not found")
