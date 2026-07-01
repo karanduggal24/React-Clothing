@@ -51,11 +51,22 @@ export const addProductToBackend = createAsyncThunk(
     'products/addProductToBackend',
     async (productData, { rejectWithValue }) => {
         try {
+            // Get token from localStorage
+            const authState = JSON.parse(localStorage.getItem('authState') || '{}');
+            const token = authState.token;
+            
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            
+            // Add Authorization header if token exists
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
             const response = await fetch(`${API_URL}/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     name: productData.name,
                     Category: productData.category,
@@ -92,11 +103,23 @@ export const updateProductInBackend = createAsyncThunk(
     async (productData, { rejectWithValue }) => {
         try {
             console.log('Updating product with ID:', productData.id, 'Type:', typeof productData.id);
+            
+            // Get token from localStorage
+            const authState = JSON.parse(localStorage.getItem('authState') || '{}');
+            const token = authState.token;
+            
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            
+            // Add Authorization header if token exists
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
             const response = await fetch(`${API_URL}/${productData.id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     name: productData.name,
                     Category: productData.category,
@@ -136,8 +159,20 @@ export const deleteProductFromBackend = createAsyncThunk(
     'products/deleteProductFromBackend',
     async (productId, { rejectWithValue }) => {
         try {
+            // Get token from localStorage
+            const authState = JSON.parse(localStorage.getItem('authState') || '{}');
+            const token = authState.token;
+            
+            const headers = {};
+            
+            // Add Authorization header if token exists
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
             const response = await fetch(`${API_URL}/${productId}`, {
                 method: 'DELETE',
+                headers: headers,
             });
             
             if (!response.ok) {

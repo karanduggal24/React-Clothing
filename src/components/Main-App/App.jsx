@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     dispatch(fetchAllProducts());
     dispatch(fetchCartFromBackend());
-  }, []);
+  }, [dispatch]);
   
   useCartStockSync();
 
